@@ -2,158 +2,158 @@
 ## $Id$
 ## Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
-DIST_SUBDIRS = src
+DIST_SUBDIRS = multi-gee
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 
-#noinst_PROGRAMS = src/capture
+#noinst_PROGRAMS = multi-gee/capture
 
-lib_LTLIBRARIES = src/multi-gee.la
+lib_LTLIBRARIES = multi-gee/multi-gee.la
 
 TESTS = \
-    src/mg_buffer \
-    src/mg_device \
-    src/mg_frame \
-    src/sllist \
-    src/test_sllist \
-    src/tv_util
+    multi-gee/mg_buffer \
+    multi-gee/mg_device \
+    multi-gee/mg_frame \
+    multi-gee/sllist \
+    multi-gee/test_sllist \
+    multi-gee/tv_util
 
 bin_PROGRAMS = \
-    src/check-rate
+    multi-gee/check-rate
 
 noinst_PROGRAMS = \
     $(TESTS) \
-    src/capture \
-    src/dvideo \
-    src/sync-stream \
-    src/multi-gee
+    multi-gee/capture \
+    multi-gee/dvideo \
+    multi-gee/sync-stream \
+    multi-gee/multi-gee
 
 include_HEADERS = \
-    src/classdef.h \
-    src/debug_xassert.h \
-    src/fg_util.h \
-    src/log.h \
-    src/mg_buffer.h \
-    src/mg_device.h \
-    src/mg_frame.h \
-    src/multi-gee.h \
-    src/sllist.h \
-    src/tv_util.h \
-    src/xmalloc.h
+    multi-gee.h \
+    multi-gee/classdef.h \
+    multi-gee/debug_xassert.h \
+    multi-gee/fg_util.h \
+    multi-gee/log.h \
+    multi-gee/mg_buffer.h \
+    multi-gee/mg_device.h \
+    multi-gee/mg_frame.h \
+    multi-gee/sllist.h \
+    multi-gee/tv_util.h \
+    multi-gee/xmalloc.h
 
 noinst_HEADERS = \
-    src/linux/videodev2.h
+    multi-gee/linux/videodev2.h
 
-src_multi_gee_la_LDFLAGS = -module
-src_multi_gee_la_SOURCES = \
-    src/debug_xassert.c \
-    src/fg_util.c \
-    src/log.c \
-    src/mg_buffer.c \
-    src/mg_device.c \
-    src/mg_frame.c \
-    src/multi-gee.c \
-    src/sllist.c \
-    src/tv_util.c \
-    src/xmalloc.c
+multi_gee_multi_gee_la_LDFLAGS = -module
+multi_gee_multi_gee_la_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/fg_util.c \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/multi-gee.c \
+    multi-gee/sllist.c \
+    multi-gee/tv_util.c \
+    multi-gee/xmalloc.c
 
-src_multi_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
+multi_gee_multi_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 
-src_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
-src_mg_buffer_SOURCES = \
-    src/debug_xassert.c \
-    src/mg_buffer.c \
-    src/xmalloc.c
+multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
+multi_gee_mg_buffer_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/xmalloc.c
 
-src_mg_device_CPPFLAGS = -DDEBUG_DEVICE
-src_mg_device_SOURCES = \
-    src/debug_xassert.c \
-    src/mg_buffer.c \
-    src/mg_device.c \
-    src/xmalloc.c
+multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
+multi_gee_mg_device_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/xmalloc.c
 
-src_mg_frame_CPPFLAGS = -DDEBUG_FRAME
-src_mg_frame_SOURCES = \
-    src/debug_xassert.c \
-    src/mg_buffer.c \
-    src/mg_device.c \
-    src/mg_frame.c \
-    src/xmalloc.c
+multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
+multi_gee_mg_frame_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/xmalloc.c
 
-src_sllist_CPPFLAGS = -DDEBUG_SLLIST
-src_sllist_SOURCES = \
-    src/debug_xassert.c \
-    src/sllist.c \
-    src/xmalloc.c
+multi_gee_sllist_CPPFLAGS = -DDEBUG_SLLIST
+multi_gee_sllist_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/sllist.c \
+    multi-gee/xmalloc.c
 
-src_test_sllist_SOURCES = \
-    src/debug_xassert.c \
-    src/sllist.c \
-    src/test_sllist.c \
-    src/xmalloc.c
+multi_gee_test_sllist_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/sllist.c \
+    multi-gee/test_sllist.c \
+    multi-gee/xmalloc.c
 
-src_tv_util_CPPFLAGS = -DDEBUG_TV_UTIL
-src_tv_util_SOURCES = \
-    src/debug_xassert.c \
-    src/tv_util.c \
-    src/xmalloc.c
+multi_gee_tv_util_CPPFLAGS = -DDEBUG_TV_UTIL
+multi_gee_tv_util_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/tv_util.c \
+    multi-gee/xmalloc.c
 
-src_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
-src_multi_gee_SOURCES = \
-    src/debug_xassert.c \
-    src/fg_util.c \
-    src/log.c \
-    src/mg_buffer.c \
-    src/mg_device.c \
-    src/mg_frame.c \
-    src/multi-gee.c \
-    src/sllist.c \
-    src/tv_util.c \
-    src/xmalloc.c
+multi_gee_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
+multi_gee_multi_gee_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/fg_util.c \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/multi-gee.c \
+    multi-gee/sllist.c \
+    multi-gee/tv_util.c \
+    multi-gee/xmalloc.c
 
-src_sync_stream_SOURCES = \
-    src/debug_xassert.c \
-    src/mg_buffer.c \
-    src/mg_device.c \
-    src/mg_frame.c \
-    src/sllist.c \
-    src/sync-stream.c \
-    src/xmalloc.c
+multi_gee_sync_stream_SOURCES = \
+    multi-gee/debug_xassert.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/sllist.c \
+    multi-gee/sync-stream.c \
+    multi-gee/xmalloc.c
 
-src_check_rate_LDADD = \
+multi_gee_check_rate_LDADD = \
     -lcurses
 
-src_check_rate_SOURCES = \
-    src/check-rate.c \
-    src/multi-gee.la
+multi_gee_check_rate_SOURCES = \
+    multi-gee/check-rate.c \
+    multi-gee/multi-gee.la
 
-#src_mg_test_LDADD = -Lsrc -lmulti-gee
-# src_test_mg_SOURCES = \
-#     src/debug_xassert.c \
-#     src/mg_buffer.c \
-#     src/mg_device.c \
-#     src/mg_frame.c \
-#     src/multi-gee.c \
-#     src/sllist.c \
-#     src/test_mg.c \
-#     src/xmalloc.c
+#multi_gee_mg_test_LDADD = -Lmulti-gee -lmulti-gee
+# multi_gee_test_mg_SOURCES = \
+#     multi-gee/debug_xassert.c \
+#     multi-gee/mg_buffer.c \
+#     multi-gee/mg_device.c \
+#     multi-gee/mg_frame.c \
+#     multi-gee/multi-gee.c \
+#     multi-gee/sllist.c \
+#     multi-gee/test_mg.c \
+#     multi-gee/xmalloc.c
 
-# src_test_multi_gee_SOURCES = \
-#     src/test_multi-gee.c \
-#     src/fg_util.c \
-#     src/mg_buffer.c \
-#     src/mg_device.c \
-#     src/mg_frame.c \
-#     src/multi-gee.c \
-#     src/sllist.c \
-#     src/tv_util.c \
-#     src/xmalloc.c
+# multi_gee_test_multi_gee_SOURCES = \
+#     multi-gee/test_multi-gee.c \
+#     multi-gee/fg_util.c \
+#     multi-gee/mg_buffer.c \
+#     multi-gee/mg_device.c \
+#     multi-gee/mg_frame.c \
+#     multi-gee/multi-gee.c \
+#     multi-gee/sllist.c \
+#     multi-gee/tv_util.c \
+#     multi-gee/xmalloc.c
 
 # INCLUDES = -I $(top_srcdir)/include
 
 # noinst_HEADERS = include/bar.h
 
-#src_dvideo_SOURCES = src/dvideo.c
+#multi_gee_dvideo_SOURCES = multi-gee/dvideo.c
 
 AUX_DIR = @ac_aux_dir@
 
