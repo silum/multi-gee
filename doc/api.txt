@@ -238,7 +238,7 @@ parameters are:
 
 
 Change Log
-----------
+==========
 
 * Mon Mar 14 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
 - Add example section for callback function
