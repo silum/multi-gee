@@ -6,15 +6,51 @@ DIST_SUBDIRS = src
 
 AM_CFLAGS = -I$(top_srcdir)/src -std=gnu99
 
-noinst_PROGRAMS = src/test_mg src/test_sllist src/sllist
+noinst_PROGRAMS = \
+    src/mg_device \
+    src/mg_frame \
+    src/multi_gee \
+    src/sllist \
+    src/test_mg \
+    src/test_sllist
+
+TESTS = $(noinst_PROGRAMS)
 
 #src/dvideo
 #noinst_PROGRAMS = src/capture
 
 #lib_LTLIBRARIES = src/libmulti-gee.la
 
+src_mg_device_CFLAGS = -DDEBUG
+src_mg_device_SOURCES = \
+    src/debug_xassert.c \
+    src/mg_device.c \
+    src/xmalloc.c
+
+src_mg_frame_CFLAGS = -DDEBUG
+src_mg_frame_SOURCES = \
+    src/debug_xassert.c \
+    src/mg_frame.c \
+    src/xmalloc.c
+
+src_multi_gee_CFLAGS = -DDEBUG_MG
+src_multi_gee_SOURCES = \
+    src/debug_xassert.c \
+    src/mg_device.c \
+    src/mg_frame.c \
+    src/multi-gee.c \
+    src/sllist.c \
+    src/xmalloc.c
+
+src_sllist_CFLAGS = -DDEBUG
+src_sllist_SOURCES = \
+    src/debug_xassert.c \
+    src/sllist.c \
+    src/xmalloc.c
+
 #src_mg_test_LDADD = -Lsrc -lmulti-gee
 src_test_mg_SOURCES = \
+    src/debug_xassert.c \
     src/mg_device.c \
     src/mg_frame.c \
     src/multi-gee.c \
@@ -22,13 +58,8 @@ src_test_mg_SOURCES = \
     src/test_mg.c \
     src/xmalloc.c
 
-src_sllist_SOURCES = \
-    src/sllist.c \
-    src/xmalloc.c
-
-src_sllist_CFLAGS = -DDEBUG
-
 src_test_sllist_SOURCES = \
+    src/debug_xassert.c \
     src/sllist.c \
     src/test_sllist.c \
     src/xmalloc.c

@@ -1,0 +1,137 @@
+Integrating Processing Loop with Image Capture
+==============================================
+
+Author: Neil Muller
+
+
+1 Introduction
+
+The Processing loop of the SPG system is both long and fairly linear.
+As such, it is not well suited to interruption by the availability of
+new images.  Fortunately, much of the processing does not require the
+images, but only the marker coordinates.
+
+2 The Processing Loop
+
+2.1 Image Processing
+
+Given a set of synchronised images, we need to to determine the marker
+locations.  This involves several steps for each image, including
+
+* Thresholding and filtering to extract probable markers.  2D tracking
+  information is used here to minimise search areas
+
+* Ellipse fitting to establish marker location
+
+* Elimination of damaged areas
+
+* Correction of distortion
+
+At the end of this process, for each image, we have the undistorted
+centroids of each marker on the image.
+
+2.2 Coordinate Processing
+
+Once the markers are known, the processing loop continues as follows:
+
+* Stereo reconstruction
+
+* Identify unknown markers and confirm tracking of known markers
+
+* Predict optimal camera view (only when patient is in motion, and
+  probably not every frame).  Update camera list as required.
+
+* Calculate patient position
+
+* Compare patient position to desired patient position
+
+* Appropriate response:
+
+  - Patient moving, check that patient is within parameters for
+    predicted path
+
+  - Patient in position, continue treatment (flag to supervisory system,
+    etc).
+
+  - Patient out of position, stop treatment, update statistics on
+    patient]
+
+2.3 The Other stuff
+
+The SPG system has to monitor several other processes.  These include
+
+* The user - the user can interrupt the process at any time
+
+* The robot safety system - can trip at any stage the patient is in
+  motion
+
+* The supervisory system - will trip to end treatment
+
+* The SABUS racks.  Any watchdog failure will trip the system
+
+These need to be watched, and various appropriate actions need to be
+taken (i.e. pat the watchdogs on the SABUS rack).
+
+3 Threaded Approaches
+
+3.1 Minimal Callback function
+
+This approach limits the callback function to copying data.  Structure
+is multi-threaded.  Thread 1 sets up the callback function and starts
+capturing. The second thread blocks on some suitable communication
+primitive and waits to be flagged by the callback function. The callback
+function copies the frame data to a common location and signals the
+second thread, which then does all the processing.
+
+Care must be taken on the synchronisation issues. We need to ensure that
+the second thread never accesses the image data while the callback
+function is copying them. Copying is also expensive.
+
+3.2 Integrating Callback function and image processing steps
+
+This approach moves some of the processing loop into the callback
+function. Good positions to split are hard to decide upon, but at the
+very least, the marker detection code would be moved across. My current
+preferred split is after the predict updated camera view, as we may need
+to redistribute the camera allocation after this step. Thereafter, the
+rest of the processing loop occurs outside the callback function.  This
+has the advantage that only the marker positions (either 2D or 3D,
+depending on where the split occurs) are copied. By using a simple ring
+buffer approach, the dangers of multiple accesses can be largely avoided
+and the mutual exclusion area an be restricted to probably a single ring
+buffer position counter.
+
+3.3 Everything in the callback function
+
+This has the advantage that the structure is single threaded. The
+problem is that a lot of state information needs to be fed into the
+callback function via various external mechanisms. We may still need a
+thread checking the user for various events, and the communication with
+the SABUS rack also needs to be watched.
+
+4 Conclusions
+
+I'd favour the second option. Everything in the callback function
+strikes me as far to much potential complexity, especially when the GUI
+gets featured.  Splitting after the update camera position stage is good
+in that all knowledge about the cameras used is held in the callback
+function. Thereafter, everything can work purely on the detected 3D
+marker positions.  Data fed into the routine is then also limited to the
+original marker grid and the calibration results, both of which are
+read-only. Correction terms from the stereo x-ray rig are only relevant
+outside the callback function.
+
+The multi-threaded approach looks OK, but synchronisation needs careful
+thought. Do we place the GUI stuff as a third thread or integrate it
+with the second thread. Which is the controlling thread for critical
+failures (robot system, SABUS, user interrupt). How much does the
+overhead of thread switching hurt us? Can we be sure that the major
+threads, image capture and processing loop, will local to a CPU? How
+good is the CPU affinity stuff in the kernel currently?
+
+The asynchronous interrupts that can occur suggests that a monolithic
+approach will be hard to design.  Admittedly, the processing loop will
+have to be made really tight to ensure that the 25 fps rate is
+maintained, but various other processes might need to be able to
+interrupt faster than this.
+

@@ -574,7 +574,7 @@ open_device(void)
 }
 
 static void
-usage(FILE * fp, int argc, char **argv)
+usage(FILE *fp, int argc, char **argv)
 {
 	fprintf(fp,
 		"Usage: %s [options]\n\n"
@@ -589,8 +589,7 @@ usage(FILE * fp, int argc, char **argv)
 
 static const char short_options[] = "d:hmru";
 
-static const struct option
- long_options[] = {
+static const struct option long_options[] = {
 	{"device", required_argument, NULL, 'd'},
 	{"help", no_argument, NULL, 'h'},
 	{"mmap", no_argument, NULL, 'm'},
@@ -662,3 +661,4 @@ main(int argc, char **argv)
 
 	return 0;
 }
+

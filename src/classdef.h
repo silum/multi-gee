@@ -107,7 +107,7 @@ typedef struct classdesc_tag {
       (((void *)obj) == *(void **)((char *)obj-_S8)) \
       && ((&_CD(obj)) == *(classdesc **)((char *)obj-_S4)) )
 
-/* NEWOBJ() and FREE() interface macros */
+/* NEWOBJ() and FREEOBJ() interface macros */
 /*
  * allocate memory for an object
  *
@@ -121,9 +121,9 @@ typedef struct classdesc_tag {
  * free memory allocated memory for an object
  *
  * eg:
- *   FREE(obj);
+ *   FREEOBJ(obj);
  */
-#define FREE(obj) (obj = xfree(obj))
+#define FREEOBJ(obj) (obj = xfree(obj))
 
 /* String interface macros */
 /*

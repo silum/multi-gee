@@ -22,12 +22,12 @@ NEWHANDLE(sllist_t); /* singly linked list object handle */
 /* insert data into list, after current position */
 sllist_t
 sll_insert_data(sllist_t,
-		void * data);
+		void *data);
 
 /* remove the first occurence of data in list */
 sllist_t
 sll_remove_data(sllist_t,
-		void * data);
+		void *data);
 
 /* retrieve data from list item */
 void *
@@ -36,6 +36,10 @@ sll_data(sllist_t);
 /* find next list item */
 sllist_t
 sll_next(sllist_t);
+
+/* empty out list */
+sllist_t
+sll_empty(sllist_t);
 
 __END_DECLS
 

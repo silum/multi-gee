@@ -1,0 +1,24 @@
+Layout of documents
+===================
+
+
+Generally there are three types of system specification documents:
+
+- requirements definition
+- requirements specification
+- software specification
+
+The requirements definition states what services the software is
+expected to provide and the constraints under which it must operate,
+whereas the requirements specification sets out the system services in
+detail.  The software specification details the overall design of the
+sotware.
+
+For this project, the multi-gee software library, the requirements
+definition is as follows:
+
+    Provide a image capture library with low latency that provides
+    synchronised images to the consumer.
+
+Refer to the api.txt file for the requirements specification, and to
+design.txt for the software specification.

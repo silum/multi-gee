@@ -9,6 +9,7 @@
 
 #include "sllist.h"
 #include "xmalloc.h"
+#include "debug_xassert.h"
 
 USE_XASSERT;
 
@@ -20,14 +21,14 @@ USE_XASSERT;
 
 CLASS(sllist, sllist_t)
 {
-	void * data;
+	void *data;
 	sllist_t next;
 };
 
 /* create object */
 static
 sllist_t /* new handle */
-sll_create(void * data);
+sll_create(void *data);
 
 /* destroy object */
 static
@@ -48,7 +49,7 @@ sll_remove(sllist_t,
 
 static
 sllist_t
-sll_create(void * data)
+sll_create(void *data)
 {
 	sllist_t sllist;
 	NEWOBJ(sllist);
@@ -64,7 +65,7 @@ sllist_t
 sll_destroy(sllist_t sllist)
 {
 	VERIFYZ(sllist) {
-		FREE(sllist);
+		FREEOBJ(sllist);
 	}
 
 	return 0;
@@ -139,7 +140,7 @@ sll_remove(sllist_t list,
 
 sllist_t
 sll_insert_data(sllist_t sllist,
-		void * data)
+		void *data)
 {
 	sllist_t list = 0;
 
@@ -155,7 +156,7 @@ sll_insert_data(sllist_t sllist,
 
 sllist_t
 sll_remove_data(sllist_t sllist,
-		void * data)
+		void *data)
 {
 	sllist_t list = 0;
 	VERIFY(sllist) {
@@ -196,39 +197,34 @@ sll_next(sllist_t sllist)
 }
 
 
+sllist_t
+sll_empty(sllist_t sllist)
+{
+	VERIFYZ(sllist) {
+		while (sllist) {
+			sllist = sll_remove(sllist, sllist);
+		}
+	}
+
+	return 0;
+}
+
 #ifdef DEBUG
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "xmalloc.h"
-
-#include "sllist.h"
-
-int  WAIT = 1;
-bool ERR  = false;
-
+#include "debug_xassert.h"
 
 /*
- * user defined assertion failure report
+ * test singly linked list
+ *
+ * see sllist_test.txt for meaning of test numbers
  */
-void
-report_xassert(char *filename, int line)
-{
-	printf(" ** xassert: %s-%d ", filename, line);
-	ERR = true;
-	if (WAIT) {
-		printf("(Press Enter) ");
-		while ('\n' != getchar()) {
-			/* empty */
-		}
-	} else {
-		printf("\n");
-	}
-}
 
-int
-main()
+void
+sllist()
 {
 	/* 0.0 */
 	printf("insert NULL into NULL list\n");
@@ -399,13 +395,12 @@ main()
 	sll_destroy(item_2);
 	sll_destroy(item_3);
 	sll_destroy(item_4);
-	xwalkheap();
+}
 
-	if (ERR)
-		return EXIT_FAILURE;
-
-	printf("\nAll tests passed\n");
-	return EXIT_SUCCESS;
+int
+main()
+{
+	return debug_test(sllist);
 }
 
 #endif

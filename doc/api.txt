@@ -119,12 +119,13 @@ established, or could not be recovered within 3 frames after the sync
 had been lost.  The user can differentiate between these two
 alternatives by keeping track of the number of calls to the the callback
 function.  An exit code of -2 indicates that a call to mg_capture() has
-been done while a call to mg_capture() was in progress.  A return value
-of 1 indicates that no devices are registered to capture with.  This
-situation could develop when all the devices are deregistered during the
-course of a grab session, or if no devices have been registered before
-the call to mg_capture() is performed.  An exit status of 2 indicates
-that a call to mg_capture_halt() has been done.
+been done while a call to mg_capture() was in progress, while a -3 exit
+code indicates that a no callback function has been registered.  A
+return value of 1 indicates that no devices are registered to capture
+with.  This situation could develop when all the devices are
+deregistered during the course of a grab session, or if no devices have
+been registered before the call to mg_capture() is performed.  An exit
+status of 2 indicates that a call to mg_capture_halt() has been done.
 
 
 - void mg_capture_halt()
@@ -133,7 +134,7 @@ This function will cause acquisition to halt while the capturing is in
 progress, otherwise will have no effect.
 
 
-- int mg_register_callback(void (callback*)(struct frame* frame_list))
+- int mg_register_callback(void (*callback)(struct frame* frame_list))
 
 The mg_register_callback() function registers a user-defined callback
 function.  This function will be called each time a set of synced frames

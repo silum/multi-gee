@@ -5,30 +5,24 @@
 #include "mg_frame.h"
 #include "xmalloc.h"
 
+#include "debug_xassert.h"
+
 int DEBUG=1;
 
-/*
- * user defined assertion failure report
- */
 void
-report_xassert(char *filename, int line)
+mg()
 {
-	printf("xassert: %s-%d (Press Enter) ", filename, line);
-	if (DEBUG)
-		while ('\n' != getchar()) {
-			/* empty */
-		}
+	multi_gee_t mg;
+	mg = mg_create();
+
+	/* test double destroy */
+	mg = mg_destroy(mg);
+	mg = mg_destroy(mg);
 }
 
 int
 main()
 {
-	multi_gee_t mg;
-	mg = mg_create();
-
-	mg = mg_destroy(mg);
-	mg = mg_destroy(mg);
-
-	xwalkheap();
-	return EXIT_SUCCESS;
+	return debug_test(mg);
 }
+

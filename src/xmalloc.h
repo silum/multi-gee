@@ -26,7 +26,7 @@ void *xnew(size_t, classdesc *, char *, int);
 void *xfree(void *);
 void *xrealloc(void *, size_t, char *, int);
 void *xstrdup(char *, char *, int);
-void xwalkheap(void);
+int  xwalkheap(void);
 bool xtestptr(void *);
 
 void report_xassert(char *, int);

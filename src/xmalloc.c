@@ -37,7 +37,7 @@ typedef struct prefix_tag {
 	struct prefix_tag *prev;	/* previous object in heap   */
 	struct prefix_tag *next;	/* next object in heap       */
 	struct postfix_tag *postfix;	/* ptr to postfix object     */
-	char *file;			/* filename ptr or 0         */
+	char *file;			/* file name ptr or 0        */
 	long line;			/* line number or 0          */
 	void *mem;			/* xnew() ptr of object      */
 	classdesc *class;		/* class descriptor ptr or 0 */
@@ -79,7 +79,7 @@ static void render(prefix *, char *);
  */
 
 void *
-xnew(size_t size, classdesc * class, char *file, int line)
+xnew(size_t size, classdesc *class, char *file, int line)
 {
 	prefix *p;
 	size = DOALIGN(size);
@@ -239,14 +239,18 @@ xrealloc(void *old, size_t size, char *file, int line)
  *    (void)
  */
 
-void
+int
 xwalkheap(void)
 {
+	int alloced = 0;
+
 	if (heap) {
 		prefix *p = heap;
 		while (list_verify(&p[1])) {
 			char buffer[100];
 			render(p, buffer);
+
+			++alloced;
 
 			/* print out buffer */
 			printf("xwalkheap: %s\n", buffer);
@@ -257,6 +261,7 @@ xwalkheap(void)
 		}
 	}
 
+	return alloced;
 }
 
 
@@ -275,8 +280,9 @@ xwalkheap(void)
  *    (void)
  */
 
-static void
-list_insert(prefix * p)
+static
+void
+list_insert(prefix *p)
 {
 	/* Add before current head of list */
 	if (heap) {
@@ -312,8 +318,9 @@ list_insert(prefix * p)
  *    (void)
  */
 
-static void
-list_remove(prefix * p)
+static
+void
+list_remove(prefix *p)
 {
 	/* Remove from doubly linked list */
 	(p->prev)->next = p->next;
@@ -341,7 +348,8 @@ list_remove(prefix * p)
  *    Heap pointer is valid (TRUE) or not (FALSE)
  */
 
-static bool
+static
+bool
 list_verify(void *mem)
 {
 	bool ok = false;
@@ -390,8 +398,8 @@ xtestptr(void *mem)
  *
  *  ARGUMENTS:
  *
- *    lpPrefix - Prefix pointer to heap object
- *    lpBuffer - Where to place text description
+ *    prefix - Prefix pointer to heap object
+ *    buffer - Where to place text description
  *
  *  RETURNS:
  *
@@ -399,8 +407,8 @@ xtestptr(void *mem)
  */
 
 static
-    void
-render(prefix * p, char *buffer)
+void
+render(prefix *p, char *buffer)
 {
 	if (p->mem == &p[1]) {
 		sprintf(buffer, "%8p ", p);
@@ -416,3 +424,4 @@ render(prefix * p, char *buffer)
 		strcpy(buffer, "(bad)");
 	}
 }
+
