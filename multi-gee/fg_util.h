@@ -29,40 +29,40 @@ struct v4l2_buffer;
  *  - set the capture format
  *  - initialise the memory-mapping
  *
- * @param dev  device object handle
+ * @param device  device object handle
  * @param log  to log possible errors to
  *
  * @return true on success, false on failure to init device
  */
 bool
-fg_init_device(mg_device_t,
-	       log_t);
+fg_init_device(mg_device_t device,
+	       log_t log);
 
 /**
  * @brief uninitialise frame capture device
  *
- * @param dev  device to uninit
+ * @param device  device handle to uninit
  * @param log  to log possible errors to
  *
  * @return true on success, false on failure to uninit device
  */
 bool
-fg_uninit_device(mg_device_t,
-		 log_t);
+fg_uninit_device(mg_device_t device,
+		 log_t log);
 
 /**
  * @brief enqueue a capture buffer for filling by the driver
  *
  * @param fd  file descriptor
- * @param i   buffer index
+ * @param index   buffer index
  * @param log  to log possible errors to
  *
  * @return true on success, false on failure to enqueue buffer
  */
 bool
-fg_enqueue(int,
-	   int,
-	   log_t);
+fg_enqueue(int fd,
+	   int index,
+	   log_t log);
 
 /**
  * @brief dequeue a buffer for user processing
@@ -74,33 +74,33 @@ fg_enqueue(int,
  * @return true on success, false on failure to dequeue buffer
  */
 bool
-fg_dequeue(int,
-	   struct v4l2_buffer *,
-	   log_t);
+fg_dequeue(int fd,
+	   struct v4l2_buffer *buffer,
+	   log_t log);
 
 /**
  * @brief start streaming capturing on device
  *
- * @param dev  device to start streaming
+ * @param device  device to start streaming
  * @param log  to log possible errors to
  *
  * @return true on success, false on failure to start capture
  */
 bool
-fg_start_capture(mg_device_t,
-		 log_t);
+fg_start_capture(mg_device_t device,
+		 log_t log);
 
 /**
  * @brief stop streaming capturing on device
  *
- * @param dev  device to stop streaming
+ * @param device  device to stop streaming
  * @param log  to log possible errors to
  *
  * @return true on success, false on failure to stop capture
  */
 bool
-fg_stop_capture(mg_device_t,
-		log_t);
+fg_stop_capture(mg_device_t device,
+		log_t log);
 
 __END_DECLS
 

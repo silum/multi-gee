@@ -38,8 +38,8 @@ extern bool XASSERT_FAILURE;
  * @param file  name of file where error occured
  * @param line  line number where error occured
  */
-void report_xassert(const char *,
-		    int);
+void report_xassert(const char *file,
+		    int line);
 
 /**
  * @brief test framework function

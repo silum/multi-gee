@@ -29,42 +29,45 @@ __BEGIN_DECLS
  *  allocate a new block of memory from the heap
  *
  *  @param size  size of object to allocate
- *  @param cd  class descriptor for object (or 0)
+ *  @param desc  class descriptor for object (or 0)
  *  @param file  filename where object was allocated
  *  @param line  line number where object was allocated
  *
  *  @return a pointer to the memory object or 0
  */
 void *
-xnew(size_t,
-     classdesc *,
-     const char *,
-     int);
+xnew(size_t size,
+     classdesc *desc,
+     const char *file,
+     int line);
 
 /**
  * @brief memory Free
  *
  * free a block of memory that was previously allocated through xnew()
  *
- * @param mem  heap pointer to free or 0
+ * @param p  heap pointer to free or 0
  *
  * @return 0
  */
-void *xfree(void *);
+void *xfree(void *p);
 
 /**
  * @brief memory realloc
  *
  * reallocate a block of memory
  *
- * @param old  heap object to reallocate or 0
+ * @param p  heap object to reallocate or 0
  * @param size  new size of the object
  * @param file  filename where realloc is taking place
  * @param line  line number where realloc is taking place
  *
  * @return a pointer to the reallocated memory or 0
  */
-void *xrealloc(void *, size_t, const char *, int);
+void *xrealloc(void *p,
+	       size_t size,
+	       const char *file,
+	       int line);
 
 /**
  * @brief memory string dup
@@ -77,9 +80,9 @@ void *xrealloc(void *, size_t, const char *, int);
  *
  * @return a pointer to the duplicated string or 0
  */
-void *xstrdup(const char *,
-	      const char *,
-	      int);
+void *xstrdup(const char *s,
+	      const char *file,
+	      int line);
 
 /**
  * @brief walk heap
@@ -95,12 +98,12 @@ xwalkheap(void);
  *
  * does the given memory pointer point anywhere into the heap
  *
- * @param mem  heap pointer to check
+ * @param p  heap pointer to check
  *
  * @return true if pointer points into the heap, or false if not
  */
 bool
-xtestptr(void *);
+xtestptr(void *p);
 
 /**
  * @brief prototype for user defined xassert report function
@@ -109,8 +112,8 @@ xtestptr(void *);
  * @param line  line number where assertion failed
  */
 void
-report_xassert(const char *,
-	       int);
+report_xassert(const char *file,
+	       int line);
 
 __END_DECLS
 

@@ -25,7 +25,7 @@ USE_XASSERT;
  * @return file pointer
  */
 static FILE *
-open_log(const char *);
+open_log(const char *file);
 
 /**
  * @brief prints the current date and time to buffer
@@ -34,8 +34,8 @@ open_log(const char *);
  * @param size  the length of the buffer
  */
 static void
-put_time(char *,
-	 size_t);
+put_time(char *buffer,
+	 size_t size);
 
 /**
  * @brief output the header string to file
@@ -47,8 +47,8 @@ put_time(char *,
  * @param name  the name to print
  */
 static void
-put_header(FILE *,
-	   char *);
+put_header(FILE *file,
+	   char *name);
 
 CLASS(log, log_t) {
 	char *name;

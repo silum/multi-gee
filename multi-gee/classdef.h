@@ -23,7 +23,7 @@ __BEGIN_DECLS
  *
  * will produce a compiler error of assertion does not hold
  *
- * @param expression  to be asserted
+ * @param exp  expression to be asserted
  */
 #define compiler_assert(exp) extern char _compiler_assert[(exp)?1:-1]
 
@@ -79,9 +79,12 @@ typedef struct classdesc_tag {
  * include file that gets included into all source files. NEWHANDLE() is
  * usually not used in source files.
  *
- * @param handle_t  new handle to declare
+ * @param handle  new handle to declare
  *
- * @eg NEWHANDLE(list_t);
+ * for example:
+ * @code
+ * NEWHANDLE(list_t);
+ * @endcode
  */
 #define NEWHANDLE(handle) typedef struct tag_##handle *handle
 
@@ -94,14 +97,17 @@ typedef struct classdesc_tag {
  * the CLASS() macro is used only by source files that implement an
  * object.  the CLASS() macro is never used in include files.
  *
- * @param handle  the object handle, to be used in the VERIFY* type
+ * @param object  the object handle, to be used in the VERIFY* type
  * macros
- * @param handle_t  the object handle type, used to declare an object
+ * @param handle  the object handle type, used to declare an object
  *
- * @eg  CLASS(list, list_t)
+ * for example:
+ * @code
+ * CLASS(list, list_t)
+ * @endcode
  */
-#define CLASS(obj,handle) \
-    static classdesc _CD(obj)={#obj}; \
+#define CLASS(object,handle) \
+    static classdesc _CD(object)={#object}; \
     struct tag_##handle
 
 /* object verification macros */
@@ -111,10 +117,14 @@ typedef struct classdesc_tag {
  * verify that the object (variable name) matches the object type, as
  * declared to the heap manager
  *
- * @eg VERIFY(obj);
- * @eg VERIFY(obj) {
+ * for example:
+ * @code
+ * VERIFY(obj);
+ * // or
+ * VERIFY(obj) {
  *     // only executed if verfication holds
  * }
+ * @endcode
  */
 #define VERIFY(obj) xassert(_VERIFY(obj))
 /**
@@ -123,10 +133,14 @@ typedef struct classdesc_tag {
  * verify that the object (variable name) matches the object type, as
  * declared to the heap manager, or that the object is NULL
  *
- * @eg VERIFY(obj);
- * @eg VERIFY(obj) {
+ * for example:
+ * @code
+ * VERIFYZ(obj);
+ * // or
+ * VERIFYZ(obj) {
  *     // only executed if verfication holds
  * }
+ * @endcode
  */
 #define VERIFYZ(obj) if (!(obj)) {} else VERIFY(obj)
 
@@ -142,18 +156,25 @@ typedef struct classdesc_tag {
 /**
  * @brief allocate memory for an object
  *
- * @param obj object to allocate
+ * @param obj  object to allocate
  *
- * @eg obj_t obj; NEWOBJ(obj);
+ * for example:
+ * @code
+ * obj_t obj;
+ * NEWOBJ(obj);
+ * @endcode
  */
 #define NEWOBJ(obj) \
   (obj = xnew(sizeof(*obj),&_CD(obj),SRCFILE,__LINE__))
 /**
  * @brief free memory allocated memory for an object
  *
- * @param obj object to free
+ * @param obj  object to free
  *
- * @eg FREEOBJ(obj);
+ * for example:
+ * @code
+ * FREEOBJ(obj);
+ * @endcode
  */
 #define FREEOBJ(obj) (obj = xfree(obj))
 
@@ -161,19 +182,19 @@ typedef struct classdesc_tag {
 /**
  * @brief allocates memory for a string of size - 1 bytes
  *
- * @param destination  new string
+ * @param dest  new string
  * @param size  number of bytes to allocate
  */
-#define NEWSTRING(dst, size) \
-  (dst = xnew((size_t)(size),NULL,SRCFILE,__LINE__))
+#define NEWSTRING(dest, size) \
+  (dest = xnew((size_t)(size),NULL,SRCFILE,__LINE__))
 /**
  * @brief  duplicate a string
  *
- * @param destination  duplicated string
+ * @param dest  duplicated string
  * @param source  string to duplicate
  */
-#define STRDUP(dst, src) \
-  (dst = xstrdup(src,SRCFILE,__LINE__))
+#define STRDUP(dest, source) \
+  (dest = xstrdup(source,SRCFILE,__LINE__))
 
 /* array interface macros */
 /**

@@ -33,7 +33,7 @@ mg_buffer_create();
  * @return 0
  */
 mg_buffer_t
-mg_buffer_destroy(mg_buffer_t);
+mg_buffer_destroy(mg_buffer_t buffer);
 
 /**
  * @brief number of buffers accessor
@@ -43,59 +43,59 @@ mg_buffer_destroy(mg_buffer_t);
  * @return the number of buffers allocated
  */
 unsigned int
-mg_buffer_number(mg_buffer_t);
+mg_buffer_number(mg_buffer_t buffer);
 
 /**
  * @brief allocate buffers
  *
  * @param buffer  object handle
- * @paran n  number of buffers to allocate
+ * @param n  number of buffers to allocate
  *
  * @return object handled
  */
 mg_buffer_t
-mg_buffer_alloc(mg_buffer_t,
-		unsigned int);
+mg_buffer_alloc(mg_buffer_t buffer,
+		unsigned int n);
 
 /**
  * @brief set the start address and length of a buffer
  *
  * @param buffer  object handle
- * @param i  buffer index
+ * @param index  buffer index
  * @param start  buffer start pointer
  * @param length  size of buffer, in bytes
  *
  * @return object handled
  */
 mg_buffer_t
-mg_buffer_set(mg_buffer_t,
-	      unsigned int,
-	      void *,
-	      size_t);
+mg_buffer_set(mg_buffer_t buffer,
+	      unsigned int index,
+	      void *start,
+	      size_t length);
 
 /**
  * @brief buffer start address accessor
  *
  * @param buffer  object handle
- * @param i  buffer index
+ * @param index  buffer index
  *
  * @return buffer start pointer
  */
 void *
-mg_buffer_start(mg_buffer_t,
-		unsigned int);
+mg_buffer_start(mg_buffer_t buffer,
+		unsigned int index);
 
 /**
  * @brief buffer length accessor
  *
  * @param buffer  object handle
- * @param i  buffer index
+ * @param index  buffer index
  *
  * @return length of buffer
  */
 size_t
-mg_buffer_length(mg_buffer_t,
-		 unsigned int);
+mg_buffer_length(mg_buffer_t buffer,
+		 unsigned int index);
 
 __END_DECLS
 

@@ -32,12 +32,12 @@ sll_create(void *data);
 /**
  * @brief destroy sllist object
  *
- * @param sllist  handle of object to be destroyed
+ * @param list  handle of object to be destroyed
  *
  * @return 0
  */
 static sllist_t
-sll_destroy(sllist_t);
+sll_destroy(sllist_t list);
 
 /**
  * @brief insert item into list after current position
@@ -56,8 +56,8 @@ sll_destroy(sllist_t);
  * @return handle to modified list
  */
 static sllist_t
-sll_insert(sllist_t,
-	   sllist_t);
+sll_insert(sllist_t list,
+	   sllist_t item);
 
 /**
  * @brief remove item from list, but do not destroy object
@@ -68,8 +68,8 @@ sll_insert(sllist_t,
  * @return handle to modified list
  */
 static sllist_t
-sll_remove(sllist_t,
-	   sllist_t);
+sll_remove(sllist_t list,
+	   sllist_t item);
 
 CLASS(sllist, sllist_t)
 {

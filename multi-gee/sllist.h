@@ -28,8 +28,8 @@ NEWHANDLE(sllist_t); /* singly linked list object handle */
  * @return handle to modified list
  */
 sllist_t
-sll_insert_data(sllist_t,
-		void *);
+sll_insert_data(sllist_t list,
+		void *data);
 
 /**
  * @brief remove the first occurence of data in list
@@ -40,8 +40,8 @@ sll_insert_data(sllist_t,
  * @return handle to modified list
  */
 sllist_t
-sll_remove_data(sllist_t,
-		void *);
+sll_remove_data(sllist_t list,
+		void *data);
 
 /**
  * @brief retrieve data from list item
@@ -51,7 +51,7 @@ sll_remove_data(sllist_t,
  * @return pointer to data
  */
 void *
-sll_data(sllist_t);
+sll_data(sllist_t item);
 
 /**
  * @brief find next list item
@@ -61,7 +61,7 @@ sll_data(sllist_t);
  * @return pointer to next item
  */
 sllist_t
-sll_next(sllist_t);
+sll_next(sllist_t item);
 
 /**
  * @brief empty out list, destroying all items
@@ -73,7 +73,7 @@ sll_next(sllist_t);
  * @return 0
  */
 sllist_t
-sll_empty(sllist_t);
+sll_empty(sllist_t list);
 
 __END_DECLS
 

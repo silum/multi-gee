@@ -3,7 +3,7 @@
 # Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
 AC_PREREQ(2.57)
-AC_INIT([multi-gee], [0.1rc0], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.90], [dsm@tlabs.ac.za])
 LIBVERSION="0.0.0"
 AC_SUBST(LIBVERSION)
 
@@ -43,5 +43,6 @@ AC_CONFIG_FILES([
     Makefile
     multi-gee/Makefile
     src/Makefile
+    doxygen.conf
 ])
 AC_OUTPUT

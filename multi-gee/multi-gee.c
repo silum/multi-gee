@@ -38,40 +38,40 @@ enum sync_status
 /**
  * @brief find device in list given the file descriptor
  *
- * @param list  device list
+ * @param list  device list object handle
  * @param fd  file descriptor
  *
  * @return device handle, or 0 if device not in list
  */
 static mg_device_t
-find_device_fd(sllist_t,
-	       int);
+find_device_fd(sllist_t list,
+	       int fd);
 
 /**
  * @brief find a frame in a list given the capture device
  *
- * @param list  frame list
+ * @param list  frame list object handle
  * @param device  object handle
  *
  * @return frame handle, or 0 if frame not in list
  */
 static mg_frame_t
-find_frame_device(sllist_t,
-		  mg_device_t);
+find_frame_device(sllist_t list,
+		  mg_device_t device);
 
 /**
  * @brief find device in list with given major and minor number
  *
- * @param list  device list
+ * @param list  device list object handle
  * @param major  device major number
  * @param minor  device minor number
  *
  * @return device handle, or 0 if device not in list
  */
 static mg_device_t
-find_device_major_minor(sllist_t,
-			int,
-			int);
+find_device_major_minor(sllist_t list,
+			int major,
+			int minor);
 
 /**
  * @brief create a list of device frames
@@ -80,15 +80,15 @@ find_device_major_minor(sllist_t,
  * frame list is taken as a starting point, and frames for devices not
  * in the device list are removed.
  *
- * @param frame  a frame list
- * @param device  a device list
+ * @param frame  frame list object handle
+ * @param device  device list object handle
  *
  * @return a frame list only containing frames from devices in the
  * device list
  */
 static sllist_t
-add_frame(sllist_t,
-	  sllist_t);
+add_frame(sllist_t frame,
+	  sllist_t device);
 
 /**
  * @brief enqueue old frame, dequeue new frame
@@ -102,8 +102,8 @@ add_frame(sllist_t,
  * occured
  */
 static bool
-swap_frame(multi_gee_t,
-	   mg_device_t);
+swap_frame(multi_gee_t multi_gee,
+	   mg_device_t device);
 
 /**
  * @brief tests frame list for sync
@@ -119,8 +119,8 @@ swap_frame(multi_gee_t,
  * @return sync status
  */
 static enum sync_status
-sync_test(sllist_t,
-	  log_t);
+sync_test(sllist_t frame,
+	  log_t log);
 
 /**
  * @brief monitors all devices for capture events
@@ -136,8 +136,8 @@ sync_test(sllist_t,
  * @return sync status
  */
 static enum sync_status
-sync_select(multi_gee_t,
-	    fd_set *);
+sync_select(multi_gee_t multi_gee,
+	    fd_set *fds);
 
 CLASS(multi_gee, multi_gee_t)
 {

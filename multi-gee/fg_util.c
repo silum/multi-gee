@@ -35,7 +35,9 @@ static const unsigned int REQ_BUFS = 3;
  * @param arg  ioctl argument
  */
 static int
-xioctl(int fd, int req, void *arg);
+xioctl(int fd,
+       int req,
+       void *arg);
 
 /**
  * @brief intialise memory mapping
@@ -47,8 +49,8 @@ xioctl(int fd, int req, void *arg);
  */
 static bool
 init_mmap(int fd,
-	  char *dev_name,
-	  mg_buffer_t dev_buf,
+	  char *name,
+	  mg_buffer_t buffer,
 	  log_t log);
 
 /**
@@ -62,7 +64,7 @@ init_mmap(int fd,
  */
 static bool
 test_capability(int fd,
-		char *dev_name,
+		char *name,
 		log_t log);
 
 /**

@@ -179,3 +179,10 @@ MAINTAINERCLEANFILES = \
     Makefile.in \
     $(AUX_DIST)
 
+.PHONY: doc
+doc:
+	doxygen doxygen.conf
+
+maintainer-clean-local:
+	-rm -rf doc/html/ doc/latex/
+

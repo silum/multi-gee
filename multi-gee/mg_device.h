@@ -31,8 +31,8 @@ NEWHANDLE(mg_device_t); /* multi-gee device object handle */
  * @return a newly created device object handle
  */
 mg_device_t
-mg_device_create(char *,
-		 log_t);
+mg_device_create(char *file,
+		 log_t log);
 
 /**
  * @brief destroy device object
@@ -42,7 +42,7 @@ mg_device_create(char *,
  * @return 0
  */
 mg_device_t
-mg_device_destroy(mg_device_t);
+mg_device_destroy(mg_device_t device);
 
 /**
  * @brief device name accessor
@@ -52,7 +52,7 @@ mg_device_destroy(mg_device_t);
  * @return device file name
  */
 char *
-mg_device_name(mg_device_t);
+mg_device_name(mg_device_t device);
 
 /**
  * @brief open device
@@ -68,7 +68,7 @@ mg_device_name(mg_device_t);
  *  - -1: failed to open device
  */
 int
-mg_device_open(mg_device_t);
+mg_device_open(mg_device_t device);
 
 /**
  * @brief device file descriptor accessor
@@ -78,7 +78,7 @@ mg_device_open(mg_device_t);
  * @return device file descriptor or -1 if device not open
  */
 int
-mg_device_fd(mg_device_t);
+mg_device_fd(mg_device_t device);
 
 /**
  * @brief device major number accessor
@@ -88,7 +88,7 @@ mg_device_fd(mg_device_t);
  * @return device major number or -1 if not a device
  */
 int
-mg_device_major(mg_device_t);
+mg_device_major(mg_device_t device);
 
 /**
  * @brief device minor number accessor
@@ -98,7 +98,7 @@ mg_device_major(mg_device_t);
  * @return device minor number or -1 if not a device
  */
 int
-mg_device_minor(mg_device_t);
+mg_device_minor(mg_device_t device);
 
 /**
  * @brief device buffer container accessor
@@ -108,7 +108,7 @@ mg_device_minor(mg_device_t);
  * @return buffer object handle
  */
 mg_buffer_t
-mg_device_buffer(mg_device_t);
+mg_device_buffer(mg_device_t device);
 
 __END_DECLS
 

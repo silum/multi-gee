@@ -62,11 +62,11 @@ static prefix *heap = 0;
  * add the given heap object into the doubly linked list of heap
  * objects
  *
- * @param add  prefix pointer to heap object
+ * @param p  prefix pointer to heap object
  *
  * @return
  */
-static void list_insert(prefix *);
+static void list_insert(prefix *p);
 
 /**
  *  @brief remove heap object from linked list)
@@ -76,7 +76,7 @@ static void list_insert(prefix *);
  *
  *  @param p  prefix pointer to heap object
  */
-static void list_remove(prefix *);
+static void list_remove(prefix *p);
 
 /**
  * @brief verify heap pointer)
@@ -84,11 +84,11 @@ static void list_remove(prefix *);
  * verify that a pointer points into that heap to a valid object in the
  * heap
  *
- * @param mem  heap pointer to validate
+ * @param p  heap pointer to validate
  *
  * @return heap pointer is valid (true) or not (false)
  */
-static bool list_verify(void *);
+static bool list_verify(void *p);
 
 /**
  * @brief render description of heap object)
@@ -99,7 +99,8 @@ static bool list_verify(void *);
  * @param buffer  where to place text description
  */
 static void
-render(prefix *, char *);
+render(prefix *p,
+       char *buffer);
 
 void *
 xnew(size_t size,

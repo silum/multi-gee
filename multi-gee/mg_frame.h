@@ -41,8 +41,8 @@ NEWHANDLE(mg_frame_t); /* multi-gee frame object handle */
  * @return a newly created frane object handle
  */
 mg_frame_t
-mg_frame_create(mg_device_t,
-		struct v4l2_buffer *);
+mg_frame_create(mg_device_t device,
+		struct v4l2_buffer *buffer);
 
 /**
  * @brief destroy frame object
@@ -52,7 +52,7 @@ mg_frame_create(mg_device_t,
  * @return 0
  */
 mg_frame_t
-mg_frame_destroy(mg_frame_t);
+mg_frame_destroy(mg_frame_t frame);
 
 /**
  * @brief buffer index accessor
@@ -65,7 +65,7 @@ mg_frame_destroy(mg_frame_t);
  * @return the index number, or -1 if not a valid frame
  */
 int
-mg_frame_index(mg_frame_t);
+mg_frame_index(mg_frame_t frame);
 
 /**
  * @brief capture device accessor
@@ -75,7 +75,7 @@ mg_frame_index(mg_frame_t);
  * @return the capture device object handle
  */
 mg_device_t
-mg_frame_device(mg_frame_t);
+mg_frame_device(mg_frame_t frame);
 
 /**
  * @brief image data accessor
@@ -85,7 +85,7 @@ mg_frame_device(mg_frame_t);
  * @return a pointer to the image data, or 0 if no image data exists
  */
 void *
-mg_frame_image(mg_frame_t);
+mg_frame_image(mg_frame_t frame);
 
 /**
  * @brief time stamp accessor
@@ -99,7 +99,7 @@ mg_frame_image(mg_frame_t);
  * @return the time stamp
  */
 struct timeval
-mg_frame_timestamp(mg_frame_t);
+mg_frame_timestamp(mg_frame_t frame);
 
 /**
  * @brief sequence number accessor
@@ -112,7 +112,7 @@ mg_frame_timestamp(mg_frame_t);
  * @return the sequence number
  */
 uint32_t
-mg_frame_sequence(mg_frame_t);
+mg_frame_sequence(mg_frame_t frame);
 
 /**
  * @brief old frame indicator
@@ -126,7 +126,7 @@ mg_frame_sequence(mg_frame_t);
  * @return true if it has been used, else false
  */
 bool
-mg_frame_used(mg_frame_t);
+mg_frame_used(mg_frame_t frame);
 
 /**
  * @brief old frame indicator accessor
@@ -136,7 +136,7 @@ mg_frame_used(mg_frame_t);
  * @return the object handle
  */
 mg_frame_t
-mg_frame_set_used(mg_frame_t);
+mg_frame_set_used(mg_frame_t frame);
 
 __END_DECLS
 

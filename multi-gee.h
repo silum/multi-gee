@@ -26,9 +26,9 @@ __BEGIN_DECLS;
 NEWHANDLE(multi_gee_t); /* multi-gee object handle */
 
 /**
- * @brief multi-gee object
+ * @brief create multi-gee object
  *
- * @param file  logfile name,
+ * @param file_name  logfile name,
  *   - can be 0 for no log file,
  *   - "stdout" for standard output stream
  *   - "stderr" for standard error stream
@@ -37,7 +37,7 @@ NEWHANDLE(multi_gee_t); /* multi-gee object handle */
  * @return a newly created multi-gee object handle
  */
 multi_gee_t
-mg_create(char *);
+mg_create(char *file_name);
 
 /**
  * @brief destroy multi-gee object
@@ -47,7 +47,7 @@ mg_create(char *);
  * @return 0
  */
 multi_gee_t
-mg_destroy(multi_gee_t);
+mg_destroy(multi_gee_t multi_gee);
 
 /**
  * @brief error return values for mg_capture
@@ -70,8 +70,8 @@ enum mg_RETURN {
  * @return mg_RETURN status value, or the number of images captured
  */
 enum mg_RETURN
-mg_capture(multi_gee_t,
-	   int);
+mg_capture(multi_gee_t multi_gee,
+	   int n);
 
 /**
  * @brief halt capture loop
@@ -79,7 +79,7 @@ mg_capture(multi_gee_t,
  * @param multi_gee  object handle
  */
 void
-mg_capture_halt(multi_gee_t);
+mg_capture_halt(multi_gee_t multi_gee);
 
 /**
  * @brief register callback function
@@ -90,36 +90,36 @@ mg_capture_halt(multi_gee_t);
  * @return object handle
  */
 multi_gee_t
-mg_register_callback(multi_gee_t,
+mg_register_callback(multi_gee_t multi_gee,
 		     void (*callback)(multi_gee_t, sllist_t));
 
 /**
  * @brief register capture device
  *
  * @param multi_gee  object handle
- * @param file_name  device to register
+ * @param device_name  device to register
  *
  * @return status value:
  *   -1 - failed to register device,
  *   value >= 0 - device identifier
  */
 int
-mg_register_device(multi_gee_t,
-		   char *);
+mg_register_device(multi_gee_t multi_gee,
+		   char *device_name);
 
 /**
  * @brief deregister capture device
  *
  * @param multi_gee  object handle
- * @param id  device identifier
+ * @param device_id  device identifier
  *
  * @return status value:
  *   -1 - failed to register device,
  *   value >= 0 - device identifier of deregistered device
  */
 int
-mg_deregister_device(multi_gee_t,
-		     int);
+mg_deregister_device(multi_gee_t multi_gee,
+		     int device_id);
 
 __END_DECLS;
 
