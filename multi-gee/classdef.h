@@ -15,14 +15,13 @@
 #define DSM_CLASSDEF_H 1
 
 #include <sys/types.h> /* size_t */
-// #include <stdbool.h>   /* bool */
 
 __BEGIN_DECLS
 
 /**
  * @brief assert during compiling (not run-time)
  *
- * @desc will produce a compiler error of assertion does not hold
+ * will produce a compiler error of assertion does not hold
  *
  * @param expression  to be asserted
  */
@@ -43,7 +42,7 @@ __BEGIN_DECLS
  */
 #define NUMSTATICELS(array) (sizeof(array)/sizeof(*array))
 
-/* Loop Macros */
+/* loop macros */
 //#define LOOP(arg) { int _max=arg; int loop; \ //
 //    for (loop=0; loop<_max; ++loop)
 //#define ULOOP(arg) { unsigned int _max=arg; unsigned int loop; \ //
@@ -53,7 +52,7 @@ __BEGIN_DECLS
 /**
  * @brief enables xassert support in a source file
  *
- * @desc By calling this macro at the top of a source file, the
+ * by calling this macro at the top of a source file, the
  * _do_xassert macro declared.  xassert used the _do_xassert macro to
  * print a run-time error message and by calling the user defined
  * report_xassert() function with the file name and line number where
@@ -68,7 +67,7 @@ __BEGIN_DECLS
 #define asserterror() _do_xassert(__LINE__)
 #define xassert(exp) if (!(exp)) { asserterror(); } else
 
-/* What is a class descriptor */
+/* class descriptor */
 typedef struct classdesc_tag {
 	char *name;
 } classdesc;
@@ -76,7 +75,7 @@ typedef struct classdesc_tag {
 /**
  * @brief declare a new handle
  *
- * @desc NEWHANDLE() declarations are almost always placed in an
+ * NEWHANDLE() declarations are almost always placed in an
  * include file that gets included into all source files. NEWHANDLE() is
  * usually not used in source files.
  *
@@ -86,14 +85,14 @@ typedef struct classdesc_tag {
  */
 #define NEWHANDLE(handle) typedef struct tag_##handle *handle
 
-/* Class descriptor name from object name */
+/* class descriptor name from object name */
 #define _CD(obj) obj##_classdesc
 
 /**
  * @brief the class macro
  *
- * @desc The CLASS() macro is used only by source files that implement an
- * object.  The CLASS() macro is never used in include files.
+ * the CLASS() macro is used only by source files that implement an
+ * object.  the CLASS() macro is never used in include files.
  *
  * @param handle  the object handle, to be used in the VERIFY* type
  * macros
@@ -105,11 +104,11 @@ typedef struct classdesc_tag {
     static classdesc _CD(obj)={#obj}; \
     struct tag_##handle
 
-/* Object verification macros */
+/* object verification macros */
 /**
  * @brief verify an object
  *
- * @desc verify that the object (variable name) matches the object type, as
+ * verify that the object (variable name) matches the object type, as
  * declared to the heap manager
  *
  * @eg VERIFY(obj);
@@ -121,7 +120,7 @@ typedef struct classdesc_tag {
 /**
  * @brief verify an object, allows NULL too
  *
- * @desc verify that the object (variable name) matches the object type, as
+ * verify that the object (variable name) matches the object type, as
  * declared to the heap manager, or that the object is NULL
  *
  * @eg VERIFY(obj);
@@ -158,7 +157,7 @@ typedef struct classdesc_tag {
  */
 #define FREEOBJ(obj) (obj = xfree(obj))
 
-/* String interface macros */
+/* string interface macros */
 /**
  * @brief allocates memory for a string of size - 1 bytes
  *
@@ -176,7 +175,7 @@ typedef struct classdesc_tag {
 #define STRDUP(dst, src) \
   (dst = xstrdup(src,SRCFILE,__LINE__))
 
-/* Array interface macros */
+/* array interface macros */
 /**
  * @brief allocate memory to contain N (size) array elements
  *

@@ -15,6 +15,8 @@
 
 __BEGIN_DECLS
 
+/* macro to silence "empty body in an else-statement" warning, when
+ * using xassert in the form `xassert(expr);' */
 #define XASSERT(expr) xassert(expr){}
 
 /**
@@ -30,19 +32,20 @@ extern bool XASSERT_FAILURE;
 /**
  * @brief user defined assertion failure report
  *
- * @desc prints an error message refering to the file name and line
- * number where the error has occured
+ * prints an error message refering to the file name and line number
+ * where the error has occured
  *
- * @param file_name  file where error occured
- * @param line       line number where error occured
+ * @param file  name of file where error occured
+ * @param line  line number where error occured
  */
-void report_xassert(const char *file_name, int line);
+void report_xassert(const char *,
+		    int);
 
 /**
  * @brief test framework function
  *
- * @desc calls the user function and tests for assertion failures and
- * memory allocation on return
+ * calls the user function and tests for assertion failures and memory
+ * allocation on return
  *
  * @param user_func  user defined function
  */

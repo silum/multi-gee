@@ -31,7 +31,7 @@ CLASS(mg_device, mg_device_t)
 };
 
 mg_device_t
-mg_device_create(char *name)
+mg_device_create(char *name, log_t log)
 {
 	mg_device_t mg_device;
 	NEWOBJ(mg_device);
@@ -44,10 +44,9 @@ mg_device_create(char *name)
 
 	struct stat st;
 	if (0 != stat(name, &st)) {
-		fprintf(stderr, "Cannot identify '%s': %d, %s\n",
-			name, errno, strerror(errno));
+		lg_errno(log, "cannot identify '%s':", name);
 	} else if (!S_ISCHR(st.st_mode)) {
-		fprintf(stderr, "%s is no device\n", name);
+		lg_log(log, "%s is no device", name);
 	} else {
 		mg_device->major = major(st.st_rdev);
 		mg_device->minor = minor(st.st_rdev);
@@ -169,9 +168,11 @@ test_device(char *name,
 	    int major,
 	    int minor)
 {
-	/* create */
 	mg_device_t dev;
-	dev = mg_device_create(name);
+	log_t log = lg_create("mg_device", "stderr");
+
+	/* create */
+	dev = mg_device_create(name, log);
 
 	XASSERT(mg_device_fd(dev) == -1);
 	XASSERT(mg_device_major(dev) == major);
@@ -198,6 +199,8 @@ test_device(char *name,
 
 	/* device still valid */
 	XASSERT(dev == 0);
+
+	log = lg_destroy(log);
 }
 
 void

@@ -19,36 +19,65 @@ USE_XASSERT;
 #define VERIFYZ_SLL_FLAG(sll, flag) \
 	bool flag = false; { sllist_t sllist = sll; VERIFYZ(sllist) { flag = true; } }
 
+/**
+ * @brief create sllist object
+ *
+ * @param data  pointer to list item data
+ *
+ * @return a newly created log object handle
+ */
+static sllist_t
+sll_create(void *data);
+
+/**
+ * @brief destroy sllist object
+ *
+ * @param sllist  handle of object to be destroyed
+ *
+ * @return 0
+ */
+static sllist_t
+sll_destroy(sllist_t);
+
+/**
+ * @brief insert item into list after current position
+ *
+ * inserts an item, or a list, after the current position.  if the list
+ * exists, insert item after first item in list, else item becomes list
+ * if a list is inserted the last item of the inserted list will be
+ * modified to point to the item after the current position.
+ *
+ * care must be taken not to insert an item of a specific list into the
+ * same list.  this will cause a infinite list.... bad, very bad.
+ *
+ * @param list  current position
+ * @param item  to be inserted
+ *
+ * @return handle to modified list
+ */
+static sllist_t
+sll_insert(sllist_t,
+	   sllist_t);
+
+/**
+ * @brief remove item from list, but do not destroy object
+ *
+ * @param list  head of list
+ * @param item  to be removed
+ *
+ * @return handle to modified list
+ */
+static sllist_t
+sll_remove(sllist_t,
+	   sllist_t);
+
 CLASS(sllist, sllist_t)
 {
 	void *data;
 	sllist_t next;
 };
 
-/* create object */
-static
-sllist_t /* new handle */
-sll_create(void *data);
-
-/* destroy object */
-static
-sllist_t
-sll_destroy(sllist_t /* object to destroy */);
-
-/* insert into list after current position */
-static
-sllist_t
-sll_insert(sllist_t /* current position */,
-	   sllist_t /* item to insert */ );
-
-/* remove object from list, but do not destroy object */
-static
-sllist_t
-sll_remove(sllist_t,
-	   sllist_t /* object to remove */ );
-
-static
-sllist_t
+static sllist_t
 sll_create(void *data)
 {
 	sllist_t sllist;
@@ -60,8 +89,7 @@ sll_create(void *data)
 	return sllist;
 }
 
-static
-sllist_t
+static sllist_t
 sll_destroy(sllist_t sllist)
 {
 	VERIFYZ(sllist) {
@@ -71,12 +99,7 @@ sll_destroy(sllist_t sllist)
 	return 0;
 }
 
-/*
- * if the list exists, insert item after first item in list, else item
- * becomes list
- */
-static
-sllist_t
+static sllist_t
 sll_insert(sllist_t list_0,
 	   sllist_t list_1)
 {
@@ -107,8 +130,7 @@ sll_insert(sllist_t list_0,
 	return sllist;
 }
 
-static
-sllist_t
+static sllist_t
 sll_remove(sllist_t list,
 	   sllist_t item)
 {
@@ -401,4 +423,4 @@ main()
 	return debug_test(sllist);
 }
 
-#endif /* ndef DEBUG_SLLIST */
+#endif /* def DEBUG_SLLIST */

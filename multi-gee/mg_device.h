@@ -11,6 +11,7 @@
 #ifndef DSM_MG_DEVICE_H
 #define DSM_MG_DEVICE_H 1
 
+#include <multi-gee/log.h>
 #include <multi-gee/mg_buffer.h>
 
 __BEGIN_DECLS
@@ -20,16 +21,18 @@ NEWHANDLE(mg_device_t); /* multi-gee device object handle */
 /**
  * @brief create device object
  *
- * @desc sets major an minor number to actual device major and minor.
- * If there is a problem, i.e. the device does not exist or the file is
- * not a device, the major and minor is both set to -1.
+ * sets major an minor number to actual device major and minor.  If
+ * there is a problem, i.e. the device does not exist or the file is not
+ * a device, the major and minor is both set to -1.
  *
- * @param file_name  device file name
+ * @param file  device file name
+ * @param log  object handle, to log error messages to during creation
  *
  * @return a newly created device object handle
  */
 mg_device_t
-mg_device_create(char *file_name);
+mg_device_create(char *,
+		 log_t);
 
 /**
  * @brief destroy device object
@@ -54,8 +57,8 @@ mg_device_name(mg_device_t);
 /**
  * @brief open device
  *
- * @desc an unopened device's file descriptor is -1.  This call opens a
- * new file descriptor for the device, if it does not have one yet.
+ * an unopened device's file descriptor is -1.  This call opens a new
+ * file descriptor for the device, if it does not have one yet.
  *
  * @param device  object handle
  *

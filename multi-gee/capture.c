@@ -22,7 +22,7 @@
 #include <sys/ioctl.h>
 
 #include <asm/types.h>		/* needed for videodev2.h */
-#include "linux/videodev2.h"
+#include <linux/videodev2.h>
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 

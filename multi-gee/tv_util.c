@@ -112,4 +112,4 @@ main()
 	return debug_test(test_tv_util);
 }
 
-#endif
+#endif /* def DEBUG_TV_UTIL */

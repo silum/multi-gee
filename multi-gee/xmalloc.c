@@ -38,7 +38,7 @@ typedef struct prefix_tag {
 	struct prefix_tag *prev;	/* previous object in heap   */
 	struct prefix_tag *next;	/* next object in heap       */
 	struct postfix_tag *postfix;	/* ptr to postfix object     */
-	const char *file;			/* file name ptr or 0        */
+	const char *file;		/* file name ptr or 0        */
 	long line;			/* line number or 0          */
 	void *mem;			/* xnew() ptr of object      */
 	classdesc *class;		/* class descriptor ptr or 0 */
@@ -56,25 +56,56 @@ compiler_assert(!(sizeof(prefix) % ALIGNMENT));
 static prefix *heap = 0;
 
 /* Local prototypes */
+/**
+ * @brief add heap object to linked list)
+ *
+ * add the given heap object into the doubly linked list of heap
+ * objects
+ *
+ * @param add  prefix pointer to heap object
+ *
+ * @return
+ */
 static void list_insert(prefix *);
-static void list_remove(prefix *);
-static bool list_verify(void *);
-static void render(prefix *, char *);
 
 /**
- *  @brief    Memory New
+ *  @brief remove heap object from linked list)
  *
- *  @desc     Allocate a new block of memory from the heap.
+ *  remove the given heap object from the doubly linked list of heap
+ *  objects
  *
- *  @param    size       Size of object to allocate
- *  @param    classdesc  Class descriptor for object (or 0)
- *  @param    file       Filename where object was allocated
- *  @param    line       Line number where object was allocated
- *
- *  @returns  A long pointer to the memory object or 0
+ *  @param p  prefix pointer to heap object
  */
+static void list_remove(prefix *);
+
+/**
+ * @brief verify heap pointer)
+ *
+ * verify that a pointer points into that heap to a valid object in the
+ * heap
+ *
+ * @param mem  heap pointer to validate
+ *
+ * @return heap pointer is valid (true) or not (false)
+ */
+static bool list_verify(void *);
+
+/**
+ * @brief render description of heap object)
+ *
+ * render a text description for the given heap object
+ *
+ * @param p  prefix pointer to heap object
+ * @param buffer  where to place text description
+ */
+static void
+render(prefix *, char *);
+
 void *
-xnew(size_t size, classdesc *class, const char *file, int line)
+xnew(size_t size,
+     classdesc *class,
+     const char *file,
+     int line)
 {
 	prefix *p;
 	size = DOALIGN(size);
@@ -95,14 +126,6 @@ xnew(size_t size, classdesc *class, const char *file, int line)
 	return (p ? p + 1 : 0);
 }
 
-/**
- * @brief    Memory Free
- *
- * @desc     Free a block of memory that was previously allocated
- *           through xnew().
- *
- * @param    mem  Heap pointer to free or 0
- */
 void *
 xfree(void *mem)
 {
@@ -117,46 +140,11 @@ xfree(void *mem)
 	return 0;
 }
 
-/**
- * @brief    Memory String Dup
- *
- * @desc     Helper function for the XSTRDUP() macro
- *
- * @param    s     String to duplicate (or 0)
- * @param    file  Filename where string is being duplicated
- * @param    line  Line number where string is being duplicated
- *
- * @returns  A pointer to the duplicated string or 0
- */
 void *
-xstrdup(const char *s, const char *file, int line)
-{
-	void *ret = 0;
-
-	if (s) {
-		size_t size = (size_t) (strlen(s) + 1);
-		ret = xnew(size, 0, file, line);
-		if (ret) {
-			memcpy(ret, s, size);
-		}
-	}
-	return ret;
-}
-
-/**
- * @brief    Memory Realloc
- *
- * @desc     Reallocate a block of memory
- *
- * @param    old   Heap object to reallocate or 0
- * @param    size  New size of the object
- * @param    file  Filename where realloc is taking place
- * @param    lIne  Line number where realloc is taking place
- *
- * @returns  A pointer to the reallocated memory or 0
- */
-void *
-xrealloc(void *old, size_t size, const char *file, int line)
+xrealloc(void *old,
+	 size_t size,
+	 const char *file,
+	 int line)
 {
 	void *new = 0;
 
@@ -198,12 +186,23 @@ xrealloc(void *old, size_t size, const char *file, int line)
 	return new;
 }
 
-/**
- * @brief    Walk Heap
- *
- * @desc     Display a symbolic dump of the heap by walking the heap and
- *           displaying all objects in the heap.
- */
+void *
+xstrdup(const char *s,
+	const char *file,
+	int line)
+{
+	void *ret = 0;
+
+	if (s) {
+		size_t size = (size_t) (strlen(s) + 1);
+		ret = xnew(size, 0, file, line);
+		if (ret) {
+			memcpy(ret, s, size);
+		}
+	}
+	return ret;
+}
+
 int
 xwalkheap(void)
 {
@@ -229,19 +228,34 @@ xwalkheap(void)
 	return alloced;
 }
 
-/**
- * @brief    Add Heap Object to Linked List)
- *
- * @desc     Add the given heap object into the doubly linked list
- *           of heap objects.
- *
- * @param    add  Prefix pointer to heap object
- */
-static
-void
+bool
+xtestptr(void *mem)
+{
+	return ((mem) && (!((long) mem & (ALIGNMENT - 1))));
+}
+
+static void
+render(prefix *p, char *buffer)
+{
+	if (p->mem == &p[1]) {
+		sprintf(buffer, "%8p ", p);
+		if (p->file) {
+			sprintf(buffer + strlen(buffer), "%12s %4ld ",
+				p->file, p->line);
+		}
+		if (p->class) {
+			sprintf(buffer + strlen(buffer), "%s",
+				p->class->name);
+		}
+	} else {
+		strcpy(buffer, "(bad)");
+	}
+}
+
+static void
 list_insert(prefix *p)
 {
-	/* Add before current head of list */
+	/* add before current head of list */
 	if (heap) {
 		p->prev = heap->prev;
 		(p->prev)->next = p;
@@ -249,26 +263,17 @@ list_insert(prefix *p)
 		(p->next)->prev = p;
 	}
 
-	/* Else first node */
+	/* else first node */
 	else {
 		p->prev = p;
 		p->next = p;
 	}
 
-	/* Make new item head of list */
+	/* make new item head of list */
 	heap = p;
 }
 
-/**
- *  @brief    Remove Heap Object from Linked List)
- *
- *  @desc     Remove the given heap object from the doubly linked list
- *            of heap objects.
- *
- *  @param    p  Prefix pointer to heap object
- */
-static
-void
+static void
 list_remove(prefix *p)
 {
 	/* Remove from doubly linked list */
@@ -281,18 +286,7 @@ list_remove(prefix *p)
 	}
 }
 
-/**
- * @brief    Verify Heap Pointer)
- *
- * @desc     Verify that a pointer points into that heap to a valid
- *           object in the heap.
- *
- * @param    mem  Heap pointer to validate
- *
- * @returns  Heap pointer is valid (true) or not (false)
- */
-static
-bool
+static bool
 list_verify(void *mem)
 {
 	bool ok = false;
@@ -309,48 +303,5 @@ list_verify(void *mem)
 	}
 
 	return (ok);
-}
-
-/**
- * @brief    Does Pointer Point into the Heap)
- *
- * @desc     Does the given memory pointer point anywhere into the heap.
- *
- * @param    mem  Heap pointer to check
- *
- * @returns  Pointer points into the heap (TRUE) or not (FALSE)
- */
-bool
-xtestptr(void *mem)
-{
-	return ((mem) && (!((long) mem & (ALIGNMENT - 1))));
-}
-
-/**
- * @brief    Render Description of Heap Object)
- *
- * @desc     Render a text description for the given heap object.
- *
- * @param    p       Prefix pointer to heap object
- * @param    buffer  Where to place text description
- *
- */
-static
-void
-render(prefix *p, char *buffer)
-{
-	if (p->mem == &p[1]) {
-		sprintf(buffer, "%8p ", p);
-		if (p->file) {
-			sprintf(buffer + strlen(buffer), "%12s %4ld ",
-				p->file, p->line);
-		}
-		if (p->class) {
-			sprintf(buffer + strlen(buffer), "%s",
-				p->class->name);
-		}
-	} else {
-		strcpy(buffer, "(bad)");
-	}
 }
 

@@ -2,13 +2,13 @@
 ## $Id$
 ## Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
-DIST_SUBDIRS = multi-gee
+DIST_SUBDIRS = multi-gee src
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 
 #noinst_PROGRAMS = multi-gee/capture
 
-lib_LTLIBRARIES = multi-gee/multi-gee.la
+lib_LTLIBRARIES = multi-gee/libmulti-gee.la
 
 TESTS = \
     multi-gee/mg_buffer \
@@ -44,8 +44,9 @@ nobase_include_HEADERS = \
 noinst_HEADERS = \
     linux/videodev2.h
 
-multi_gee_multi_gee_la_LDFLAGS = -module
-multi_gee_multi_gee_la_SOURCES = \
+multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
+multi_gee_libmulti_gee_la_LDFLAGS = -version-info @LIBVERSION@
+multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/debug_xassert.c \
     multi-gee/fg_util.c \
     multi-gee/log.c \
@@ -57,8 +58,6 @@ multi_gee_multi_gee_la_SOURCES = \
     multi-gee/tv_util.c \
     multi-gee/xmalloc.c
 
-multi_gee_multi_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
-
 multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
 multi_gee_mg_buffer_SOURCES = \
     multi-gee/debug_xassert.c \
@@ -68,6 +67,7 @@ multi_gee_mg_buffer_SOURCES = \
 multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
 multi_gee_mg_device_SOURCES = \
     multi-gee/debug_xassert.c \
+    multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c \
     multi-gee/xmalloc.c
@@ -75,6 +75,7 @@ multi_gee_mg_device_SOURCES = \
 multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
 multi_gee_mg_frame_SOURCES = \
     multi-gee/debug_xassert.c \
+    multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c \
     multi-gee/mg_frame.c \
@@ -113,6 +114,7 @@ multi_gee_multi_gee_SOURCES = \
 
 multi_gee_sync_stream_SOURCES = \
     multi-gee/debug_xassert.c \
+    multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c \
     multi-gee/mg_frame.c \
@@ -120,12 +122,12 @@ multi_gee_sync_stream_SOURCES = \
     multi-gee/sync-stream.c \
     multi-gee/xmalloc.c
 
-multi_gee_check_rate_LDADD = \
-    -lcurses
-
-multi_gee_check_rate_SOURCES = \
-    multi-gee/check-rate.c \
-    multi-gee/multi-gee.la
+src_check_rate_LDADD = \
+    $(top_builddir)/multi-gee/libmulti-gee.la \
+    -lncurses
+src_check_rate_SOURCES = \
+    src/check-rate.c \
+    multi-gee/libmulti-gee.la
 
 #multi_gee_mg_test_LDADD = -Lmulti-gee -lmulti-gee
 # multi_gee_test_mg_SOURCES = \
@@ -149,11 +151,6 @@ multi_gee_check_rate_SOURCES = \
 #     multi-gee/tv_util.c \
 #     multi-gee/xmalloc.c
 
-# INCLUDES = -I $(top_srcdir)/include
-
-# noinst_HEADERS = include/bar.h
-
-#multi_gee_dvideo_SOURCES = multi-gee/dvideo.c
 
 AUX_DIR = @ac_aux_dir@
 

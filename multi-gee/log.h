@@ -30,8 +30,8 @@ NEWHANDLE(log_t);
  * @return a newly created log object handle
  */
 log_t
-lg_create(const char *string,
-	  const char *file);
+lg_create(const char *,
+	  const char *);
 
 /**
  * @brief destroy log object
@@ -51,16 +51,20 @@ lg_destroy(log_t);
  * @param ...  arguments for the format string
  */
 void
-lg_log(log_t, const char* format, ...);
+lg_log(log_t,
+       const char*,
+       ...);
 
 /**
  * @brief write a log entry for the current errno
  *
  * @param log  the log object
- * @param s  description of error
+ * @param string  description of error
  */
 void
-lg_errno(log_t log, const char *s);
+lg_errno(log_t,
+	 const char*,
+	 ...);
 
 __END_DECLS
 

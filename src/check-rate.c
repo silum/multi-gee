@@ -40,6 +40,7 @@ main(/* int argc, char *argv[] */)
 		init_pair(7, COLOR_WHITE,   COLOR_BLACK);
 	}
 
+	multi_gee_t mg = mg_create("stderr");
 	for (;;)
 	{
 		int c = getch();     /* refresh, accept single keystroke of input */
@@ -49,6 +50,7 @@ main(/* int argc, char *argv[] */)
 
 		/* process the command keystroke */
 	}
+	mg = mg_destroy(mg);
 
 	finish(0);               /* we're done */
 }

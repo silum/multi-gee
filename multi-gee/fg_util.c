@@ -7,30 +7,21 @@
  * Date:      $Date$
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <errno.h> /* errno */
+#include <string.h> /* memset */
 
-//#include <getopt.h>		/* getopt_long() */
+#include <sys/mman.h> /* mmap */
+#include <sys/ioctl.h> /* ioctl */
 
-//#include <fcntl.h>		/* low-level i/o */
-//#include <unistd.h>
-#include <errno.h>
-#include <sys/stat.h>
-//#include <sys/types.h>
-//#include <sys/time.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
-
+#include <stdlib.h> /* struct timeval, needed for videodev2.h */
 #include <asm/types.h>		/* needed for videodev2.h */
-#include "linux/videodev2.h"
-
-#include "xmalloc.h"
+#include <linux/videodev2.h>
 
 #include "log.h"
 #include "mg_buffer.h"
 #include "mg_device.h"
+
+#include "xmalloc.h"
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
@@ -38,22 +29,218 @@ static const unsigned int REQ_BUFS = 3;
 
 /**
  * @brief retry ioctl until it happens
+ *
+ * @param fd  file descriptor
+ * @param req  ioctl request
+ * @param arg  ioctl argument
  */
 static int
-xioctl(int fd, int request, void *arg)
+xioctl(int fd, int req, void *arg);
+
+/**
+ * @brief intialise memory mapping
+ *
+ * @param fd  file descriptor
+ * @param name  device name
+ * @param buffer  device buffer
+ * @param log  to log possible errors to
+ */
+static bool
+init_mmap(int fd,
+	  char *dev_name,
+	  mg_buffer_t dev_buf,
+	  log_t log);
+
+/**
+ * @brief test device capabilities
+ *
+ * will not return if insufficient capabilities is detected
+ *
+ * @param fd  file descriptor
+ * @param name  device name, for logging
+ * @param log  to log possible errors to
+ */
+static bool
+test_capability(int fd,
+		char *dev_name,
+		log_t log);
+
+/**
+ * @brief select video input and video standard
+ *
+ * @param fd  file descriptor
+ * @param log  to log possible errors to
+ */
+static bool
+select_input(int fd,
+	     log_t log);
+
+/**
+ * @brief reset cropping
+ *
+ * @param fd  file descriptor
+ */
+static void
+set_crop(int fd);
+
+/**
+ * @brief set capture format
+ *
+ * set the following parameters:
+ *  - height
+ *  - width
+ *  - depth
+ *  - interlacing
+ *
+ * @param fd  file descriptor
+ * @param log  to log possible errors to
+ */
+static bool
+set_format(int fd,
+	   log_t log);
+
+bool
+fg_init_device(mg_device_t dev,
+	       log_t log)
+{
+	int fd = mg_device_fd(dev);
+	char *dev_name = mg_device_name(dev);
+
+	if (!test_capability(fd, dev_name, log))
+		return false;
+
+	if (!select_input(fd, log))
+		return false;
+
+	set_crop(fd);
+
+	if (!set_format(fd, log))
+		return false;
+
+	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
+		return false;
+
+	return true;
+}
+
+bool
+fg_uninit_device(mg_device_t dev,
+		 log_t log)
+{
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	unsigned int bufs = mg_buffer_number(dev_buf);
+
+	for (unsigned int i = 0; i < bufs; ++i) {
+		if (-1 == munmap(mg_buffer_start(dev_buf, i),
+				 mg_buffer_length(dev_buf, i))) {
+			lg_errno(log, "munmap");
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool
+fg_enqueue(int fd,
+	   int i,
+	   log_t log)
+{
+	struct v4l2_buffer buf;
+
+	CLEAR(buf);
+
+	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf.memory = V4L2_MEMORY_MMAP;
+	buf.index = i;
+
+	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+		lg_errno(log, "VIDIOC_QBUF");
+		return false;
+	}
+
+	return true;
+}
+
+bool
+fg_dequeue(int fd,
+	   struct v4l2_buffer *buf,
+	   log_t log)
+{
+	CLEAR(*buf);
+
+	buf->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf->memory = V4L2_MEMORY_MMAP;
+
+	if (-1 == xioctl(fd, VIDIOC_DQBUF, buf)) {
+		switch (errno) {
+			case EAGAIN:
+				return false;
+
+			case EIO:
+				/* Could ignore EIO, see spec. */
+
+				/* fall through */
+
+			default:
+				lg_errno(log, "VIDIOC_DQBUF");
+				return false;
+		}
+	}
+
+	return buf;
+}
+
+bool
+fg_start_capture(mg_device_t dev,
+		 log_t log)
+{
+	enum v4l2_buf_type type;
+	int fd = mg_device_fd(dev);
+	unsigned int bufs = mg_buffer_number(mg_device_buffer(dev));
+
+	for (unsigned int i = 0; i < bufs; ++i)
+		fg_enqueue(fd, i, log);
+
+	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
+		lg_errno(log, "VIDIOC_STREAMON");
+		return false;
+	}
+
+	return true;
+}
+
+bool
+fg_stop_capture(mg_device_t dev,
+		log_t log)
+{
+	enum v4l2_buf_type type;
+	int fd = mg_device_fd(dev);
+
+	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
+		lg_errno(log, "VIDIOC_STREAMOFF");
+		return false;
+	}
+
+	return true;
+}
+
+static int
+xioctl(int fd, int req, void *arg)
 {
 	int ret;
 
 	do
-		ret = ioctl(fd, request, arg);
+		ret = ioctl(fd, req, arg);
 	while (-1 == ret && EINTR == errno);
 
 	return ret;
 }
 
-/**
- * @brief intialise memory mapping
- */
 static bool
 init_mmap(int fd,
 	  char *dev_name,
@@ -70,8 +257,8 @@ init_mmap(int fd,
 
 	if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
 		if (EINVAL == errno) {
-			lg_log(log, "%s does not support "
-			       "memory mapping\n", dev_name);
+			lg_log(log, "%s does not support memory "
+			       "mapping", dev_name);
 			return false;
 		} else {
 			lg_errno(log, "VIDIOC_REQBUFS");
@@ -80,8 +267,8 @@ init_mmap(int fd,
 	}
 
 	if (req.count < REQ_BUFS) {
-		lg_log(log, "Insufficient buffer memory on %s\n",
-			dev_name);
+		lg_log(log, "Insufficient buffer memory on %s",
+		       dev_name);
 		return false;
 	}
 
@@ -119,11 +306,6 @@ init_mmap(int fd,
 	return true;
 }
 
-/**
- * @brief test device capabilities
- *
- * @desc will not return if insufficient capabilities is detected
- */
 static bool
 test_capability(int fd,
 		char *dev_name,
@@ -132,7 +314,7 @@ test_capability(int fd,
 	struct v4l2_capability cap;
 	if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
 		if (EINVAL == errno) {
-			lg_log(log, "%s is no V4L2 device\n",
+			lg_log(log, "%s is no V4L2 device",
 				dev_name);
 			return false;
 		} else {
@@ -142,14 +324,14 @@ test_capability(int fd,
 	}
 
 	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
-		lg_log(log, "%s is no video capture device\n",
+		lg_log(log, "%s is no video capture device",
 			dev_name);
 		return false;
 	}
 
 	if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
 		lg_log(log,
-			"%s does not support streaming i/o\n",
+			"%s does not support streaming i/o",
 			dev_name);
 		return false;
 	}
@@ -157,9 +339,6 @@ test_capability(int fd,
 	return true;
 }
 
-/**
- * @brief select video input and video standard
- */
 static bool
 select_input(int fd,
 	     log_t log)
@@ -179,9 +358,6 @@ select_input(int fd,
 	return true;
 }
 
-/**
- * @brief reset cropping
- */
 static void
 set_crop(int fd)
 {
@@ -208,15 +384,6 @@ set_crop(int fd)
 	}
 }
 
-/**
- * @brief set capture format
- *
- * @desc set the following parameters:
- *  - height
- *  - width
- *  - depth
- *  - interlacing
- */
 static bool
 set_format(int fd,
 	   log_t log)
@@ -246,154 +413,6 @@ set_format(int fd,
 	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
 	if (fmt.fmt.pix.sizeimage < min)
 		fmt.fmt.pix.sizeimage = min;
-
-	return true;
-}
-
-/**
- * @brief initialise frame capture device
- */
-bool
-fg_init_device(mg_device_t dev,
-	       log_t log)
-{
-	int fd = mg_device_fd(dev);
-	char *dev_name = mg_device_name(dev);
-
-	if (!test_capability(fd, dev_name, log))
-		return false;
-
-	if (!select_input(fd, log))
-		return false;
-
-	set_crop(fd);
-
-	if (!set_format(fd, log))
-		return false;
-
-	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
-		return false;
-
-	return true;
-}
-
-/**
- * @brief unmap memmapped memory
- */
-bool
-fg_uninit_device(mg_device_t dev,
-		 log_t log)
-{
-	mg_buffer_t dev_buf = mg_device_buffer(dev);
-	unsigned int bufs = mg_buffer_number(dev_buf);
-
-	for (unsigned int i = 0; i < bufs; ++i) {
-		if (-1 == munmap(mg_buffer_start(dev_buf, i),
-				 mg_buffer_length(dev_buf, i))) {
-			lg_errno(log, "munmap");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-/**
- * @brief enqueue a capture buffer for filling by the driver
- */
-bool
-fg_enqueue(int fd,
-	   int i,
-	   log_t log)
-{
-	struct v4l2_buffer buf;
-
-	CLEAR(buf);
-
-	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = i;
-
-	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
-		lg_errno(log, "VIDIOC_QBUF");
-		return false;
-	}
-
-	return true;
-}
-
-/**
- * @brief dequeue a buffer for user processing
- */
-bool
-fg_dequeue(int fd,
-	   struct v4l2_buffer *buf,
-	   log_t log)
-{
-	CLEAR(*buf);
-
-	buf->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf->memory = V4L2_MEMORY_MMAP;
-
-	if (-1 == xioctl(fd, VIDIOC_DQBUF, buf)) {
-		switch (errno) {
-			case EAGAIN:
-				return false;
-
-			case EIO:
-				/* Could ignore EIO, see spec. */
-
-				/* fall through */
-
-			default:
-				lg_errno(log, "VIDIOC_DQBUF");
-				return false;
-		}
-	}
-
-	return buf;
-}
-
-/**
- * @brief start streaming capturing on device
- */
-bool
-fg_start_capture(mg_device_t dev,
-		 log_t log)
-{
-	enum v4l2_buf_type type;
-	int fd = mg_device_fd(dev);
-	unsigned int bufs = mg_buffer_number(mg_device_buffer(dev));
-
-	for (unsigned int i = 0; i < bufs; ++i)
-		fg_enqueue(fd, i, log);
-
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
-		lg_errno(log, "VIDIOC_STREAMON");
-		return false;
-	}
-
-	return true;
-}
-
-/**
- * @brief stop streaming capturing on device
- */
-bool
-fg_stop_capture(mg_device_t dev,
-		log_t log)
-{
-	enum v4l2_buf_type type;
-	int fd = mg_device_fd(dev);
-
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
-		lg_errno(log, "VIDIOC_STREAMOFF");
-		return false;
-	}
 
 	return true;
 }

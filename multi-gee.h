@@ -11,7 +11,7 @@
 #ifndef DSM_MULTI_GEE_H
 #define DSM_MULTI_GEE_H 1
 
-#include <time.h>
+#include <sys/cdefs.h>
 
 #include <multi-gee/classdef.h>
 #include <multi-gee/sllist.h>
@@ -19,55 +19,108 @@
 #include <multi-gee/mg_device.h>
 #include <multi-gee/mg_frame.h>
 
-__BEGIN_DECLS
+__BEGIN_DECLS;
 
 /* object handle */
 
 NEWHANDLE(multi_gee_t); /* multi-gee object handle */
 
-
-/* create object */
-multi_gee_t /* new handle */
+/**
+ * @brief multi-gee object
+ *
+ * @param file  logfile name,
+ *   - can be 0 for no log file,
+ *   - "stdout" for standard output stream
+ *   - "stderr" for standard error stream
+ *   - a file name: logs will be appended to this file
+ *
+ * @return a newly created multi-gee object handle
+ */
+multi_gee_t
 mg_create(char *);
 
-/* destroy object */
+/**
+ * @brief destroy multi-gee object
+ *
+ * @param multi_gee  handle of object to be destroyed
+ *
+ * @return 0
+ */
 multi_gee_t
-mg_destroy(multi_gee_t /* object to destroy */ );
+mg_destroy(multi_gee_t);
 
-/* start capture loop */
-int /* status value:
-       2 - mg_capture_halt() called
-       1 - no capture devices registered
-       0 - requested frames successfully acquired,
-       -1 - sync failure,
-       -2 - duplicate call to mg_capture,
-       -3 - no callback registered */
+/**
+ * @brief error return values for mg_capture
+ */
+enum mg_RETURN {
+	RET_UNDEF = -6, /**< undefined return value, should never occur */
+	RET_CALLBACK,   /**< -5 - no callback registered */
+	RET_SYNC,       /**< -4 - sync lost */
+	RET_BUSY,       /**< -3 - multiple call to capture */
+	RET_DEVICE,     /**< -2 - no devices registered */
+	RET_HALT,       /**< -1 - capture_halt called */
+};
+
+/**
+ * @brief start capture loop
+ *
+ * @param multi_gee  object handle
+ * @param n  number of frames to capture: -1 => capture forever
+ *
+ * @return mg_RETURN status value, or the number of images captured
+ */
+enum mg_RETURN
 mg_capture(multi_gee_t,
-	   int n /* number of frames to capture */ );
+	   int);
 
-/* halt capture loop */
+/**
+ * @brief halt capture loop
+ *
+ * @param multi_gee  object handle
+ */
 void
 mg_capture_halt(multi_gee_t);
 
-/* register callback function */
+/**
+ * @brief register callback function
+ *
+ * @param multi_gee  object handle
+ * @param callback   user defined callback function
+ *
+ * @return object handle
+ */
 multi_gee_t
 mg_register_callback(multi_gee_t,
-		     void (*)(multi_gee_t, sllist_t) /* callback function */ );
+		     void (*callback)(multi_gee_t, sllist_t));
 
-/* register capture device */
-int /* status value:
-       -1 - failed to register device,
-       value >= 0 - device identifier */
+/**
+ * @brief register capture device
+ *
+ * @param multi_gee  object handle
+ * @param file_name  device to register
+ *
+ * @return status value:
+ *   -1 - failed to register device,
+ *   value >= 0 - device identifier
+ */
+int
 mg_register_device(multi_gee_t,
-		   char *file_name /* device to register */ );
+		   char *);
 
-/* deregister capture device */
-int /* status value:
-       -1 - failed to deregister device,
-       value >= 0 - device identifier */
+/**
+ * @brief deregister capture device
+ *
+ * @param multi_gee  object handle
+ * @param id  device identifier
+ *
+ * @return status value:
+ *   -1 - failed to register device,
+ *   value >= 0 - device identifier of deregistered device
+ */
+int
 mg_deregister_device(multi_gee_t,
-		     int device_id /* device identifier */ );
+		     int);
 
-__END_DECLS
+__END_DECLS;
 
 #endif /* ndef DSM_MULTI_GEE_H */

@@ -11,13 +11,49 @@
 
 USE_XASSERT;
 
+/**
+ * @brief open log file
+ *
+ * open named log file.  if name is stdout, or stderr the output is
+ * directed onto the named stream.  if the file name pointer is NULL log
+ * output goes to /dev/null
+ *
+ * @param file  log file name, can be 0, "stdout", "stderr" or a file
+ * name.  output is appened to the logfile.  if the log file cannot be
+ * opened output defaults to stderr, and the user is informed.
+ *
+ * @return file pointer
+ */
+static FILE *
+open_log(const char *);
+
+/**
+ * @brief prints the current date and time to buffer
+ *
+ * @param buffer  the destination
+ * @param size  the length of the buffer
+ */
+static void
+put_time(char *,
+	 size_t);
+
+/**
+ * @brief output the header string to file
+ *
+ * the header string is the name, followed by a colon, the date and the
+ * time, followed by a colon
+ *
+ * @param file  the output file pointer
+ * @param name  the name to print
+ */
+static void
+put_header(FILE *,
+	   char *);
+
 CLASS(log, log_t) {
 	char *name;
 	FILE *file;
 };
-
-static FILE *
-open_log(const char *file);
 
 log_t
 lg_create(const char *name,
@@ -53,22 +89,17 @@ lg_log(log_t log,
 {
 	VERIFYZ(log) {
 		va_list ap;
-
 		va_start(ap, format);
+
+		FILE* out = stderr;
 		if (log->file) {
-			struct timeval tv;
-			gettimeofday(&tv, 0);
-
-			char tm_buf[30];
-			strftime(tm_buf, sizeof(tm_buf), "%F %H:%M:%S", localtime(&tv.tv_sec));
-
-			fprintf(log->file, "%s: %s: ", log->name, tm_buf);
-			vfprintf(log->file, format, ap);
-			fprintf(log->file, "\n");
-			fflush(log->file);
+			out = log->file;
+			put_header(out, log->name);
 		}
-		else
-			vfprintf(stderr, format, ap);
+
+		vfprintf(out, format, ap);
+		fprintf(out, "\n");
+		fflush(out);
 
 		va_end(ap);
 	}
@@ -78,12 +109,27 @@ lg_log(log_t log,
  * @brief print error message corresponding to errno
  */
 void
-lg_errno(log_t log, const char *s)
+lg_errno(log_t log, const char *format, ...)
 {
-	lg_log(log, "%s error %d, %s", s, errno, strerror(errno));
+	VERIFYZ(log) {
+		va_list ap;
+		va_start(ap, format);
+
+		FILE* out = stderr;
+		if (log->file) {
+			out = log->file;
+			put_header(out, log->name);
+		}
+
+		vfprintf(out, format, ap);
+		fprintf(out, " error %d, %s\n", errno, strerror(errno));
+		fflush(out);
+
+		va_end(ap);
+	}
 }
 
-FILE*
+static FILE*
 open_log(const char *file)
 {
 	FILE* log = 0;
@@ -105,5 +151,24 @@ open_log(const char *file)
 	}
 
 	return log;
+}
+
+static void
+put_time(char *buffer,
+	 size_t size)
+{
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	strftime(buffer, size, "%F %H:%M:%S", localtime(&tv.tv_sec));
+}
+
+static void
+put_header(FILE *file,
+	   char *name)
+{
+	char tm_buf[30];
+	put_time(tm_buf, sizeof(tm_buf));
+
+	fprintf(file, "%s: %s: ", name, tm_buf);
 }
 

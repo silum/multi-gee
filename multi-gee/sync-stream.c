@@ -22,7 +22,7 @@
 #include <sys/ioctl.h>
 
 #include <asm/types.h>		/* needed for videodev2.h */
-#include "linux/videodev2.h"
+#include <linux/videodev2.h>
 
 #include "sllist.h"
 #include "mg_device.h"
@@ -249,8 +249,8 @@ swap_frame(sllist_t frame_list,
 /**
  * @brief create a list of all device frames
  *
- * @desc frames without corresponding devices are removed while frames
- * for devices without correspoding frames are added
+ * frames without corresponding devices are removed while frames for
+ * devices without correspoding frames are added
  *
  * @param frame  a list of all previously added frames
  * @param device  a list of devices
@@ -505,7 +505,7 @@ uninit_mmap(mg_device_t dev)
 /**
  * @brief test device capabilities
  *
- * @desc will not return if insufficient capabilities is detected
+ * will not return if insufficient capabilities is detected
  */
 static void
 test_capability(int fd,
@@ -583,7 +583,7 @@ set_crop(int fd)
 /**
  * @brief set capture format
  *
- * @desc set the following parameters:
+ * set the following parameters:
  *  - height
  *  - width
  *  - depth
@@ -638,7 +638,7 @@ init_device(mg_device_t dev)
 /**
  * @brief open device for reading and writing
  *
- * @desc will not return if a problem is detected
+ * will not return if a problem is detected
  */
 static void
 open_device(mg_device_t dev)
@@ -689,17 +689,18 @@ main(int argc, char *argv[])
 {
 	sllist_t list = 0;
 	mg_device_t dev;
+	log_t log = lg_create("capture", "stderr");
 
-	dev = mg_device_create("/dev/video0");
+	dev = mg_device_create("/dev/video0", log);
 	list = sll_insert_data(list, dev);
 
-	dev = mg_device_create("/dev/video1");
+	dev = mg_device_create("/dev/video1", log);
 	list = sll_insert_data(list, dev);
 
-	dev = mg_device_create("/dev/video2");
+	dev = mg_device_create("/dev/video2", log);
 	list = sll_insert_data(list, dev);
 
-	dev = mg_device_create("/dev/video3");
+	dev = mg_device_create("/dev/video3", log);
 	list = sll_insert_data(list, dev);
 
 	dev = 0;

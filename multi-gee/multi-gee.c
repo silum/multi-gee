@@ -9,8 +9,8 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
+#include <stdint.h>
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
 
@@ -23,6 +23,8 @@
 #include "tv_util.h"
 #include "xmalloc.h"
 
+USE_XASSERT;
+
 static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
 static struct timeval TV_NO_SYNC = {0, 126000}; /* 3 frames + 5% */
 
@@ -33,16 +35,109 @@ enum sync_status
 	SYNC_FAIL
 };
 
-enum mg_RETURN {
-	RET_UNDEF = -6,
-	RET_CALLBACK, /* -5 - no callback registered */
-	RET_SYNC,     /* -4 - sync lost */
-	RET_BUSY,     /* -3 - multiple call to capture */
-	RET_HALT,     /* -2 - capture_halt called */
-	RET_DEVICE    /* -1 - no devices registered */
-};
+/**
+ * @brief find device in list given the file descriptor
+ *
+ * @param list  device list
+ * @param fd  file descriptor
+ *
+ * @return device handle, or 0 if device not in list
+ */
+static mg_device_t
+find_device_fd(sllist_t,
+	       int);
 
-USE_XASSERT;
+/**
+ * @brief find a frame in a list given the capture device
+ *
+ * @param list  frame list
+ * @param device  object handle
+ *
+ * @return frame handle, or 0 if frame not in list
+ */
+static mg_frame_t
+find_frame_device(sllist_t,
+		  mg_device_t);
+
+/**
+ * @brief find device in list with given major and minor number
+ *
+ * @param list  device list
+ * @param major  device major number
+ * @param minor  device minor number
+ *
+ * @return device handle, or 0 if device not in list
+ */
+static mg_device_t
+find_device_major_minor(sllist_t,
+			int,
+			int);
+
+/**
+ * @brief create a list of device frames
+ *
+ * makes a list containing frames from devices in the device list.  the
+ * frame list is taken as a starting point, and frames for devices not
+ * in the device list are removed.
+ *
+ * @param frame  a frame list
+ * @param device  a device list
+ *
+ * @return a frame list only containing frames from devices in the
+ * device list
+ */
+static sllist_t
+add_frame(sllist_t,
+	  sllist_t);
+
+/**
+ * @brief enqueue old frame, dequeue new frame
+ *
+ * swaps current scratch frame with frame filled by capture device
+ *
+ * @param multi_gee  object handle
+ * @param device  object handle
+ *
+ * @return true of the frame was successfully swapped, false if an error
+ * occured
+ */
+static bool
+swap_frame(multi_gee_t,
+	   mg_device_t);
+
+/**
+ * @brief tests frame list for sync
+ *
+ * all frames are in sync when the maximum difference in time stamps are
+ * less than TV_IN_SYNC.  if the time elapsed since the previous sync
+ * condition was more than TV_NO_SYNC, or when the maximum difference in
+ * time stamps are more than TV_NO_SYNC, a fatal condition exists
+ *
+ * @param frame  object list
+ * @param log  object handle, to log possible errors
+ *
+ * @return sync status
+ */
+static enum sync_status
+sync_test(sllist_t,
+	  log_t);
+
+/**
+ * @brief monitors all devices for capture events
+ *
+ * performs a select on the fd_set.  if any activity on the set occurs
+ * within a timeout period of TV_NO_SYNC, the function returns with a
+ * non-fatal sync status.  If the select fails, or times out, a fatal
+ * condition status is returned.
+ *
+ * @param multi_gee  device object
+ * @param fds  fd_set to test for abvailability of a captured frame
+ *
+ * @return sync status
+ */
+static enum sync_status
+sync_select(multi_gee_t,
+	    fd_set *);
 
 CLASS(multi_gee, multi_gee_t)
 {
@@ -57,235 +152,6 @@ CLASS(multi_gee, multi_gee_t)
 
 	log_t log;
 };
-
-/**
- * @brief enqueue old frame, dequeue new frame
- */
-static bool
-swap_frame(multi_gee_t multi_gee,
-	   mg_device_t dev)
-{
-	int fd = mg_device_fd(dev);
-
-	struct v4l2_buffer buf;
-	if (!fg_dequeue(fd, &buf))
-		return false;
-
-	mg_buffer_t dev_buf = mg_device_buffer(dev);
-	xassert(buf.index < mg_buffer_number(dev_buf)) {
-		for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
-			mg_frame_t frame = sll_data(f);
-			if (dev == mg_frame_device(frame)) {
-				int index = mg_frame_index(frame);
-				if (index >= 0)
-					if (!fg_enqueue(mg_device_fd(dev), index))
-						return false;
-
-				multi_gee->frame =
-					sll_remove_data(multi_gee->frame, frame);
-
-				mg_frame_destroy(frame);
-
-				frame = mg_frame_create(dev, &buf);
-				multi_gee->frame =
-					sll_insert_data(multi_gee->frame, frame);
-
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-/*
- */
-static
-mg_device_t
-find_device_fd(sllist_t list,
-	       int fd)
-{
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t device = sll_data(d);
-		if (mg_device_fd(device) == fd)
-			return device;
-	}
-
-	return 0;
-}
-
-static
-mg_frame_t
-find_frame_device(sllist_t list,
-		  mg_device_t device)
-{
-	for (sllist_t f = list; f; f = sll_next(f)) {
-		mg_frame_t frame = sll_data(f);
-		if (mg_frame_device(frame) == device)
-			return frame;
-	}
-
-	return 0;
-}
-
-/**
- * @brief create a list of all device frames
- *
- * @desc frames without corresponding devices are removed while frames
- * for devices without correspoding frames are added
- *
- * @param frame  a list of all previously added frames
- * @param device  a list of devices
- */
-static sllist_t
-add_frame(sllist_t frame,
-	  sllist_t device)
-{
-	sllist_t list = 0;
-
-	for (sllist_t d = device; d; d = sll_next(d)) {
-		mg_device_t dev = sll_data(d);
-
-		mg_frame_t old_frame = find_frame_device(frame, dev);
-		if (old_frame) {
-			frame = sll_remove_data(frame, old_frame);
-			list = sll_insert_data(list, old_frame);
-		} else {
-			mg_frame_t new_frame = mg_frame_create(dev, 0);
-			list = sll_insert_data(list, new_frame);
-		}
-	}
-
-	for (sllist_t f = frame; f; f = sll_next(f))
-		mg_frame_destroy(sll_data(f));
-
-	frame = sll_empty(frame);
-	return list;
-}
-
-/*
-	TODO
- */
-static enum sync_status
-sync_test(sllist_t frame_list,
-	  log_t log)
-{
-	enum sync_status sync = SYNC_FAIL;
-
-	static struct timeval last_sync = {0, 0};
-
-	if (last_sync.tv_sec == 0
-	    && last_sync.tv_usec == 0)
-		gettimeofday(&last_sync, 0);
-
-	struct timeval now;
-	gettimeofday(&now, 0);
-
-	struct timeval tv_diff = tv_abs_diff(last_sync, now);
-	if (tv_lt(TV_NO_SYNC, tv_diff)) {
-		lg_log(log,
-		       "too long since last sync: %ld.%06ld\n",
-		       tv_diff.tv_sec,
-		       tv_diff.tv_usec);
-
-		sync = SYNC_FATAL;
-	} else if (frame_list) {
-		mg_frame_t frame = sll_data(frame_list);
-		struct timeval tv_max = mg_frame_timestamp(frame);
-		struct timeval tv_min = tv_max;
-
-		bool ready = true;
-		ready &= !mg_frame_used(frame);
-
-		for (sllist_t f = sll_next(frame_list); f; f = sll_next(f)) {
-			frame = sll_data(f);
-			ready &= !mg_frame_used(frame);
-
-			struct timeval tv = mg_frame_timestamp(frame);
-			if (tv_lt(tv, tv_min)) tv_min = tv;
-			if (tv_lt(tv_max, tv)) tv_max = tv;
-		}
-
-		tv_diff = tv_abs_diff(tv_min, tv_max);
-		if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
-			for (sllist_t f = frame_list; f; f = sll_next(f))
-				mg_frame_set_used(sll_data(f));
-			last_sync = now;
-			sync = SYNC_OK;
-		} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
-			lg_log(log,
-			      "fatal loss of sync: %ld.%06ld\n",
-			      tv_diff.tv_sec,
-			      tv_diff.tv_usec);
-			sync = SYNC_FATAL;
-		}
-	}
-	return sync;
-}
-
-static enum sync_status
-sync_select(multi_gee_t multi_gee,
-	    fd_set *fds)
-{
-	if (multi_gee->refresh) {
-		multi_gee->frame =
-			add_frame(multi_gee->frame, multi_gee->device);
-		multi_gee->refresh = false;
-	}
-
-	enum sync_status sync = SYNC_FAIL;
-	while (SYNC_FATAL != sync) {
-		FD_ZERO(fds);
-
-		int max_fd = -1;
-		for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
-			int fd = mg_device_fd(sll_data(d));
-			max_fd = (fd > max_fd) ? fd : max_fd;
-			FD_SET(fd, fds);
-		}
-		max_fd += 1;
-
-		struct timeval timeout = TV_NO_SYNC;
-		int ret = select(max_fd, fds, NULL, NULL, &timeout);
-
-		if (-1 == ret) {
-			if (EINTR == errno)
-				continue;
-
-			lg_log(multi_gee->log, "select");
-			sync = SYNC_FATAL;
-		}
-
-		if (0 == ret) {
-			/* select timeout */
-			lg_log(multi_gee->log, "wait too long for frame");
-			sync = SYNC_FATAL;
-		}
-
-		break;
-	}
-
-	return sync;
-}
-
-static
-mg_device_t
-find_device(sllist_t list,
-	    mg_device_t seek)
-{
-	int major = mg_device_major(seek);
-	int minor = mg_device_minor(seek);
-
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t found = sll_data(d);
-
-		if (mg_device_major(found) == major
-		    && mg_device_minor(found) == minor)
-			return found;
-	}
-
-	return 0;
-}
 
 multi_gee_t
 mg_create(char* log_file)
@@ -324,7 +190,7 @@ mg_destroy(multi_gee_t multi_gee)
 	return 0;
 }
 
-int
+enum mg_RETURN
 mg_capture(multi_gee_t multi_gee,
 	   int n)
 {
@@ -419,7 +285,7 @@ mg_register_device(multi_gee_t multi_gee,
 	int ret = -1;
 
 	VERIFY(multi_gee) {
-		mg_device_t dev = mg_device_create(name);
+		mg_device_t dev = mg_device_create(name, multi_gee->log);
 
 		/* can device be registered? */
 		if (mg_device_major(dev) == -1
@@ -428,26 +294,36 @@ mg_register_device(multi_gee_t multi_gee,
 			ret = -1;
 		} else {
 			/* is device already registered? */
-			mg_device_t dup = find_device(multi_gee->device, dev);
+			mg_device_t dup =
+				find_device_major_minor(multi_gee->device,
+							mg_device_major(dev),
+							mg_device_minor(dev));
 			if (dup) {
 				dev = mg_device_destroy(dev);
 				ret = mg_device_fd(dup);
 			}
 		}
-		
-		/* everything ok, add it to list */
+
+		/* try to start capture on device */
 		if (dev) {
-			multi_gee->refresh = true;
-
-			multi_gee->device = sll_insert_data(multi_gee->device, dev);
-
-			mg_device_open(dev);
-			ret = mg_device_fd(dev);
+			ret = mg_device_open(dev);
+			if (-1 != ret) {
+				ret = mg_device_fd(dev);
+			}
 
 			if (-1 != ret) {
-				if (!fg_init_device(dev)
-				    || !fg_start_capture(dev))
+				if (!fg_init_device(dev, multi_gee->log)
+				    || !fg_start_capture(dev, multi_gee->log))
 					ret = -1;
+			}
+
+			if (-1 != ret) {
+				/* everything ok, add it to list */
+				multi_gee->refresh = true;
+				multi_gee->device = sll_insert_data(multi_gee->device, dev);
+			} else {
+				/* fatal error */
+				mg_device_destroy(dev);
 			}
 		}
 	}
@@ -468,8 +344,8 @@ mg_deregister_device(multi_gee_t multi_gee,
 			multi_gee->device = sll_remove_data(multi_gee->device, device);
 
 			/* ignore failures */
-			fg_stop_capture(device);
-			fg_uninit_device(device);
+			fg_stop_capture(device, multi_gee->log);
+			fg_uninit_device(device, multi_gee->log);
 
 			mg_device_destroy(device);
 			ret = id;
@@ -477,6 +353,215 @@ mg_deregister_device(multi_gee_t multi_gee,
 	}
 
 	return ret;
+}
+
+static
+mg_device_t
+find_device_fd(sllist_t list,
+	       int fd)
+{
+	for (sllist_t d = list; d; d = sll_next(d)) {
+		mg_device_t device = sll_data(d);
+		if (mg_device_fd(device) == fd)
+			return device;
+	}
+
+	return 0;
+}
+
+static
+mg_frame_t
+find_frame_device(sllist_t list,
+		  mg_device_t device)
+{
+	for (sllist_t f = list; f; f = sll_next(f)) {
+		mg_frame_t frame = sll_data(f);
+		if (mg_frame_device(frame) == device)
+			return frame;
+	}
+
+	return 0;
+}
+
+static
+mg_device_t
+find_device_major_minor(sllist_t list,
+			int major,
+			int minor)
+{
+	for (sllist_t d = list; d; d = sll_next(d)) {
+		mg_device_t found = sll_data(d);
+		if (mg_device_major(found) == major
+		    && mg_device_minor(found) == minor)
+			return found;
+	}
+
+	return 0;
+}
+
+static sllist_t
+add_frame(sllist_t frame,
+	  sllist_t device)
+{
+	sllist_t list = 0;
+
+	for (sllist_t d = device; d; d = sll_next(d)) {
+		mg_device_t dev = sll_data(d);
+
+		mg_frame_t old_frame = find_frame_device(frame, dev);
+		if (old_frame) {
+			frame = sll_remove_data(frame, old_frame);
+			list = sll_insert_data(list, old_frame);
+		} else {
+			mg_frame_t new_frame = mg_frame_create(dev, 0);
+			list = sll_insert_data(list, new_frame);
+		}
+	}
+
+	for (sllist_t f = frame; f; f = sll_next(f))
+		mg_frame_destroy(sll_data(f));
+
+	frame = sll_empty(frame);
+	return list;
+}
+
+static bool
+swap_frame(multi_gee_t multi_gee,
+	   mg_device_t dev)
+{
+	int fd = mg_device_fd(dev);
+
+	struct v4l2_buffer buf;
+	if (!fg_dequeue(fd, &buf, multi_gee->log))
+		return false;
+
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	xassert(buf.index < mg_buffer_number(dev_buf)) {
+		for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
+			mg_frame_t frame = sll_data(f);
+			if (dev == mg_frame_device(frame)) {
+				int index = mg_frame_index(frame);
+				if (index >= 0)
+					if (!fg_enqueue(mg_device_fd(dev), index, multi_gee->log))
+						return false;
+
+				multi_gee->frame =
+					sll_remove_data(multi_gee->frame, frame);
+
+				mg_frame_destroy(frame);
+
+				frame = mg_frame_create(dev, &buf);
+				multi_gee->frame =
+					sll_insert_data(multi_gee->frame, frame);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+static enum sync_status
+sync_test(sllist_t frame_list,
+	  log_t log)
+{
+	enum sync_status sync = SYNC_FAIL;
+
+	static struct timeval last_sync = {0, 0};
+
+	if (last_sync.tv_sec == 0
+	    && last_sync.tv_usec == 0)
+		gettimeofday(&last_sync, 0);
+
+	struct timeval now;
+	gettimeofday(&now, 0);
+
+	struct timeval tv_diff = tv_abs_diff(last_sync, now);
+	if (tv_lt(TV_NO_SYNC, tv_diff)) {
+		lg_log(log,
+		       "too long since last sync: %ld.%06ld",
+		       tv_diff.tv_sec,
+		       tv_diff.tv_usec);
+
+		sync = SYNC_FATAL;
+	} else if (frame_list) {
+		mg_frame_t frame = sll_data(frame_list);
+		struct timeval tv_max = mg_frame_timestamp(frame);
+		struct timeval tv_min = tv_max;
+
+		bool ready = true;
+		ready &= !mg_frame_used(frame);
+
+		for (sllist_t f = sll_next(frame_list); f; f = sll_next(f)) {
+			frame = sll_data(f);
+			ready &= !mg_frame_used(frame);
+
+			struct timeval tv = mg_frame_timestamp(frame);
+			if (tv_lt(tv, tv_min)) tv_min = tv;
+			if (tv_lt(tv_max, tv)) tv_max = tv;
+		}
+
+		tv_diff = tv_abs_diff(tv_min, tv_max);
+		if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
+			for (sllist_t f = frame_list; f; f = sll_next(f))
+				mg_frame_set_used(sll_data(f));
+			last_sync = now;
+			sync = SYNC_OK;
+		} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
+			lg_log(log,
+			       "fatal loss of sync: %ld.%06ld\n",
+			       tv_diff.tv_sec,
+			       tv_diff.tv_usec);
+			sync = SYNC_FATAL;
+		}
+	}
+	return sync;
+}
+
+static enum sync_status
+sync_select(multi_gee_t multi_gee,
+	    fd_set *fds)
+{
+	if (multi_gee->refresh) {
+		multi_gee->frame =
+			add_frame(multi_gee->frame, multi_gee->device);
+		multi_gee->refresh = false;
+	}
+
+	enum sync_status sync = SYNC_FAIL;
+	while (SYNC_FATAL != sync) {
+		FD_ZERO(fds);
+
+		int max_fd = -1;
+		for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
+			int fd = mg_device_fd(sll_data(d));
+			max_fd = (fd > max_fd) ? fd : max_fd;
+			FD_SET(fd, fds);
+		}
+		max_fd += 1;
+
+		struct timeval timeout = TV_NO_SYNC;
+		int ret = select(max_fd, fds, NULL, NULL, &timeout);
+
+		if (-1 == ret) {
+			if (EINTR == errno)
+				continue;
+
+			lg_log(multi_gee->log, "select");
+			sync = SYNC_FATAL;
+		}
+
+		if (0 == ret) {
+			/* select timeout */
+			lg_log(multi_gee->log, "wait too long for frame");
+			sync = SYNC_FATAL;
+		}
+
+		break;
+	}
+
+	return sync;
 }
 
 #ifdef DEBUG_MULTI_GEE
@@ -519,7 +604,8 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 	printf("\n");
 
-//	usleep(38975); // 3 devices
+	//	usleep(38975); // 3 devices
+	// mg_capture_halt(mg);
 	return;
 
 	static int dev_id = -1;
@@ -547,7 +633,7 @@ multi_gee()
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 
 	// printf("capture ret = %d\n", mg_capture(mg, -1));
-	printf("capture ret = %d\n", mg_capture(mg, 100));
+	printf("capture ret = %d\n", mg_capture(mg, 1));
 
 	mg_destroy(mg);
 }

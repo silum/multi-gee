@@ -8,7 +8,8 @@
  */
 
 // #include <stdint.h> /* uint32_t */
-#include <sys/time.h> /* struct timeval */
+// #include <stdlib.h> /* struct timeval */
+#include <sys/time.h> /* gettimeofday */
 
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
@@ -46,7 +47,7 @@ mg_frame_create(mg_device_t mg_device,
 	} else {
 		mg_frame->index = -1;
 		gettimeofday(&mg_frame->timestamp, 0);
-		mg_frame->sequence = 0;
+		mg_frame->sequence = -1;
 	}
 
 	mg_frame->used = false;
@@ -193,8 +194,9 @@ test_frame(mg_device_t device,
 void
 mg_frame()
 {
+	log_t log = lg_create("mg_frame", "stderr");
 	struct timeval timestamp = {0 , 0};
-	mg_device_t mg_device = mg_device_create("/dev/null");
+	mg_device_t mg_device = mg_device_create("/dev/null", log);
 	mg_buffer_t mg_buffer = mg_device_buffer(mg_device);
 	mg_buffer_alloc(mg_buffer, 1);
 
@@ -210,6 +212,8 @@ mg_frame()
 	test_frame(mg_device, (void *)3, timestamp, 4);
 
 	mg_device = mg_device_destroy(mg_device);
+
+	log = lg_destroy(log);
 }
 
 int

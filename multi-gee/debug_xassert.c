@@ -11,12 +11,6 @@ USE_XASSERT;
 bool XASSERT_INTERACTIVE = true;
 bool XASSERT_FAILURE = false;
 
-/*
- * user defined assertion failure report
- *
- * sets XASSERT_FAILURE true when called, prompts for user input when
- * XASSERT_INTERACTIVE is true
- */
 void
 report_xassert(const char *file_name, int line)
 {
@@ -32,16 +26,6 @@ report_xassert(const char *file_name, int line)
 	}
 }
 
-/*
- * debug test programme framework function
- *
- * calls the user supplied test function and checks for assertion fail
- * and memory leaks
- *
- * returns
- *   EXIT_SUCCESS if everything is ok,
- *   EXIT_FAILURE if an assertion failed or a memory leak was detected
- */
 int
 debug_test(void (*test_func)())
 {

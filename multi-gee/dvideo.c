@@ -17,7 +17,7 @@
 #include <sys/ioctl.h>
 
 #include <asm/types.h>		/* for videodev2.h */
-#include "linux/videodev2.h"
+#include <linux/videodev2.h>
 
 #include <stdint.h>
 #include <stdbool.h>
