@@ -6,7 +6,7 @@ DIST_SUBDIRS = src
 
 AM_CFLAGS = -I$(top_srcdir)/src -std=gnu99
 
-noinst_PROGRAMS = \
+TESTS = \
     src/mg_device \
     src/mg_frame \
     src/multi_gee \
@@ -14,7 +14,10 @@ noinst_PROGRAMS = \
     src/test_mg \
     src/test_sllist
 
-TESTS = $(noinst_PROGRAMS)
+noinst_PROGRAMS = \
+    $(TESTS) \
+    src/capture
+
 
 #src/dvideo
 #noinst_PROGRAMS = src/capture
