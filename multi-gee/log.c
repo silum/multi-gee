@@ -34,14 +34,14 @@ USE_XASSERT;
  * directed onto the named stream.  if the file name pointer is NULL log
  * output goes to /dev/null
  *
+ * @param log  object handle
  * @param file  log file name, can be 0, "stdout", "stderr" or a file
  * name.  output is appened to the logfile.  if the log file cannot be
  * opened output defaults to stderr, and the user is informed.
- *
- * @return file pointer
  */
-static FILE *
-open_log(const char *file);
+static void
+open_log(log_t log,
+	 const char *file);
 
 /**
  * @brief prints the current date and time to buffer
@@ -69,6 +69,7 @@ put_header(FILE *file,
 CLASS(log, log_t) {
 	char *name;
 	FILE *file;
+	bool close;
 };
 
 log_t
@@ -80,7 +81,10 @@ lg_create(const char *name,
 	NEWOBJ(log);
 
 	log->name = xstrdup(name, __FILE__, __LINE__);
-	log->file = open_log(file);
+	log->file = 0;
+	log->close = true;
+
+	open_log(log, file);
 
 	return log;
 }
@@ -90,7 +94,8 @@ lg_destroy(log_t log)
 {
 	VERIFYZ(log) {
 		xfree(log->name);
-		fclose(log->file);
+		if (log->close)
+			fclose(log->file);
 
 		FREEOBJ(log);
 	}
@@ -145,28 +150,42 @@ lg_errno(log_t log, const char *format, ...)
 	}
 }
 
-static FILE*
-open_log(const char *file)
+static void
+open_log(log_t log, const char *file)
 {
-	FILE* log = 0;
+	VERIFY(log) {
+		if (log->file
+		    && log->close) {
+			fclose(log->file);
+			log->file = 0;
+		}
 
-	if (!file)
-		return 0;
+		if (!file) {
+			log->file = 0;
+			return;
+		}
 
-	if (0 == strcmp(file, "stderr"))
-		return stderr;
+		if (0 == strcmp(file, "stderr")) {
+			log->file = stderr;
+			log->close = false;
+			return;
+		}
 
-	if (0 == strcmp(file, "stdout"))
-		return stdout;
+		if (0 == strcmp(file, "stdout")) {
+			log->file = stdout;
+			log->close = false;
+			return;
+		}
 
-	log = fopen(file, "a");
-	if (!log) {
-		fprintf(stderr, "could not open %s for appending, using"
-			" `stderr' instead\n", file);
-		log = stderr;
+		log->file = fopen(file, "a");
+		log->close = true;
+		if (!log->file) {
+			fprintf(stderr, "could not open %s for appending, using"
+				" `stderr' instead\n", file);
+			log->file = stderr;
+			log->close = false;
+		}
 	}
-
-	return log;
 }
 
 static void

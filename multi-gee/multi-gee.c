@@ -122,14 +122,16 @@ swap_frame(multi_gee_t multi_gee,
  * condition was more than TV_NO_SYNC, or when the maximum difference in
  * time stamps are more than TV_NO_SYNC, a fatal condition exists
  *
- * @param frame  object list
- * @param log  object handle, to log possible errors
+ * @param multi_gee  object handle
+ * // @param frame  object list
+ * // @param log  object handle, to log possible errors
  *
  * @return sync status
  */
 static enum sync_status
-sync_test(sllist_t frame,
-	  log_t log);
+sync_test(multi_gee_t multi_gee);
+//	  sllist_t frame,
+//	  log_t log);
 
 /**
  * @brief monitors all devices for capture events
@@ -159,6 +161,8 @@ CLASS(multi_gee, multi_gee_t)
 	sllist_t frame;
 	sllist_t device;
 
+	struct timeval last_sync;
+
 	log_t log;
 };
 
@@ -177,6 +181,9 @@ mg_create(char* log_file)
 	multi_gee->frame = 0;
 	multi_gee->device = 0;
 
+	multi_gee->last_sync.tv_sec = 0;
+	multi_gee->last_sync.tv_usec = 0;
+
 	multi_gee->log = lg_create("multi-gee", log_file);
 
 	lg_log(multi_gee->log, "startup");
@@ -188,8 +195,10 @@ multi_gee_t
 mg_destroy(multi_gee_t multi_gee)
 {
 	VERIFYZ(multi_gee) {
-		for (sllist_t d = multi_gee->device; d; d = sll_next(d))
-			mg_device_destroy(sll_data(d));
+		while (multi_gee->device) {
+			int id = mg_device_fd(sll_data(multi_gee->device));
+			mg_deregister_device(multi_gee, id);
+		}
 		multi_gee->device = sll_empty(multi_gee->device);
 		multi_gee->frame = add_frame(multi_gee->frame, 0);
 		multi_gee->log = lg_destroy(multi_gee->log);
@@ -245,7 +254,10 @@ mg_capture(multi_gee_t multi_gee,
 						if (!swap_frame(multi_gee, dev))
 							break;
 
-						sync = sync_test(multi_gee->frame, multi_gee->log);
+						sync = sync_test(multi_gee);
+//						 ->frame,
+//								 multi_gee->log,
+//								 mutli_gee->last_sync);
 
 						if (sync == SYNC_FATAL)
 							break;
@@ -472,57 +484,62 @@ swap_frame(multi_gee_t multi_gee,
 }
 
 static enum sync_status
-sync_test(sllist_t frame_list,
-	  log_t log)
+//sync_test(sllist_t frame_list,
+//	  log_t log,
+//	  struct timeval *last_sync)
+sync_test(multi_gee_t multi_gee)
 {
 	enum sync_status sync = SYNC_FAIL;
 
-	static struct timeval last_sync = {0, 0};
+	VERIFY(multi_gee) {
 
-	if (last_sync.tv_sec == 0
-	    && last_sync.tv_usec == 0)
-		gettimeofday(&last_sync, 0);
+		//	static struct timeval last_sync = {0, 0};
 
-	struct timeval now;
-	gettimeofday(&now, 0);
+		if (multi_gee->last_sync.tv_sec == 0
+		    && multi_gee->last_sync.tv_usec == 0)
+			gettimeofday(&multi_gee->last_sync, 0);
 
-	struct timeval tv_diff = tv_abs_diff(last_sync, now);
-	if (tv_lt(TV_NO_SYNC, tv_diff)) {
-		lg_log(log,
-		       "too long since last sync: %ld.%06ld",
-		       tv_diff.tv_sec,
-		       tv_diff.tv_usec);
+		struct timeval now;
+		gettimeofday(&now, 0);
 
-		sync = SYNC_FATAL;
-	} else if (frame_list) {
-		mg_frame_t frame = sll_data(frame_list);
-		struct timeval tv_max = mg_frame_timestamp(frame);
-		struct timeval tv_min = tv_max;
-
-		bool ready = true;
-		ready &= !mg_frame_used(frame);
-
-		for (sllist_t f = sll_next(frame_list); f; f = sll_next(f)) {
-			frame = sll_data(f);
-			ready &= !mg_frame_used(frame);
-
-			struct timeval tv = mg_frame_timestamp(frame);
-			if (tv_lt(tv, tv_min)) tv_min = tv;
-			if (tv_lt(tv_max, tv)) tv_max = tv;
-		}
-
-		tv_diff = tv_abs_diff(tv_min, tv_max);
-		if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
-			for (sllist_t f = frame_list; f; f = sll_next(f))
-				mg_frame_set_used(sll_data(f));
-			last_sync = now;
-			sync = SYNC_OK;
-		} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
-			lg_log(log,
-			       "fatal loss of sync: %ld.%06ld\n",
+		struct timeval tv_diff = tv_abs_diff(multi_gee->last_sync, now);
+		if (tv_lt(TV_NO_SYNC, tv_diff)) {
+			lg_log(multi_gee->log,
+			       "too long since last sync: %ld.%06ld",
 			       tv_diff.tv_sec,
 			       tv_diff.tv_usec);
+
 			sync = SYNC_FATAL;
+		} else if (multi_gee->frame) {
+			mg_frame_t frame = sll_data(multi_gee->frame);
+			struct timeval tv_max = mg_frame_timestamp(frame);
+			struct timeval tv_min = tv_max;
+
+			bool ready = true;
+			ready &= !mg_frame_used(frame);
+
+			for (sllist_t f = sll_next(multi_gee->frame); f; f = sll_next(f)) {
+				frame = sll_data(f);
+				ready &= !mg_frame_used(frame);
+
+				struct timeval tv = mg_frame_timestamp(frame);
+				if (tv_lt(tv, tv_min)) tv_min = tv;
+				if (tv_lt(tv_max, tv)) tv_max = tv;
+			}
+
+			tv_diff = tv_abs_diff(tv_min, tv_max);
+			if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
+				for (sllist_t f = multi_gee->frame; f; f = sll_next(f))
+					mg_frame_set_used(sll_data(f));
+				multi_gee->last_sync = now;
+				sync = SYNC_OK;
+			} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
+				lg_log(multi_gee->log,
+				       "fatal loss of sync: %ld.%06ld\n",
+				       tv_diff.tv_sec,
+				       tv_diff.tv_usec);
+				sync = SYNC_FATAL;
+			}
 		}
 	}
 	return sync;
@@ -640,8 +657,20 @@ multi_gee()
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 
-	// printf("capture ret = %d\n", mg_capture(mg, -1));
-	printf("capture ret = %d\n", mg_capture(mg, 1));
+	// int ret = mg_capture(mg, -1);
+	int ret = mg_capture(mg, 1);
+	printf("capture ret = %d\n", ret);
+
+	// handle return value
+	switch (ret) {
+		case RET_UNDEF    : printf("should not happen\n"); break;
+		case RET_CALLBACK : printf("no callback registered\n"); break;
+		case RET_SYNC     : printf("sync lost\n"); break;
+		case RET_BUSY     : printf("multiple call to capture\n"); break;
+		case RET_DEVICE   : printf("no devices registered\n"); break;
+		case RET_HALT     : printf("capture_halt called\n"); break;
+		default           : printf("captured %d frames\n", ret); break;
+	}
 
 	mg_destroy(mg);
 }
@@ -649,7 +678,12 @@ multi_gee()
 int
 main()
 {
-	return debug_test(multi_gee);
+	for (int i = 0; i < 5; i++) {
+		int ret = debug_test(multi_gee);
+		if (ret != EXIT_SUCCESS)
+			return ret;
+	}
+	return EXIT_SUCCESS;
 }
 
 #endif /* def DEBUG_MULTI_GEE */
