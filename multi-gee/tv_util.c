@@ -70,6 +70,7 @@ tv_abs_diff(struct timeval tv_0,
 #include <stdio.h>
 
 #include <xassert.h>
+#include <xmalloc.h>
 
 USE_XASSERT;
 

@@ -139,7 +139,7 @@ mg_buffer_length(mg_buffer_t mg_buffer,
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "debug_xassert.h"
+#include <xassert.h>
 
 void
 verify_buffer(mg_buffer_t buffer,

@@ -169,7 +169,7 @@ mg_device_buffer(mg_device_t mg_device)
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "debug_xassert.h"
+#include <xassert.h>
 
 void
 test_device(char *name,

@@ -17,7 +17,7 @@
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AC_PREREQ(2.57)
-AC_INIT([multi-gee], [0.91], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.92], [dsm@tlabs.ac.za])
 LIBVERSION="0:0:0"
 AC_SUBST(LIBVERSION)
 
