@@ -17,7 +17,7 @@
  */
 /**
  * @file tv_util.h
- * @brief timeval structure utility function declarations
+ * @brief Timeval structure utility function declarations
  */
 
 #ifndef DSM_TV_UTIL_H

@@ -27,10 +27,10 @@
 
 USE_XASSERT;
 
-/** @brief set flag to true if sll can be verified */
+/** @brief Set flag to true if sll can be verified */
 #define VERIFY_SLL_FLAG(sll, flag) \
 	bool flag = false; { sllist_t sllist = sll; VERIFY(sllist)  { flag = true; } }
-/** @brief set flag to true if sll can be verified, or is zero */
+/** @brief Set flag to true if sll can be verified, or is zero */
 #define VERIFYZ_SLL_FLAG(sll, flag) \
 	bool flag = false; { sllist_t sllist = sll; VERIFYZ(sllist) { flag = true; } }
 
@@ -87,7 +87,7 @@ sll_remove(sllist_t list,
 	   sllist_t item);
 
 /**
- * @brief sllist object structure
+ * @brief Sllist object structure
  */
 CLASS(sllist, sllist_t)
 {

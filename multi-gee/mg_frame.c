@@ -17,7 +17,7 @@
  */
 /**
  * @file mg_frame.c
- * @brief multi-gee Frame definition
+ * @brief Multi-gee Frame definition
  */
 
 #include <sys/time.h> /* gettimeofday */
@@ -34,7 +34,7 @@
 USE_XASSERT;
 
 /**
- * @brief mg_frame object structure
+ * @brief Mg_frame object structure
  */
 CLASS(mg_frame, mg_frame_t)
 {

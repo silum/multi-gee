@@ -34,7 +34,7 @@
 USE_XASSERT;
 
 /**
- * @brief multi-gee device structure
+ * @brief Multi-gee device structure
  */
 CLASS(mg_device, mg_device_t)
 {

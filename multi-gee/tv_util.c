@@ -17,7 +17,7 @@
  */
 /**
  * @file tv_util.c
- * @brief timeval structure utility function definitions
+ * @brief Timeval structure utility function definitions
  */
 
 #include "tv_util.h"

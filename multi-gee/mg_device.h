@@ -17,7 +17,7 @@
  */
 /**
  * @file mg_device.h
- * @brief multi-gee device declaration
+ * @brief Multi-gee device declaration
  */
 
 #ifndef DSM_MG_DEVICE_H

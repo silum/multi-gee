@@ -28,7 +28,7 @@
 __BEGIN_DECLS
 
 /**
- * @brief singly linked list object handle
+ * @brief Singly linked list object handle
  */
 NEWHANDLE(sllist_t);
 

@@ -72,7 +72,7 @@ put_header(FILE *file,
 	   char *name);
 
 /**
- * @brief log object structure
+ * @brief Log object structure
  */
 CLASS(log, log_t) {
 	char *name;

@@ -17,7 +17,7 @@
  */
 /**
  * @file multi-gee/multi-gee.c
- * @brief multi-gee Frame Grabber Library definition
+ * @brief Multi-gee Frame Grabber Library definition
  */
 
 #include <errno.h>
@@ -49,7 +49,7 @@ static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
 static struct timeval TV_NO_SYNC = {0, 126000}; /* 3 frames + 5% */
 
 /**
- * @brief synchronisation status
+ * @brief Synchronisation status
  */
 enum sync_status
 {
@@ -161,7 +161,7 @@ sync_select(multi_gee_t multi_gee,
 	    fd_set *fds);
 
 /**
- * @brief multi_gee object structure
+ * @brief Multi_gee object structure
  */
 CLASS(multi_gee, multi_gee_t)
 {

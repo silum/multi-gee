@@ -17,7 +17,7 @@
  */
 /**
  * @file multi-gee.h
- * @brief multi-gee Frame Grabber Library declaration
+ * @brief Multi-gee Frame Grabber Library declaration
  */
 
 #ifndef DSM_MULTI_GEE_H
@@ -81,7 +81,7 @@ __BEGIN_DECLS;
  */
 
 /**
- * @brief multi_gee object handle
+ * @brief Multi_gee object handle
  */
 NEWHANDLE(multi_gee_t);
 

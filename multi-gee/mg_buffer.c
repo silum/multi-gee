@@ -27,7 +27,7 @@
 USE_XASSERT;
 
 /**
- * @brief buffer object structure
+ * @brief Buffer object structure
  */
 CLASS(mg_buffer, mg_buffer_t)
 {
