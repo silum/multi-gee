@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * frame grabber interface utilities
  */
-
+/**
+ * @file fg_util.h
+ * @brief Frame grabber interface utility declaration
+ */
 #ifndef DSM_FG_UTIL_H
-#define DSM_FG_UTIL_H 1
+#define DSM_FG_UTIL_H
 
 #include <stdbool.h>
 #include <multi-gee/mg_device.h>
@@ -31,7 +31,7 @@ __BEGIN_DECLS
 struct v4l2_buffer;
 
 /**
- * @brief initialise frame capture device
+ * @brief Initialise frame capture device
  *
  * does the following
  *  - test capabilities
@@ -50,7 +50,7 @@ fg_init_device(mg_device_t device,
 	       log_t log);
 
 /**
- * @brief uninitialise frame capture device
+ * @brief Uninitialise frame capture device
  *
  * @param device  device handle to uninit
  * @param log  to log possible errors to
@@ -62,7 +62,7 @@ fg_uninit_device(mg_device_t device,
 		 log_t log);
 
 /**
- * @brief enqueue a capture buffer for filling by the driver
+ * @brief Enqueue a capture buffer for filling by the driver
  *
  * @param fd  file descriptor
  * @param index   buffer index
@@ -76,7 +76,7 @@ fg_enqueue(int fd,
 	   log_t log);
 
 /**
- * @brief dequeue a buffer for user processing
+ * @brief Dequeue a buffer for user processing
  *
  * @param fd  file descriptor
  * @param buffer  video4linux2 buffer to dequeue
@@ -90,7 +90,7 @@ fg_dequeue(int fd,
 	   log_t log);
 
 /**
- * @brief start streaming capturing on device
+ * @brief Start streaming capturing on device
  *
  * @param device  device to start streaming
  * @param log  to log possible errors to
@@ -102,7 +102,7 @@ fg_start_capture(mg_device_t device,
 		 log_t log);
 
 /**
- * @brief stop streaming capturing on device
+ * @brief Stop streaming capturing on device
  *
  * @param device  device to stop streaming
  * @param log  to log possible errors to

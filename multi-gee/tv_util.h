@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * timeval structure utility functions
+ */
+/**
+ * @file tv_util.h
+ * @brief timeval structure utility function declarations
  */
 
 #ifndef DSM_TV_UTIL_H
-#define DSM_TV_UTIL_H 1
+#define DSM_TV_UTIL_H
 
 #include <stdbool.h> /* bool */
 #include <sys/time.h> /* struct timeval */
@@ -28,7 +29,7 @@
 __BEGIN_DECLS
 
 /**
- * @brief test equality between to timeval structures
+ * @brief Test equality between to timeval structures
  *
  * @param tv_0  a timeval
  * @param tv_1  another timeval
@@ -40,7 +41,7 @@ tv_eq(struct timeval tv_0,
       struct timeval tv_1);
 
 /**
- * @brief strict less than test between to timeval structures
+ * @brief Strict less than test between to timeval structures
  *
  * @param tv_0  a timeval
  * @param tv_1  another timeval
@@ -52,7 +53,7 @@ tv_lt(struct timeval tv_0,
       struct timeval tv_1);
 
 /**
- * @brief finds the absolute difference between two timeval structures
+ * @brief Finds the absolute difference between two timeval structures
  *
  * @param tv_0  a timeval
  * @param tv_1  another timeval

@@ -14,26 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * logging object
+ */
+/**
+ * @file log.h
+ * @brief Logging object declaration
  */
 
 #ifndef DSM_LOG_H
-#define DSM_LOG_H 1
+#define DSM_LOG_H
 
 #include <classdef.h>
 
 __BEGIN_DECLS
 
 /**
- * @class log_t multi-gee/log.h
- * @brief log file writer
+ * @brief Log file writer object handle
  */
 NEWHANDLE(log_t);
 
 /**
- * @brief create log object
+ * @brief Create log object
  *
  * @param string  programme/system name, to appear in logfile
  * @param file    logfile name,
@@ -49,7 +49,7 @@ lg_create(const char *string,
 	  const char *file);
 
 /**
- * @brief destroy log object
+ * @brief Destroy log object
  *
  * @param log  handle of object to be destroyed
  *
@@ -59,7 +59,7 @@ log_t
 lg_destroy(log_t log);
 
 /**
- * @brief write a log entry
+ * @brief Write a log entry
  *
  * @param log  the log object
  * @param format  a printf like format log message
@@ -71,7 +71,7 @@ lg_log(log_t log,
        ...);
 
 /**
- * @brief write a log entry for the current errno
+ * @brief Write a log entry for the current errno
  *
  * @param log  the log object
  * @param format  a printf like format description of error

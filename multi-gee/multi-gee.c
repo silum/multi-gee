@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file multi-gee/multi-gee.c
+ * @brief multi-gee Frame Grabber Library definition
+ */
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,20 +37,29 @@
 #include "sllist.h"
 #include "tv_util.h"
 
-USE_XASSERT;
+USE_XASSERT
 
+/**
+ * @brief Frames in sync criterion
+ */
 static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
+/**
+ * @brief Failure to achieve sync criterion
+ */
 static struct timeval TV_NO_SYNC = {0, 126000}; /* 3 frames + 5% */
 
+/**
+ * @brief synchronisation status
+ */
 enum sync_status
 {
-	SYNC_FATAL = -1,
-	SYNC_OK,
-	SYNC_FAIL
+	SYNC_FATAL = -1,  /**< fatal loss of sync */
+	SYNC_OK, /**< frames in sync */
+	SYNC_FAIL /**< frames not in sync */
 };
 
 /**
- * @brief find device in list given the file descriptor
+ * @brief Find device in list given the file descriptor
  *
  * @param list  device list object handle
  * @param fd  file descriptor
@@ -57,7 +71,7 @@ find_device_fd(sllist_t list,
 	       int fd);
 
 /**
- * @brief find a frame in a list given the capture device
+ * @brief Find a frame in a list given the capture device
  *
  * @param list  frame list object handle
  * @param device  object handle
@@ -69,7 +83,7 @@ find_frame_device(sllist_t list,
 		  mg_device_t device);
 
 /**
- * @brief find device in list with given major and minor number
+ * @brief Find device in list with given major and minor number
  *
  * @param list  device list object handle
  * @param major  device major number
@@ -83,7 +97,7 @@ find_device_major_minor(sllist_t list,
 			int minor);
 
 /**
- * @brief create a list of device frames
+ * @brief Create a list of device frames
  *
  * makes a list containing frames from devices in the device list.  the
  * frame list is taken as a starting point, and frames for devices not
@@ -100,7 +114,7 @@ add_frame(sllist_t frame,
 	  sllist_t device);
 
 /**
- * @brief enqueue old frame, dequeue new frame
+ * @brief Enqueue old frame, dequeue new frame
  *
  * swaps current scratch frame with frame filled by capture device
  *
@@ -115,7 +129,7 @@ swap_frame(multi_gee_t multi_gee,
 	   mg_device_t device);
 
 /**
- * @brief tests frame list for sync
+ * @brief Tests frame list for sync
  *
  * all frames are in sync when the maximum difference in time stamps are
  * less than TV_IN_SYNC.  if the time elapsed since the previous sync
@@ -130,7 +144,7 @@ static enum sync_status
 sync_test(multi_gee_t multi_gee);
 
 /**
- * @brief monitors all devices for capture events
+ * @brief Monitors all devices for capture events
  *
  * performs a select on the fd_set.  if any activity on the set occurs
  * within a timeout period of TV_NO_SYNC, the function returns with a
@@ -146,6 +160,9 @@ static enum sync_status
 sync_select(multi_gee_t multi_gee,
 	    fd_set *fds);
 
+/**
+ * @brief multi_gee object structure
+ */
 CLASS(multi_gee, multi_gee_t)
 {
 	bool busy;
@@ -477,9 +494,6 @@ swap_frame(multi_gee_t multi_gee,
 }
 
 static enum sync_status
-//sync_test(sllist_t frame_list,
-//	  log_t log,
-//	  struct timeval *last_sync)
 sync_test(multi_gee_t multi_gee)
 {
 	enum sync_status sync = SYNC_FAIL;

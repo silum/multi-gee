@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file mg_frame.c
+ * @brief multi-gee Frame definition
+ */
+
 #include <sys/time.h> /* gettimeofday */
 #include <xmalloc.h>
 
@@ -28,6 +33,9 @@
 
 USE_XASSERT;
 
+/**
+ * @brief mg_frame object structure
+ */
 CLASS(mg_frame, mg_frame_t)
 {
 	mg_device_t device;

@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file fg_util.c
+ * @brief Frame grabber interface utility definition
+ */
+
 #include <errno.h> /* errno */
 #include <string.h> /* memset */
 
@@ -32,12 +37,18 @@
 #include "mg_device.h"
 
 
+/**
+ * @brief Initialise memory area to zeros
+ */
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+/**
+ * @brief Number of buffers required for capturing
+ */
 static const unsigned int REQ_BUFS = 3;
 
 /**
- * @brief retry ioctl until it happens
+ * @brief Retry ioctl until it happens
  *
  * @param fd  file descriptor
  * @param req  ioctl request
@@ -49,7 +60,7 @@ xioctl(int fd,
        void *arg);
 
 /**
- * @brief intialise memory mapping
+ * @brief Intialise memory mapping
  *
  * @param fd  file descriptor
  * @param name  device name
@@ -63,7 +74,7 @@ init_mmap(int fd,
 	  log_t log);
 
 /**
- * @brief test device capabilities
+ * @brief Test device capabilities
  *
  * will not return if insufficient capabilities is detected
  *
@@ -77,7 +88,7 @@ test_capability(int fd,
 		log_t log);
 
 /**
- * @brief select video input and video standard
+ * @brief Select video input and video standard
  *
  * @param fd  file descriptor
  * @param log  to log possible errors to
@@ -87,7 +98,7 @@ select_input(int fd,
 	     log_t log);
 
 /**
- * @brief reset cropping
+ * @brief Reset cropping
  *
  * @param fd  file descriptor
  */
@@ -95,7 +106,7 @@ static void
 set_crop(int fd);
 
 /**
- * @brief set capture format
+ * @brief Set capture format
  *
  * set the following parameters:
  *  - height

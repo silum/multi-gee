@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file sllist.c
+ * @brief Singly linked-list definition
+ */
+
 #include <xassert.h>
 #include <xmalloc.h>
 
@@ -22,14 +27,15 @@
 
 USE_XASSERT;
 
-/* set flag to true if sll can be verified */
+/** @brief set flag to true if sll can be verified */
 #define VERIFY_SLL_FLAG(sll, flag) \
 	bool flag = false; { sllist_t sllist = sll; VERIFY(sllist)  { flag = true; } }
+/** @brief set flag to true if sll can be verified, or is zero */
 #define VERIFYZ_SLL_FLAG(sll, flag) \
 	bool flag = false; { sllist_t sllist = sll; VERIFYZ(sllist) { flag = true; } }
 
 /**
- * @brief create sllist object
+ * @brief Create sllist object
  *
  * @param data  pointer to list item data
  *
@@ -39,7 +45,7 @@ static sllist_t
 sll_create(void *data);
 
 /**
- * @brief destroy sllist object
+ * @brief Destroy sllist object
  *
  * @param list  handle of object to be destroyed
  *
@@ -49,7 +55,7 @@ static sllist_t
 sll_destroy(sllist_t list);
 
 /**
- * @brief insert item into list after current position
+ * @brief Insert item into list after current position
  *
  * inserts an item, or a list, after the current position.  if the list
  * exists, insert item after first item in list, else item becomes list
@@ -69,7 +75,7 @@ sll_insert(sllist_t list,
 	   sllist_t item);
 
 /**
- * @brief remove item from list, but do not destroy object
+ * @brief Remove item from list, but do not destroy object
  *
  * @param list  head of list
  * @param item  to be removed
@@ -80,6 +86,9 @@ static sllist_t
 sll_remove(sllist_t list,
 	   sllist_t item);
 
+/**
+ * @brief sllist object structure
+ */
 CLASS(sllist, sllist_t)
 {
 	void *data;

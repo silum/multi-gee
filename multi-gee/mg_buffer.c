@@ -15,12 +15,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file mg_buffer.c
+ * @brief #multi-gee capture buffer definition
+ */
+
 #include <xmalloc.h>
 
 #include "mg_buffer.h"
 
 USE_XASSERT;
 
+/**
+ * @brief buffer object structure
+ */
 CLASS(mg_buffer, mg_buffer_t)
 {
 	void **start;

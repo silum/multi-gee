@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file log.c
+ * @brief Logging object definition
+ */
+
 #include <stdarg.h>    /* vfprintf */
 #include <string.h>
 #include <sys/time.h>
@@ -25,10 +30,10 @@
 
 #include "log.h"
 
-USE_XASSERT;
+USE_XASSERT
 
 /**
- * @brief open log file
+ * @brief Open log file
  *
  * open named log file.  if name is stdout, or stderr the output is
  * directed onto the named stream.  if the file name pointer is NULL log
@@ -44,7 +49,7 @@ open_log(log_t log,
 	 const char *file);
 
 /**
- * @brief prints the current date and time to buffer
+ * @brief Prints the current date and time to buffer
  *
  * @param buffer  the destination
  * @param size  the length of the buffer
@@ -54,7 +59,7 @@ put_time(char *buffer,
 	 size_t size);
 
 /**
- * @brief output the header string to file
+ * @brief Output the header string to file
  *
  * the header string is the name, followed by a colon, the date and the
  * time, followed by a colon
@@ -66,6 +71,9 @@ static void
 put_header(FILE *file,
 	   char *name);
 
+/**
+ * @brief log object structure
+ */
 CLASS(log, log_t) {
 	char *name;
 	FILE *file;
@@ -127,7 +135,7 @@ lg_log(log_t log,
 }
 
 /**
- * @brief print error message corresponding to errno
+ * @brief Print error message corresponding to errno
  */
 void
 lg_errno(log_t log, const char *format, ...)

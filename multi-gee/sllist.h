@@ -14,24 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * Singly linked-list
+ */
+/**
+ * @file sllist.h
+ * @brief Singly linked-list declaration
  */
 
 #ifndef DSM_SLLIST_H
-#define DSM_SLLIST_H 1
+#define DSM_SLLIST_H
 
 #include <classdef.h>
 
 __BEGIN_DECLS
 
-NEWHANDLE(sllist_t); /* singly linked list object handle */
+/**
+ * @brief singly linked list object handle
+ */
+NEWHANDLE(sllist_t);
 
 /* list operations */
 
 /**
- * @brief insert data into list, after current position
+ * @brief Insert data into list, after current position
  *
  * @param list  object handle
  * @param data  pointer to data
@@ -43,7 +47,7 @@ sll_insert_data(sllist_t list,
 		void *data);
 
 /**
- * @brief remove the first occurence of data in list
+ * @brief Remove the first occurence of data in list
  *
  * @param list  object handle
  * @param data  pointer to data
@@ -55,7 +59,7 @@ sll_remove_data(sllist_t list,
 		void *data);
 
 /**
- * @brief retrieve data from list item
+ * @brief Retrieve data from list item
  *
  * @param item  object handle
  *
@@ -65,7 +69,7 @@ void *
 sll_data(sllist_t item);
 
 /**
- * @brief find next list item
+ * @brief Find next list item
  *
  * @param item  object handle
  *
@@ -75,7 +79,7 @@ sllist_t
 sll_next(sllist_t item);
 
 /**
- * @brief empty out list, destroying all items
+ * @brief Empty out list, destroying all items
  *
  * data items are not destroyed, only list items
  *

@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * multi-gee Frame Internals
+ */
+/**
+ * @file mg_device.h
+ * @brief multi-gee device declaration
  */
 
 #ifndef DSM_MG_DEVICE_H
-#define DSM_MG_DEVICE_H 1
+#define DSM_MG_DEVICE_H
 
 #include <multi-gee/log.h>
 #include <multi-gee/mg_buffer.h>
@@ -28,13 +29,12 @@
 __BEGIN_DECLS
 
 /**
- * @class mg_device_t multi-gee/mg_device.h
- * @brief multi-gee capture device object
+ * @brief Multi-gee capture device object handle
  */
-NEWHANDLE(mg_device_t); /* multi-gee device object handle */
+NEWHANDLE(mg_device_t);
 
 /**
- * @brief create device object
+ * @brief Create device object
  *
  * sets major an minor number to actual device major and minor.  If
  * there is a problem, i.e. the device does not exist or the file is not
@@ -50,7 +50,7 @@ mg_device_create(char *file,
 		 log_t log);
 
 /**
- * @brief destroy device object
+ * @brief Destroy device object
  *
  * @param device  handle of object to be destroyed
  *
@@ -60,7 +60,7 @@ mg_device_t
 mg_device_destroy(mg_device_t device);
 
 /**
- * @brief device name accessor
+ * @brief Device name accessor
  *
  * @param device  object handle
  *
@@ -70,7 +70,7 @@ char *
 mg_device_name(mg_device_t device);
 
 /**
- * @brief open device
+ * @brief Open device
  *
  * an unopened device's file descriptor is -1.  This call opens a new
  * file descriptor for the device, if it does not have one yet.
@@ -86,7 +86,7 @@ int
 mg_device_open(mg_device_t device);
 
 /**
- * @brief device file descriptor accessor
+ * @brief Device file descriptor accessor
  *
  * @param device  object handle
  *
@@ -96,7 +96,7 @@ int
 mg_device_fd(mg_device_t device);
 
 /**
- * @brief device major number accessor
+ * @brief Device major number accessor
  *
  * @param device  object handle
  *
@@ -106,7 +106,7 @@ int
 mg_device_major(mg_device_t device);
 
 /**
- * @brief device minor number accessor
+ * @brief Device minor number accessor
  *
  * @param device  object handle
  *
@@ -116,7 +116,7 @@ int
 mg_device_minor(mg_device_t device);
 
 /**
- * @brief device buffer container accessor
+ * @brief Device buffer container accessor
  *
  * @param device  object handle
  *

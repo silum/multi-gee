@@ -14,22 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * multi-gee capture buffer container
+ */
+/**
+ * @file mg_buffer.h
+ * @brief Multi-gee capture buffer declaration
  */
 
 #ifndef DSM_MG_BUFFER_H
-#define DSM_MG_BUFFER_H 1
+#define DSM_MG_BUFFER_H
 
 #include <classdef.h>
 
 __BEGIN_DECLS
 
-NEWHANDLE(mg_buffer_t); /* multi-gee capture buffer object handle */
+/**
+ * @brief Multi-gee capture buffer object handle
+ */
+NEWHANDLE(mg_buffer_t);
 
 /**
- * @brief create buffer object
+ * @brief Create buffer object
  *
  * @return a newly created buffer object handle
  */
@@ -37,7 +41,7 @@ mg_buffer_t
 mg_buffer_create();
 
 /**
- * @brief destroy buffer object
+ * @brief Destroy buffer object
  *
  * @param buffer  handle of object to be destroyed
  *
@@ -47,7 +51,7 @@ mg_buffer_t
 mg_buffer_destroy(mg_buffer_t buffer);
 
 /**
- * @brief number of buffers accessor
+ * @brief Number of buffers accessor
  *
  * @param buffer  object handle
  *
@@ -57,7 +61,7 @@ unsigned int
 mg_buffer_number(mg_buffer_t buffer);
 
 /**
- * @brief allocate buffers
+ * @brief Allocate buffers
  *
  * @param buffer  object handle
  * @param n  number of buffers to allocate
@@ -69,7 +73,7 @@ mg_buffer_alloc(mg_buffer_t buffer,
 		unsigned int n);
 
 /**
- * @brief set the start address and length of a buffer
+ * @brief Set the start address and length of a buffer
  *
  * @param buffer  object handle
  * @param index  buffer index
@@ -85,7 +89,7 @@ mg_buffer_set(mg_buffer_t buffer,
 	      size_t length);
 
 /**
- * @brief buffer start address accessor
+ * @brief Buffer start address accessor
  *
  * @param buffer  object handle
  * @param index  buffer index
@@ -97,7 +101,7 @@ mg_buffer_start(mg_buffer_t buffer,
 		unsigned int index);
 
 /**
- * @brief buffer length accessor
+ * @brief Buffer length accessor
  *
  * @param buffer  object handle
  * @param index  buffer index

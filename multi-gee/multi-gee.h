@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * multi-gee Frame Grabber Library
+ */
+/**
+ * @file multi-gee.h
+ * @brief multi-gee Frame Grabber Library declaration
  */
 
 #ifndef DSM_MULTI_GEE_H
-#define DSM_MULTI_GEE_H 1
+#define DSM_MULTI_GEE_H
 
 #include <classdef.h>
 
@@ -73,23 +74,19 @@ __BEGIN_DECLS;
  * Below is some example code showing how the basic use of the image
  * capture library.  It is written in C-99 format.
  *
- * @include multi-gee/multi-gee.c
+ * @include multi-gee.c
 
  * \subsection step1 Step 1: Opening the box
  *
  */
 
 /**
- * @class multi_gee_t multi-gee.h multi-gee.h
  * @brief multi_gee object handle
- *
- * Class like implementation of a multi-gee frame grabber interface.
  */
-
 NEWHANDLE(multi_gee_t);
 
 /**
- * @brief create multi-gee object
+ * @brief Create multi-gee object
  *
  * @param file_name  logfile name,
  *   - can be 0 for no log file,
@@ -103,7 +100,7 @@ multi_gee_t
 mg_create(char *file_name);
 
 /**
- * @brief destroy multi-gee object
+ * @brief Destroy multi-gee object
  *
  * @param multi_gee  handle of object to be destroyed
  *
@@ -113,7 +110,7 @@ multi_gee_t
 mg_destroy(multi_gee_t multi_gee);
 
 /**
- * @brief error return values for mg_capture
+ * @brief Error return values for mg_capture
  */
 enum mg_RETURN {
 	RET_UNDEF = -6, /**< undefined return value, should never occur */
@@ -125,7 +122,7 @@ enum mg_RETURN {
 };
 
 /**
- * @brief start capture loop
+ * @brief Start capture loop
  *
  * @param multi_gee  object handle
  * @param n  number of frames to capture: -1 => capture forever
@@ -137,7 +134,7 @@ mg_capture(multi_gee_t multi_gee,
 	   int n);
 
 /**
- * @brief halt capture loop
+ * @brief Halt capture loop
  *
  * @param multi_gee  object handle
  */
@@ -145,7 +142,7 @@ void
 mg_capture_halt(multi_gee_t multi_gee);
 
 /**
- * @brief register callback function
+ * @brief Register callback function
  *
  * @param multi_gee  object handle
  * @param callback   user defined callback function
@@ -157,7 +154,7 @@ mg_register_callback(multi_gee_t multi_gee,
 		     void (*callback)(multi_gee_t, sllist_t));
 
 /**
- * @brief register capture device
+ * @brief Register capture device
  *
  * @param multi_gee  object handle
  * @param device_name  device to register
@@ -171,7 +168,7 @@ mg_register_device(multi_gee_t multi_gee,
 		   char *device_name);
 
 /**
- * @brief deregister capture device
+ * @brief Deregister capture device
  *
  * @param multi_gee  object handle
  * @param device_id  device identifier

@@ -15,6 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file mg_device.c
+ * @brief #multi-gee device definition
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -28,6 +33,9 @@
 
 USE_XASSERT;
 
+/**
+ * @brief multi-gee device structure
+ */
 CLASS(mg_device, mg_device_t)
 {
 	int fd;
@@ -140,17 +148,6 @@ mg_device_minor(mg_device_t mg_device)
 	}
 
 	return minor;
-}
-
-int
-mg_device_num_bufs(mg_device_t mg_device)
-{
-	int num_buf = 0;
-	VERIFY(mg_device) {
-		num_buf = mg_device->num_bufs;
-	}
-
-	return num_buf;
 }
 
 mg_buffer_t

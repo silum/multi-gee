@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- *
- * multi-gee Frame Internals
+ */
+/**
+ * @file mg_frame.h
+ * @brief Multi-gee Frame declaration
  */
 
 #ifndef DSM_MG_FRAME_H
-#define DSM_MG_FRAME_H 1
+#define DSM_MG_FRAME_H
 
 #include <stdint.h> /* uint32_t */
 #include <stdbool.h> /* bool */
@@ -31,12 +32,13 @@ struct v4l2_buffer;
 
 __BEGIN_DECLS
 
-/* multi-gee frame */
-
-NEWHANDLE(mg_frame_t); /* multi-gee frame object handle */
+/**
+ * @brief Multi-gee frame object handle
+ */
+NEWHANDLE(mg_frame_t);
 
 /**
- * @brief create frame object
+ * @brief Create frame object
  *
  * takes a v4l2 buffer and extracts pertinent information such as
  *  - a pointer to image data
@@ -55,7 +57,7 @@ mg_frame_create(mg_device_t device,
 		struct v4l2_buffer *buffer);
 
 /**
- * @brief destroy frame object
+ * @brief Destroy frame object
  *
  * @param frame  handle of object to be destroyed
  *
@@ -65,7 +67,7 @@ mg_frame_t
 mg_frame_destroy(mg_frame_t frame);
 
 /**
- * @brief buffer index accessor
+ * @brief Buffer index accessor
  *
  * the image pointer is read from the v4l2 buffer.  if frame was
  * constructed without a valid v4l2 buffer it is 0.
@@ -78,7 +80,7 @@ int
 mg_frame_index(mg_frame_t frame);
 
 /**
- * @brief capture device accessor
+ * @brief Capture device accessor
  *
  * @param frame  object handle
  *
@@ -88,7 +90,7 @@ mg_device_t
 mg_frame_device(mg_frame_t frame);
 
 /**
- * @brief image data accessor
+ * @brief Image data accessor
  *
  * @param frame  object handle
  *
@@ -98,7 +100,7 @@ void *
 mg_frame_image(mg_frame_t frame);
 
 /**
- * @brief time stamp accessor
+ * @brief Time stamp accessor
  *
  * the time stamp is read from the v4l2 buffer.  if frame was
  * constructed without a valid v4l2 buffer it is the time when the frame
@@ -112,7 +114,7 @@ struct timeval
 mg_frame_timestamp(mg_frame_t frame);
 
 /**
- * @brief sequence number accessor
+ * @brief Sequence number accessor
  *
  * the sequence number is read from the v4l2 buffer.  if frame was
  * constructed without a valid v4l2 buffer it is -1.
@@ -125,7 +127,7 @@ uint32_t
 mg_frame_sequence(mg_frame_t frame);
 
 /**
- * @brief old frame indicator
+ * @brief Old frame indicator
  *
  * indicator to show whether the frame is considdered to be
  * old/used.  if frame was constructed without a valid v4l2 buffer it is
@@ -139,7 +141,7 @@ bool
 mg_frame_used(mg_frame_t frame);
 
 /**
- * @brief old frame indicator accessor
+ * @brief Old frame indicator accessor
  *
  * @param frame  object handle
  *
