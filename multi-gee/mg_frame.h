@@ -135,7 +135,7 @@ mg_frame_sequence(mg_frame_t frame);
  *
  * @param frame  object handle
  *
- * @return true if it has been used, else false
+ * @return \c true if it has been used, else \c false
  */
 bool
 mg_frame_used(mg_frame_t frame);

@@ -59,7 +59,7 @@ noinst_HEADERS = \
 
 .PHONY: doc
 doc:
-	doxygen doc/doxy/doxygen.conf
+	doxygen doc/doxy/doxygen.conf > /dev/null
 
 maintainer-clean-local:
 	-rm -rf doc/html/ doc/latex/

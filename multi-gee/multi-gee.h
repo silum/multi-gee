@@ -75,9 +75,6 @@ __BEGIN_DECLS;
  * capture library.  It is written in C-99 format.
  *
  * @include multi-gee.c
-
- * \subsection step1 Step 1: Opening the box
- *
  */
 
 /**

@@ -87,12 +87,12 @@ sll_remove(sllist_t list,
 	   sllist_t item);
 
 /**
- * @brief Sllist object structure
+ * @brief Singly linked list object structure
  */
 CLASS(sllist, sllist_t)
 {
-	void *data;
-	sllist_t next;
+	void *data;  /**< Pointer list item data */
+	sllist_t next; /**< Pointer to next list item */
 };
 
 static sllist_t

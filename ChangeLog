@@ -1,5 +1,10 @@
  $Id$
 
+2005-03-14  Deneys S. Maartens  <dsm@tlabs.ac.za>
+
+    * Update documentation
+    * Bump versoin number
+
 2005-01-24  Deneys S. Maartens  <dsm@tlabs.ac.za>
 
     * Create ChangeLog

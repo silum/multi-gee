@@ -17,7 +17,7 @@
  */
 /**
  * @file mg_buffer.c
- * @brief #multi-gee capture buffer definition
+ * @brief Multi-gee capture buffer definition
  */
 
 #include <xmalloc.h>
@@ -31,9 +31,9 @@ USE_XASSERT;
  */
 CLASS(mg_buffer, mg_buffer_t)
 {
-	void **start;
-	size_t *length;
-	unsigned int number; /* of alloced buffers */
+	void **start; /**< Pointer to first byte of buffer memory */
+	size_t *length; /**< Size of buffer memory area */
+	unsigned int number; /**< Number of allocated buffers */
 };
 
 mg_buffer_t

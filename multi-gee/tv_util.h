@@ -17,7 +17,7 @@
  */
 /**
  * @file tv_util.h
- * @brief Timeval structure utility function declarations
+ * @brief Timeval structure utility declaration
  */
 
 #ifndef DSM_TV_UTIL_H
@@ -34,7 +34,7 @@ __BEGIN_DECLS
  * @param tv_0  a timeval
  * @param tv_1  another timeval
  *
- * @returns true if tv_0 == tv_1, otherwise returns false
+ * @returns \c true if tv_0 == tv_1, otherwise returns \c false
  */
 bool
 tv_eq(struct timeval tv_0,
@@ -46,7 +46,7 @@ tv_eq(struct timeval tv_0,
  * @param tv_0  a timeval
  * @param tv_1  another timeval
  *
- * @returns true if tv_0 < tv_1, otherwise returns false
+ * @returns \c true if tv_0 < tv_1, otherwise returns \c false
  */
 bool
 tv_lt(struct timeval tv_0,

@@ -75,9 +75,9 @@ put_header(FILE *file,
  * @brief Log object structure
  */
 CLASS(log, log_t) {
-	char *name;
-	FILE *file;
-	bool close;
+	char *name; /**< Log file name */
+	FILE *file; /**< Log file object pointer */
+	bool close; /**< Close the file when log object is destroyed? */
 };
 
 log_t
@@ -138,7 +138,9 @@ lg_log(log_t log,
  * @brief Print error message corresponding to errno
  */
 void
-lg_errno(log_t log, const char *format, ...)
+lg_errno(log_t log,
+	 const char *format,
+	 ...)
 {
 	VERIFYZ(log) {
 		va_list ap;
@@ -159,7 +161,8 @@ lg_errno(log_t log, const char *format, ...)
 }
 
 static void
-open_log(log_t log, const char *file)
+open_log(log_t log,
+	 const char *file)
 {
 	VERIFY(log) {
 		if (log->file

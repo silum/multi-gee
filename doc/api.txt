@@ -3,7 +3,7 @@ $Id$
 multi-gee Frame Grabber Library API
 -----------------------------------
 
-Version: 0.4
+Version: 0.5
 Author: Deneys S. Maartens
 
 
@@ -74,6 +74,23 @@ The values of the variables N and M need not be the same.  The valid range of
 values for N is [1..n] and M is [0..n].  Theoretically the maximum number of
 devices that can be registered is not constrained.
 
+A code segment illustrating a typical user defined callback function:
+
+    1   void user_def_callback(multi_gee_t multi_gee,
+    2                          sllist_t frame_list)
+    3   {
+    4       for (sllist_t f = frame_list; f; f = sll_next(f)) {
+    5           mg_frame_t frame = sll_data(f);
+    6
+    7           /* user defined image processing goes here */
+    8
+    9       }
+    10  }
+
+The for loop at Line 4 loops over all captured frames.  For each captured
+frame in the list, the frame object handle is retrieved at line 5.  This
+object handle can now be used to create a copy of the image data, or to do
+whatever image processing is required.
 
 Discussion of function calls
 ============================
@@ -103,6 +120,8 @@ Note that the first images captured may contain image-frames where the odd and
 even fields are swapped.  This is a hardware artifact that is caused when the
 frame grabber tries to get in sync with the video source.  It is customary to
 ignore the first few frames when commencing a capture.
+
+Note that the frames in the frame_list is in no particular order.
 
 
 Function reference
@@ -194,8 +213,36 @@ and indicates the number of remaining registered devices, while a return value
 of -1 indicates failure.
 
 
+FrameGrabber Setup
+------------------
+
+A video4linux2 supported framegrabber is required, as the v4l2 API is used.
+The multi-gee library also requires that the framegrabber have the capability
+to do streaming IO.
+
+When setting up the frame grabber, a number of parameters can be modified,
+such as the frame dimensions and the colour depth.  These parameters have been
+hardcoded for this implementation, and can be found if the fg_utils.c and
+fg_utils.h files.  The default image values in terms of the Video4Linux2
+parameters are:
+
+    Input:
+        index = 1; // Composite 1
+    Standard:
+        std = V4L2_STD_PAL;
+    Format:
+        width = 768;
+        height = 576;
+        pixelformat = V4L2_PIX_FMT_GREY;
+        field = V4L2_FIELD_INTERLACED;
+
+
 Change Log
 ----------
+
+* Mon Mar 14 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+- Add example section for callback function
+- Document hardcoded values
 
 * Mon Dec 20 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 - Modify function prototypes to include an object handle

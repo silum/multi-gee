@@ -17,7 +17,7 @@
  */
 /**
  * @file mg_device.c
- * @brief #multi-gee device definition
+ * @brief Multi-gee device definition
  */
 
 #include <errno.h>
@@ -34,16 +34,16 @@
 USE_XASSERT;
 
 /**
- * @brief Multi-gee device structure
+ * @brief Device object structure
  */
 CLASS(mg_device, mg_device_t)
 {
-	int fd;
-	char *name;
-	int major;
-	int minor;
-	mg_buffer_t buffer;
-	unsigned int num_bufs;
+	int fd; /**< Device file descriptor */
+	char *name; /**< Device file name */
+	int major; /**< Device major number */
+	int minor; /**< Device minor number */
+	mg_buffer_t buffer; /**< Frame buffer object handle */
+	unsigned int num_bufs; /**< Number of buffers */
 };
 
 mg_device_t

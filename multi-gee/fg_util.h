@@ -43,7 +43,7 @@ struct v4l2_buffer;
  * @param device  device object handle
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to init device
+ * @return \c true on success, \c false on failure to init device
  */
 bool
 fg_init_device(mg_device_t device,
@@ -55,7 +55,7 @@ fg_init_device(mg_device_t device,
  * @param device  device handle to uninit
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to uninit device
+ * @return \c true on success, \c false on failure to uninit device
  */
 bool
 fg_uninit_device(mg_device_t device,
@@ -68,7 +68,7 @@ fg_uninit_device(mg_device_t device,
  * @param index   buffer index
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to enqueue buffer
+ * @return \c true on success, \c false on failure to enqueue buffer
  */
 bool
 fg_enqueue(int fd,
@@ -82,7 +82,7 @@ fg_enqueue(int fd,
  * @param buffer  video4linux2 buffer to dequeue
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to dequeue buffer
+ * @return \c true on success, \c false on failure to dequeue buffer
  */
 bool
 fg_dequeue(int fd,
@@ -95,7 +95,7 @@ fg_dequeue(int fd,
  * @param device  device to start streaming
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to start capture
+ * @return \c true on success, \c false on failure to start capture
  */
 bool
 fg_start_capture(mg_device_t device,
@@ -107,7 +107,7 @@ fg_start_capture(mg_device_t device,
  * @param device  device to stop streaming
  * @param log  to log possible errors to
  *
- * @return true on success, false on failure to stop capture
+ * @return \c true on success, \c false on failure to stop capture
  */
 bool
 fg_stop_capture(mg_device_t device,

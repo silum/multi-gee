@@ -121,8 +121,8 @@ add_frame(sllist_t frame,
  * @param multi_gee  object handle
  * @param device  object handle
  *
- * @return true of the frame was successfully swapped, false if an error
- * occured
+ * @return \c true of the frame was successfully swapped, \c false if an
+ * error occured
  */
 static bool
 swap_frame(multi_gee_t multi_gee,
@@ -161,22 +161,24 @@ sync_select(multi_gee_t multi_gee,
 	    fd_set *fds);
 
 /**
- * @brief Multi_gee object structure
+ * @brief Multi-gee object structure
  */
 CLASS(multi_gee, multi_gee_t)
 {
-	bool busy;
-	bool halt;
-	bool refresh;
+	bool busy; /**< \c true while mg_capture() in progress */
+	bool halt; /**< \c true if mg_capture_halt() called */
+	bool refresh; /**< Need to refresh device list? */
 
-	void (*callback)(multi_gee_t, sllist_t);
+	void (*callback)(multi_gee_t, sllist_t); /**< Pointer to user
+						   defined callback
+						   function */
 
-	sllist_t frame;
-	sllist_t device;
+	sllist_t frame; /**< List of frames */
+	sllist_t device; /**< List of devices */
 
-	struct timeval last_sync;
+	struct timeval last_sync; /**< Time stamp when last in sync */
 
-	log_t log;
+	log_t log; /**< Log object handle */
 };
 
 multi_gee_t
@@ -349,7 +351,7 @@ mg_register_device(multi_gee_t multi_gee,
 			}
 
 			if (-1 != ret) {
-				/* everything ok, add it to list */
+				/* everything ok, add it to device list */
 				multi_gee->refresh = true;
 				multi_gee->device = sll_insert_data(multi_gee->device, dev);
 			} else {

@@ -34,15 +34,15 @@
 USE_XASSERT;
 
 /**
- * @brief Mg_frame object structure
+ * @brief Frame object structure
  */
 CLASS(mg_frame, mg_frame_t)
 {
-	mg_device_t device;
-	unsigned int index; /* device buffer index */
-	struct timeval timestamp;
-	uint32_t sequence;
-	bool used;
+	mg_device_t device; /**< Device object handle */
+	unsigned int index; /**< Device buffer index */
+	struct timeval timestamp; /**< Frame time stamp */
+	uint32_t sequence; /**< Frame sequence number */
+	bool used; /**< Frame already processed by user? */
 };
 
 mg_frame_t
