@@ -4,7 +4,10 @@
 
 DIST_SUBDIRS = src
 
+AM_CFLAGS = -I$(top_srcdir)/src -std=gnu99
+
 bin_PROGRAMS = src/dvideo
+noinst_PROGRAMS = src/capture
 
 # noinst_LTLIBRARIES = src/bar.la
 
@@ -12,7 +15,7 @@ bin_PROGRAMS = src/dvideo
 
 # noinst_HEADERS = include/bar.h
 
-src_dvideo_SOURCES = src/dvideo.c
+#src_dvideo_SOURCES = src/dvideo.c
 # foo_LDADD = src/bar.la
 
 # src_bar_la_SOURCES = src/bar.cc
