@@ -26,8 +26,10 @@ noinst_PROGRAMS = \
     multi-gee/multi-gee \
     example/multi-gee
 
+include_HEADERS = \
+    multi-gee/multi-gee.h
+
 nobase_include_HEADERS = \
-    multi-gee.h \
     multi-gee/classdef.h \
     multi-gee/debug_xassert.h \
     multi-gee/fg_util.h \
@@ -119,6 +121,7 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/tv_util.c \
     multi-gee/xmalloc.c
 
+example_check_rate_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
@@ -126,6 +129,7 @@ example_check_rate_SOURCES = \
     example/check-rate.c \
     multi-gee/libmulti-gee.la
 
+example_multi_gee_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_multi_gee_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la
 example_multi_gee_SOURCES = \

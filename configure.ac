@@ -9,7 +9,7 @@ AC_SUBST(LIBVERSION)
 
 AC_REVISION($Rev$)
 
-AC_CONFIG_SRCDIR(multi-gee.h)
+AC_CONFIG_SRCDIR(multi-gee/multi-gee.h)
 AC_CONFIG_AUX_DIR(config)
 AC_SUBST(ac_aux_dir)
 
