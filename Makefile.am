@@ -11,9 +11,8 @@ TESTS = \
     src/mg_device \
     src/mg_frame \
     src/sllist \
-    src/test_sllist
-
-#    src/test_mg \ #
+    src/test_sllist \
+    src/tv_util
 
 noinst_PROGRAMS = \
     $(TESTS) \
@@ -28,14 +27,14 @@ noinst_PROGRAMS = \
 
 src_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
 src_mg_buffer_SOURCES = \
-    src/mg_buffer.c \
     src/debug_xassert.c \
+    src/mg_buffer.c \
     src/xmalloc.c
 
 src_mg_device_CPPFLAGS = -DDEBUG_DEVICE
 src_mg_device_SOURCES = \
-    src/mg_buffer.c \
     src/debug_xassert.c \
+    src/mg_buffer.c \
     src/mg_device.c \
     src/xmalloc.c
 
@@ -47,22 +46,35 @@ src_mg_frame_SOURCES = \
     src/mg_frame.c \
     src/xmalloc.c
 
+src_sllist_CPPFLAGS = -DDEBUG_SLLIST
+src_sllist_SOURCES = \
+    src/debug_xassert.c \
+    src/sllist.c \
+    src/xmalloc.c
+
+src_test_sllist_SOURCES = \
+    src/debug_xassert.c \
+    src/sllist.c \
+    src/test_sllist.c \
+    src/xmalloc.c
+
+src_tv_util_CPPFLAGS = -DDEBUG_TV_UTIL
+src_tv_util_SOURCES = \
+    src/debug_xassert.c \
+    src/tv_util.c \
+    src/xmalloc.c
+
 src_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
 src_multi_gee_SOURCES = \
     src/debug_xassert.c \
     src/fg_util.c \
+    src/log.c \
     src/mg_buffer.c \
     src/mg_device.c \
     src/mg_frame.c \
     src/multi-gee.c \
     src/sllist.c \
     src/tv_util.c \
-    src/xmalloc.c
-
-src_sllist_CPPFLAGS = -DDEBUG_SLLIST
-src_sllist_SOURCES = \
-    src/debug_xassert.c \
-    src/sllist.c \
     src/xmalloc.c
 
 src_sync_stream_SOURCES = \
@@ -95,12 +107,6 @@ src_sync_stream_SOURCES = \
 #     src/sllist.c \
 #     src/tv_util.c \
 #     src/xmalloc.c
-
-src_test_sllist_SOURCES = \
-    src/debug_xassert.c \
-    src/sllist.c \
-    src/test_sllist.c \
-    src/xmalloc.c
 
 #src_libmulti_gee_la_SOURCES = \
 #    src/mutli-gee.c
