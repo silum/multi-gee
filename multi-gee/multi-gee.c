@@ -123,15 +123,11 @@ swap_frame(multi_gee_t multi_gee,
  * time stamps are more than TV_NO_SYNC, a fatal condition exists
  *
  * @param multi_gee  object handle
- * // @param frame  object list
- * // @param log  object handle, to log possible errors
  *
  * @return sync status
  */
 static enum sync_status
 sync_test(multi_gee_t multi_gee);
-//	  sllist_t frame,
-//	  log_t log);
 
 /**
  * @brief monitors all devices for capture events
@@ -255,9 +251,6 @@ mg_capture(multi_gee_t multi_gee,
 							break;
 
 						sync = sync_test(multi_gee);
-//						 ->frame,
-//								 multi_gee->log,
-//								 mutli_gee->last_sync);
 
 						if (sync == SYNC_FATAL)
 							break;
