@@ -18,9 +18,6 @@ AM_INIT_AUTOMAKE([1.8 subdir-objects foreign])
 # create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER([config.h])
 
-AC_SUBST(VERSION)
-dnl AC_CANONICAL_HOST
-
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL
