@@ -51,7 +51,7 @@ In the code segment above, the user-defined callback function is
 registered by the mg_register_callback() function call in Line 1.  A
 number of capture devices (N) is registered in the for loop (Line 3).
 The capture is initiated by the mg_capture() function call in Line 6.
-After the capture is finished the devices are unregistered in the for
+After the capture is finished the devices are deregistered in the for
 loop (Line 9).
 
 The values of the variables N and M need not be the same.  The valid
@@ -101,7 +101,7 @@ Function reference
 
 The mg_capture() function will call the callback function a number of
 times, which is specified by the parameter n, and will provide the
-callback function with a synced set of frames at each call.
+callback function with a synchronised set of frames at each call.
 
 If n < 0, frames will be captured indefinitely.  To stop this capture
 stream the callback() function either needs to deregister all devices,
@@ -116,15 +116,15 @@ code of 0 indicates that the requested number of frames has been
 successfully acquired.  An exit code of -1 indicates that the grabbing
 has been aborted because the sync between the devices could not be
 established, or could not be recovered within 3 frames after the sync
-had been lost.  It can be differentiated between these two alternatives
-by keeping track of how many calls the the callback function has been
-performed.  An exit code of -2 indicates that a call to mg_capture() has
+had been lost.  The user can differentiate between these two
+alternatives by keeping track of the number of calls to the the callback
+function.  An exit code of -2 indicates that a call to mg_capture() has
 been done while a call to mg_capture() was in progress.  A return value
-of 1 indicates that no devices are registered to capture devices with.
-This situation could develop when all the devices are deregistered
-during the course of a grab session, or if no devices have been
-registered before the call to mg_capture() is performed.  An exit status
-of 2 indicates that a call to mg_capture_halt() has been done.
+of 1 indicates that no devices are registered to capture with.  This
+situation could develop when all the devices are deregistered during the
+course of a grab session, or if no devices have been registered before
+the call to mg_capture() is performed.  An exit status of 2 indicates
+that a call to mg_capture_halt() has been done.
 
 
 - void mg_capture_halt()
@@ -142,9 +142,9 @@ this call happens multiple times, the function specified as argument to
 the last call performed will be registered as the active callback
 function.
 
-The return value indicates whether the call has completed successfully.
-A return value of 0 indicates success, while a return value of -1
-indicates that the registration of the callback function has failed.
+The return value indicates whether the call has completed successfully
+or not.  A return value of 0 indicates success, while a return value of
+-1 indicates that the registration of the callback function has failed.
 
 
 - int mg_register_device(const char * filename)
@@ -183,6 +183,9 @@ a return value of -1 indicates failure.
 
 Change Log
 ----------
+
+* Tue Nov 23 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+- Minor changes to text
 
 * Fri Nov 05 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 - Add introduction section
