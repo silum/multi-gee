@@ -11,11 +11,11 @@ Introduction
 ============
 
 The aim of this document is to describe the image acquisition software
-from the view of a developer implementing some software implementing
-this library for image acquisition.
+from the view of a developer planning to integrate this image
+acquisition library into custom software.
 
-Note that this is a draft document and that the interfaces to the
-function calls may change in future iterations of this document.
+Note: this is a draft document and that the interfaces to the function
+calls may change in future iterations of this document.
 
 
 Example Usage
@@ -33,37 +33,30 @@ In the callback function additional options exist:
     - register additional capture devices
     - deregister any or all capture devices
     - register a different callback function
-    - abort the capture
+    - abort the video acquisition in progress
 
-An example code segment illustrating the normal work routine:
+An example code segment illustrating the typical work routine:
 
-    1   if (mg_register_callback(user_def_callback) < 0)
-    2       error();
-    3
-    4   for (int i = 0; i < N /* devices */; ++i) {
-    5       dev_id[i] = mg_register_device("device filename i")
-    6       if (dev_id[i] <= 0)
-    7           error();
-    8   }
-    9
-    10  mg_capture(-1); // calls callback() with synced frames
-    11
-    12  for (int i = 0; i < M /* devices */; ++i) {
-    13      mg_deregister_device(dev_id[i])
-    14      if (dev_id[i] <= 0)
-    15          error();
-    16  }
+    1   mg_register_callback(user_def_callback)
+    2
+    3   for (int i = 0; i < N /* devices */; ++i)
+    4       dev_id[i] = mg_register_device("device filename i")
+    5
+    6   mg_capture(-1); // calls callback() with synced frames
+    7
+    8   for (int i = 0; i < M /* devices */; ++i)
+    9       mg_deregister_device(dev_id[i])
 
 In the code segment above, the user-defined callback function is
-registered by the mg_register_callback() function call at Line 1.  A
-number of capture devices (N) is registered in the for loop at Line 4.
-The capture is initiated by the mg_capture() function call at Line 10.
+registered by the mg_register_callback() function call in Line 1.  A
+number of capture devices (N) is registered in the for loop (Line 3).
+The capture is initiated by the mg_capture() function call in Line 6.
 After the capture is finished the devices are unregistered in the for
-loop at Line 12.
+loop (Line 9).
 
-Note that the values of the variables N and M need not be the same.  The
-valid range of values for N is [1..n] and M is [0..n].  Theoretically
-the maximum number of devices that can be registered is not constrained.
+The values of the variables N and M need not be the same.  The valid
+range of values for N is [1..n] and M is [0..n].  Theoretically the
+maximum number of devices that can be registered is not constrained.
 
 
 Discussion of function calls
@@ -76,7 +69,7 @@ The callback function prototype is as follows:
 
     void user_def_callback(const struct frame *);
 
-where the definition of the frame structure is as follows:
+With the frame structure definition:
 
     typedef struct frame_tag {
         int device_id;
@@ -123,13 +116,13 @@ code of 0 indicates that the requested number of frames has been
 successfully acquired.  An exit code of -1 indicates that the grabbing
 has been aborted because the sync between the devices could not be
 established, or could not be recovered within 3 frames after the sync
-has been lost.  It can be differentiated between these two alternatives
+had been lost.  It can be differentiated between these two alternatives
 by keeping track of how many calls the the callback function has been
 performed.  An exit code of -2 indicates that a call to mg_capture() has
-been done while a call to mg_capture() is in progress.  A return value
+been done while a call to mg_capture() was in progress.  A return value
 of 1 indicates that no devices are registered to capture devices with.
 This situation could develop when all the devices are deregistered
-during the course of a grab session, or that no devices have been
+during the course of a grab session, or if no devices have been
 registered before the call to mg_capture() is performed.  An exit status
 of 2 indicates that a call to mg_capture_halt() has been done.
 
@@ -142,11 +135,11 @@ progress, otherwise will have no effect.
 
 - int mg_register_callback(void (callback*)(struct frame* frame_list))
 
-The mg_register_callback() function, eh..., registers a callback
+The mg_register_callback() function registers a user-defined callback
 function.  This function will be called each time a set of synced frames
-are available.  A call to this function can be performed at any time.
-If this call happens multiple times, the function specified as argument
-to the last call performed will be registered as the active callback
+is available.  A call to this function can be performed at any time.  If
+this call happens multiple times, the function specified as argument to
+the last call performed will be registered as the active callback
 function.
 
 The return value indicates whether the call has completed successfully.
@@ -160,8 +153,9 @@ The function is used to register an unregistered device.  This call can
 happen at any point in time, even after capturing has started.  The next
 call of the callback() function will include a frame captured by this
 device.  Note that one or more frame cycles may pass before the next
-call to the callback function.  This is caused by the fact that the
-callback function is called with synced frames.
+call to the callback function.  This is due to the fact that the
+callback function is only called when a set of synchronised frames is
+available.
 
 This function checks the major and minor number of the device in order
 to prevent multiple opens of the same device using multiple filenames.
@@ -182,9 +176,9 @@ ended.  The next call of the callback() function will not include a
 frame from this device.  A device_id of -1 will cause all registered
 devices to be deregistered.
 
-As return value the function returns a status value.  A return value of
-0 or a positive integer signifies success and indicates the number of
-remaining registered devices, while -1 indicates failure.
+The function returns a status value, of 0 or a positive integer for
+success and indicates the number of remaining registered devices, while
+a return value of -1 indicates failure.
 
 
 Change Log
