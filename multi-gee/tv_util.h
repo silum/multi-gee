@@ -11,8 +11,8 @@
 #ifndef DSM_TV_UTIL_H
 #define DSM_TV_UTIL_H 1
 
-#include <stdbool.h>
-#include <sys/time.h>
+#include <stdbool.h> /* bool */
+#include <sys/time.h> /* struct timeval */
 
 __BEGIN_DECLS
 

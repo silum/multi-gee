@@ -11,10 +11,12 @@
 #ifndef DSM_FG_UTIL_H
 #define DSM_FG_UTIL_H 1
 
-#include <multi_gee/mg_device.h>
+#include <stdbool.h>
+#include <multi-gee/mg_device.h>
 
 __BEGIN_DECLS
 
+/* pre-declaration of video4linux2 buffer type */
 struct v4l2_buffer;
 
 /**

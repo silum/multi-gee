@@ -11,43 +11,99 @@
 #ifndef DSM_MG_DEVICE_H
 #define DSM_MG_DEVICE_H 1
 
-#include "classdef.h"
-
-#include "multi-gee.h"
-#include "mg_buffer.h"
+#include <multi-gee/mg_buffer.h>
 
 __BEGIN_DECLS
 
 NEWHANDLE(mg_device_t); /* multi-gee device object handle */
 
-/* create object */
-mg_device_t /* new handle */
+/**
+ * @brief create device object
+ *
+ * @desc sets major an minor number to actual device major and minor.
+ * If there is a problem, i.e. the device does not exist or the file is
+ * not a device, the major and minor is both set to -1.
+ *
+ * @param file_name  device file name
+ *
+ * @return a newly created device object handle
+ */
+mg_device_t
 mg_device_create(char *file_name);
 
-/* destroy object */
+/**
+ * @brief destroy device object
+ *
+ * @param device  handle of object to be destroyed
+ *
+ * @return 0
+ */
 mg_device_t
-mg_device_destroy(mg_device_t /* object to destroy */);
+mg_device_destroy(mg_device_t);
 
-char * /* file name */
+/**
+ * @brief device name accessor
+ *
+ * @param device  object handle
+ *
+ * @return device file name
+ */
+char *
 mg_device_name(mg_device_t);
 
-int /* 1 - device already open,
-       0 - action successful,
-       -1 - failed to open device */
+/**
+ * @brief open device
+ *
+ * @desc an unopened device's file descriptor is -1.  This call opens a
+ * new file descriptor for the device, if it does not have one yet.
+ *
+ * @param device  object handle
+ *
+ * @return status value:
+ *  - 1: device already open,
+ *  - 0: action successful,
+ *  - -1: failed to open device
+ */
+int
 mg_device_open(mg_device_t);
 
-int /* file descriptor,
-       or -1 if device not open */
+/**
+ * @brief device file descriptor accessor
+ *
+ * @param device  object handle
+ *
+ * @return device file descriptor or -1 if device not open
+ */
+int
 mg_device_fd(mg_device_t);
 
-int /* device major number,
-       or -1 if not a device */
+/**
+ * @brief device major number accessor
+ *
+ * @param device  object handle
+ *
+ * @return device major number or -1 if not a device
+ */
+int
 mg_device_major(mg_device_t);
 
-int /* device minor number,
-       or -1 if not a device */
+/**
+ * @brief device minor number accessor
+ *
+ * @param device  object handle
+ *
+ * @return device minor number or -1 if not a device
+ */
+int
 mg_device_minor(mg_device_t);
 
+/**
+ * @brief device buffer container accessor
+ *
+ * @param device  object handle
+ *
+ * @return buffer object handle
+ */
 mg_buffer_t
 mg_device_buffer(mg_device_t);
 

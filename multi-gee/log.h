@@ -11,7 +11,7 @@
 #ifndef DSM_LOG_H
 #define DSM_LOG_H 1
 
-#include <multi_gee/classdef.h>
+#include <multi-gee/classdef.h>
 
 __BEGIN_DECLS
 
@@ -27,7 +27,7 @@ NEWHANDLE(log_t);
  *                - "stderr" for standard error stream
  *                - a file name: logs will be appended to this file
  *
- * @return a newly created log object
+ * @return a newly created log object handle
  */
 log_t
 lg_create(const char *string,
@@ -36,7 +36,7 @@ lg_create(const char *string,
 /**
  * @brief destroy log object
  *
- * @param log  object to be destroyed
+ * @param log  handle of object to be destroyed
  *
  * @return 0
  */

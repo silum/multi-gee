@@ -15,7 +15,7 @@
 #define DSM_CLASSDEF_H 1
 
 #include <sys/types.h> /* size_t */
-#include <stdbool.h>   /* bool */
+// #include <stdbool.h>   /* bool */
 
 __BEGIN_DECLS
 

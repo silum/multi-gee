@@ -12,12 +12,11 @@
 #define DSM_MG_FRAME_H 1
 
 #include <stdint.h> /* uint32_t */
-#include <sys/types.h> /* struct timespec */
-#include <asm/types.h> /* needed for videodev2.h */
-#include "linux/videodev2.h"
+#include <stdbool.h> /* bool */
 
-#include "classdef.h"
-#include "mg_device.h"
+#include <multi-gee/mg_device.h>
+
+struct v4l2_buffer;
 
 __BEGIN_DECLS
 

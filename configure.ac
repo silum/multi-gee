@@ -7,7 +7,7 @@ AC_INIT([multi-gee], [0.1rc0], [dsm@tlabs.ac.za])
 
 AC_REVISION($Rev$)
 
-AC_CONFIG_SRCDIR(src/dvideo.c)
+AC_CONFIG_SRCDIR(multi-gee.h)
 AC_CONFIG_AUX_DIR(config)
 AC_SUBST(ac_aux_dir)
 
@@ -36,6 +36,6 @@ AC_SUBST(LIBTOOL_DEPS)
 
 AC_CONFIG_FILES([
     Makefile
-    src/Makefile
+    multi-gee/Makefile
 ])
 AC_OUTPUT

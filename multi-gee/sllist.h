@@ -11,7 +11,7 @@
 #ifndef DSM_SLLIST_H
 #define DSM_SLLIST_H 1
 
-#include "classdef.h"
+#include <multi-gee/classdef.h>
 
 __BEGIN_DECLS
 

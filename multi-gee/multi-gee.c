@@ -7,10 +7,12 @@
  * Date:      $Date$
  */
 
-#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
+#include <asm/types.h> /* needed for videodev2.h */
+#include <linux/videodev2.h> /* struct v4l2_buffer */
 
 #include "fg_util.h"
 #include "log.h"

@@ -28,7 +28,7 @@ noinst_PROGRAMS = \
     multi-gee/sync-stream \
     multi-gee/multi-gee
 
-include_HEADERS = \
+nobase_include_HEADERS = \
     multi-gee.h \
     multi-gee/classdef.h \
     multi-gee/debug_xassert.h \
@@ -42,7 +42,7 @@ include_HEADERS = \
     multi-gee/xmalloc.h
 
 noinst_HEADERS = \
-    multi-gee/linux/videodev2.h
+    linux/videodev2.h
 
 multi_gee_multi_gee_la_LDFLAGS = -module
 multi_gee_multi_gee_la_SOURCES = \

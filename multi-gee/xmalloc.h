@@ -15,8 +15,8 @@
 #define DSM_XMALLOC_H 1
 
 #include <stdio.h>
-#include "classdef.h"
-#include "log.h"
+#include <stdbool.h> /* bool */
+#include <multi-gee/classdef.h>
 
 __BEGIN_DECLS
 

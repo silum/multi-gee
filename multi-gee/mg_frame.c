@@ -7,8 +7,11 @@
  * Date:      $Date$
  */
 
-#include <stdint.h>
-#include <sys/time.h>
+// #include <stdint.h> /* uint32_t */
+#include <sys/time.h> /* struct timeval */
+
+#include <asm/types.h> /* needed for videodev2.h */
+#include <linux/videodev2.h> /* struct v4l2_buffer */
 
 #include "mg_frame.h"
 #include "mg_device.h"
