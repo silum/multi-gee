@@ -16,6 +16,10 @@
 
 __BEGIN_DECLS
 
+/**
+ * @class mg_device_t multi-gee/mg_device.h
+ * @brief multi-gee capture device object
+ */
 NEWHANDLE(mg_device_t); /* multi-gee device object handle */
 
 /**
@@ -112,4 +116,4 @@ mg_device_buffer(mg_device_t device);
 
 __END_DECLS
 
-#endif /* ndef DSM_MG_DEVICE_H */
+#endif /* DSM_MG_DEVICE_H */

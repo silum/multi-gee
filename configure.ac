@@ -3,7 +3,7 @@
 # Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
 AC_PREREQ(2.57)
-AC_INIT([multi-gee], [0.90], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.91], [dsm@tlabs.ac.za])
 LIBVERSION="0.0.0"
 AC_SUBST(LIBVERSION)
 
@@ -40,9 +40,9 @@ AC_CHECK_HEADERS([sys/cdefs.h stdbool.h],,
 # Checks for library functions.
 
 AC_CONFIG_FILES([
+    doxygen.conf
+    example/Makefile
     Makefile
     multi-gee/Makefile
-    src/Makefile
-    doxygen.conf
 ])
 AC_OUTPUT

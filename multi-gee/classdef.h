@@ -25,29 +25,34 @@ __BEGIN_DECLS
  *
  * @param exp  expression to be asserted
  */
+#ifndef DOXYGEN_SKIP
 #define compiler_assert(exp) extern char _compiler_assert[(exp)?1:-1]
+#else
+#define compiler_assert(exp)
+#endif /* DOXYGEN_SKIP */
 
 /**
  * @brief absolute value of value
  */
+#ifndef DOXYGEN_SKIP
 #define ABS(x) (((x)>0)?(x):-(x))
+#else
+#define ABS(x)
+#endif /* DOXYGEN_SKIP */
 
 /**
  * @brief test if a number is a power of two
  */
+#ifndef DOXYGEN_SKIP
 #define ISPOWER2(x) (!((x)&((x)-1)))
+#else
+#define ISPOWER2(x)
+#endif /* DOXYGEN_SKIP */
 
 /**
  * @brief number of static elements in an array
  */
 #define NUMSTATICELS(array) (sizeof(array)/sizeof(*array))
-
-/* loop macros */
-//#define LOOP(arg) { int _max=arg; int loop; \ //
-//    for (loop=0; loop<_max; ++loop)
-//#define ULOOP(arg) { unsigned int _max=arg; unsigned int loop; \ //
-//    for (loop=0; loop<_max; ++loop)
-//#define ENDLOOP }
 
 /**
  * @brief enables xassert support in a source file
@@ -58,19 +63,26 @@ __BEGIN_DECLS
  * report_xassert() function with the file name and line number where
  * the assertion failure occured.
  */
-#define USE_XASSERT static char SRCFILE[]=__FILE__;  \
-  static void /* bool */ _do_xassert(int line) {     \
-    report_xassert(SRCFILE, line);                   \
-    /* xassert(line) {} */                           \
-    /* return false; */                              \
-    }
+#ifndef DOXYGEN_SKIP
+# define USE_XASSERT                  \
+  static char SRCFILE[] = "__FILE__"; \
+  static void _do_xassert(int line) { \
+    report_xassert(SRCFILE, line);    \
+  }
 #define asserterror() _do_xassert(__LINE__)
 #define xassert(exp) if (!(exp)) { asserterror(); } else
+#else
+# define USE_XASSERT
+#endif /* DOXYGEN_SKIP */
 
-/* class descriptor */
+/**
+ * @brief class descriptor
+ */
+#ifndef DOXYGEN_SKIP
 typedef struct classdesc_tag {
 	char *name;
 } classdesc;
+#endif /* DOXYGEN_SKIP */
 
 /**
  * @brief declare a new handle
@@ -89,7 +101,9 @@ typedef struct classdesc_tag {
 #define NEWHANDLE(handle) typedef struct tag_##handle *handle
 
 /* class descriptor name from object name */
+#ifndef DOXYGEN_SKIP
 #define _CD(obj) obj##_classdesc
+#endif /* DOXYGEN_SKIP */
 
 /**
  * @brief the class macro
@@ -106,9 +120,13 @@ typedef struct classdesc_tag {
  * CLASS(list, list_t)
  * @endcode
  */
+#ifndef DOXYGEN_SKIP
 #define CLASS(object,handle) \
     static classdesc _CD(object)={#object}; \
     struct tag_##handle
+#else
+#define CLASS(object, handle) struct handle
+#endif
 
 /* object verification macros */
 /**
@@ -127,6 +145,7 @@ typedef struct classdesc_tag {
  * @endcode
  */
 #define VERIFY(obj) xassert(_VERIFY(obj))
+
 /**
  * @brief verify an object, allows NULL too
  *
@@ -145,14 +164,15 @@ typedef struct classdesc_tag {
 #define VERIFYZ(obj) if (!(obj)) {} else VERIFY(obj)
 
 /* WARNING: _VERIFY needs be tailored to your environment */
+#ifndef DOXYGEN_SKIP
 #define _S4 (sizeof(classdesc*))
 #define _S8 (sizeof(classdesc*)+sizeof(void *))
 #define _VERIFY(obj) \
     ( xtestptr(obj) && \
       (((void *)obj) == *(void **)((char *)obj-_S8)) \
       && ((&_CD(obj)) == *(classdesc **)((char *)obj-_S4)) )
+#endif /* DOXYGEN_SKIP */
 
-/* NEWOBJ() and FREEOBJ() interface macros */
 /**
  * @brief allocate memory for an object
  *
@@ -166,6 +186,7 @@ typedef struct classdesc_tag {
  */
 #define NEWOBJ(obj) \
   (obj = xnew(sizeof(*obj),&_CD(obj),SRCFILE,__LINE__))
+
 /**
  * @brief free memory allocated memory for an object
  *
@@ -178,7 +199,6 @@ typedef struct classdesc_tag {
  */
 #define FREEOBJ(obj) (obj = xfree(obj))
 
-/* string interface macros */
 /**
  * @brief allocates memory for a string of size - 1 bytes
  *
@@ -187,6 +207,7 @@ typedef struct classdesc_tag {
  */
 #define NEWSTRING(dest, size) \
   (dest = xnew((size_t)(size),NULL,SRCFILE,__LINE__))
+
 /**
  * @brief  duplicate a string
  *
@@ -196,7 +217,6 @@ typedef struct classdesc_tag {
 #define STRDUP(dest, source) \
   (dest = xstrdup(source,SRCFILE,__LINE__))
 
-/* array interface macros */
 /**
  * @brief allocate memory to contain N (size) array elements
  *
@@ -206,6 +226,7 @@ typedef struct classdesc_tag {
 #define NEWARRAY(array, size) \
   (array = xnew((size_t)(sizeof(*(array))*(size)), \
   NULL,SRCFILE,__LINE__))
+
 /**
  * @brief resize an array so contain N (size) array elements
  *
@@ -218,4 +239,4 @@ typedef struct classdesc_tag {
 
 __END_DECLS
 
-#endif /* ndef DSM_CLASSDEF_H */
+#endif /* DSM_CLASSDEF_H */

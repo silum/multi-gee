@@ -77,4 +77,4 @@ sll_empty(sllist_t list);
 
 __END_DECLS
 
-#endif /* ndef DSM_SLLIST_H */
+#endif /* DSM_SLLIST_H */

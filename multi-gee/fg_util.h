@@ -104,4 +104,4 @@ fg_stop_capture(mg_device_t device,
 
 __END_DECLS
 
-#endif /* ndef DSM_FG_UTIL_H */
+#endif /* DSM_FG_UTIL_H */

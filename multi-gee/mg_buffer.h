@@ -99,4 +99,4 @@ mg_buffer_length(mg_buffer_t buffer,
 
 __END_DECLS
 
-#endif /* ndef DSM_MG_BUFFER_H */
+#endif /* DSM_MG_BUFFER_H */

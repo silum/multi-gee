@@ -117,4 +117,4 @@ report_xassert(const char *file,
 
 __END_DECLS
 
-#endif /* ndef DSM_XMALLOC_H */
+#endif /* DSM_XMALLOC_H */

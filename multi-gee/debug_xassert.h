@@ -53,4 +53,4 @@ int debug_test(void (*user_func)());
 
 __END_DECLS
 
-#endif /* ndef DSM_DEBUG_XASSERT */
+#endif /* DSM_DEBUG_XASSERT */

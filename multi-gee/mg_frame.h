@@ -140,4 +140,4 @@ mg_frame_set_used(mg_frame_t frame);
 
 __END_DECLS
 
-#endif /* ndef DSM_MG_FRAME_H */
+#endif /* DSM_MG_FRAME_H */

@@ -15,6 +15,10 @@
 
 __BEGIN_DECLS
 
+/**
+ * @class log_t multi-gee/log.h
+ * @brief log file writer
+ */
 NEWHANDLE(log_t);
 
 /**
@@ -69,4 +73,4 @@ lg_errno(log_t log,
 
 __END_DECLS
 
-#endif /* ndef DSM_LOG_H */
+#endif /* DSM_LOG_H */

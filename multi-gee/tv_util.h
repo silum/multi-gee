@@ -54,4 +54,4 @@ tv_abs_diff(struct timeval tv_0,
 
 __END_DECLS
 
-#endif /* ndef DSM_TV_UTIL_H */
+#endif /* DSM_TV_UTIL_H */

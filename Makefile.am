@@ -2,7 +2,9 @@
 ## $Id$
 ## Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
-DIST_SUBDIRS = multi-gee src
+DIST_SUBDIRS = \
+    example \
+    multi-gee
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 
@@ -17,11 +19,12 @@ TESTS = \
     multi-gee/tv_util
 
 bin_PROGRAMS = \
-    src/check-rate
+    example/check-rate
 
 noinst_PROGRAMS = \
     $(TESTS) \
-    multi-gee/multi-gee
+    multi-gee/multi-gee \
+    example/multi-gee
 
 nobase_include_HEADERS = \
     multi-gee.h \
@@ -37,6 +40,8 @@ nobase_include_HEADERS = \
     multi-gee/xmalloc.h
 
 noinst_HEADERS = \
+    example/pgm_util.h \
+    example/process_util.h \
     linux/videodev2.h
 
 .PHONY: doc
@@ -114,11 +119,19 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/tv_util.c \
     multi-gee/xmalloc.c
 
-src_check_rate_LDADD = \
+example_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
-src_check_rate_SOURCES = \
-    src/check-rate.c \
+example_check_rate_SOURCES = \
+    example/check-rate.c \
+    multi-gee/libmulti-gee.la
+
+example_multi_gee_LDADD = \
+    $(top_builddir)/multi-gee/libmulti-gee.la
+example_multi_gee_SOURCES = \
+    example/multi-gee.c \
+    example/pgm_util.c \
+    example/process_util.c \
     multi-gee/libmulti-gee.la
 
 AUX_DIR = @ac_aux_dir@

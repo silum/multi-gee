@@ -34,6 +34,7 @@ USE_XASSERT;
 compiler_assert(ISPOWER2(ALIGNMENT));
 
 /* Prefix structure before every heap object */
+#ifndef DOXYGEN_SKIP
 typedef struct prefix_tag {
 	struct prefix_tag *prev;	/* previous object in heap   */
 	struct prefix_tag *next;	/* next object in heap       */
@@ -43,17 +44,22 @@ typedef struct prefix_tag {
 	void *mem;			/* xnew() ptr of object      */
 	classdesc *class;		/* class descriptor ptr or 0 */
 } prefix;
+#endif /* DOXYGEN_SKIP */
 
 /* Postfix structure after every heap object */
+#ifndef DOXYGEN_SKIP
 typedef struct postfix_tag {
 	struct prefix_tag *prefix;
 } postfix;
+#endif /* DOXYGEN_SKIP */
 
 /* Verify alignment of prefix structure */
 compiler_assert(!(sizeof(prefix) % ALIGNMENT));
 
 /* Points to first object in linked list of heap objects */
+#ifndef DOXYGEN_SKIP
 static prefix *heap = 0;
+#endif /* DOXYGEN_SKIP */
 
 /* Local prototypes */
 /**
