@@ -2,6 +2,8 @@
 ## $Id$
 ## Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
+DIST_SUBDIRS = src
+
 bin_PROGRAMS = src/dvideo
 
 # noinst_LTLIBRARIES = src/bar.la

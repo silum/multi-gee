@@ -7,13 +7,11 @@ AC_INIT([multi-gee], [0.0], [dsm@tlabs.ac.za])
 
 AC_REVISION($Rev$)
 
-AC_CONFIG_SRCDIR(src/main.c)
+AC_CONFIG_SRCDIR(src/dvideo.c)
 AC_CONFIG_AUX_DIR(config)
 AC_SUBST(ac_aux_dir)
 
-dnl AM_INIT_AUTOMAKE([1.8 dist-bzip2 subdir-objects])
-# add foreign if this project is not GNU compliant
-AM_INIT_AUTOMAKE([1.8 dist-bzip2 subdir-objects foreign])
+AM_INIT_AUTOMAKE([1.8 subdir-objects foreign])
 
 # create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER([config.h])
@@ -35,5 +33,6 @@ AM_PROG_CC_C_O
 
 AC_CONFIG_FILES([
     Makefile
+    src/Makefile
 ])
 AC_OUTPUT
