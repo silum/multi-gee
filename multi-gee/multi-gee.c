@@ -682,6 +682,8 @@ main()
 		int ret = debug_test(multi_gee);
 		if (ret != EXIT_SUCCESS)
 			return ret;
+		/* might be needed to give the hardware time to recover */
+		/* usleep(100000); */
 	}
 	return EXIT_SUCCESS;
 }
