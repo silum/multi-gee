@@ -218,7 +218,7 @@ swap_frame(sllist_t frame_list,
 	   mg_device_t dev)
 {
 	int fd = mg_device_fd(dev);
-	// printf("fd = %d\n", fd);
+	printf("fd = %d\n", fd);
 
 	struct v4l2_buffer buf;
 	if (!dequeue(fd, &buf))

@@ -49,7 +49,7 @@ mg_capture_halt(multi_gee_t);
 /* register callback function */
 multi_gee_t
 mg_register_callback(multi_gee_t,
-		     void (*)(const sllist_t) /* callback function */ );
+		     void (*)(multi_gee_t, sllist_t) /* callback function */ );
 
 /* register capture device */
 int /* status value:

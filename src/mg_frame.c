@@ -42,9 +42,7 @@ mg_frame_create(mg_device_t mg_device,
 		mg_frame->sequence = buf->sequence;
 	} else {
 		mg_frame->index = -1;
-		struct timeval timestamp = {0, 0};
-		gettimeofday(&timestamp, 0);
-		mg_frame->timestamp = timestamp;
+		gettimeofday(&mg_frame->timestamp, 0);
 		mg_frame->sequence = 0;
 	}
 
