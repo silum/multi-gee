@@ -8,6 +8,6 @@ Have a look at the files in the doc/ direcotory for detailed info.
 ToDo
 ====
 
-Add a section to the docs with an example callback() function.  Use
-example/multi-gee.c:process_images() as a base.
+finish the check_rate program, that allows testing for device sync
+status.
 
