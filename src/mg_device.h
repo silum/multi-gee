@@ -29,7 +29,7 @@ mg_device_t
 mg_device_destroy(mg_device_t /* object to destroy */);
 
 char * /* file name */
-mg_device_file_name(mg_device_t);
+mg_device_name(mg_device_t);
 
 int /* 1 - device already open,
        0 - action successful,

@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
 #include "debug_xassert.h"
 #include "xmalloc.h"
@@ -48,7 +50,7 @@ debug_test(void (*test_func)())
 
 	test_func();
 
-	xassert(xwalkheap() == 0);
+	XASSERT(xwalkheap() == 0);
 
 	if (XASSERT_FAILURE)
 		return EXIT_FAILURE;

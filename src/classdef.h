@@ -40,9 +40,9 @@ __BEGIN_DECLS
 
 /* xassert support */
 #define USE_XASSERT static char SRCFILE[]=__FILE__;  \
-  bool static _do_xassert(int line) {                \
+  static bool _do_xassert(int line) {                \
     report_xassert(SRCFILE, line);                   \
-    xassert(line);                                   \
+    xassert(line) {}                                 \
     return(false);                                   \
     }
 #define asserterror() _do_xassert(__LINE__)
@@ -53,49 +53,61 @@ typedef struct classdesc_tag {
 	char *name;
 } classdesc;
 
-/*
- * Declare a new handle
+/**
+ * @brief declare a new handle
  *
- * NEWHANDLE() declarations are almost always placed in an include file
- * that gets included into all source files. NEWHANDLE() is usually not
- * used in source files.
+ * @desc NEWHANDLE() declarations are almost always placed in an
+ * include file that gets included into all source files. NEWHANDLE() is
+ * usually not used in source files.
  *
- * eg:
- *   NEWHANDLE(list_t);
+ * @param handle_t  new handle to declare
+ *
+ * @eg NEWHANDLE(list_t);
  */
 #define NEWHANDLE(handle) typedef struct tag_##handle *handle
 
 /* Class descriptor name from object name */
 #define _CD(obj) obj##_classdesc
 
-/*
- * The class macro
+/**
+ * @brief the class macro
  *
- * The CLASS() macro is used only by source files that implement an
+ * @desc The CLASS() macro is used only by source files that implement an
  * object.  The CLASS() macro is never used in include files.
  *
- * eg:
- *   CLASS(list, list_t)
+ * @param handle  the object handle, to be used in the VERIFY* type
+ * macros
+ * @param handle_t  the object handle type, used to declare an object
+ *
+ * @eg  CLASS(list, list_t)
  */
 #define CLASS(obj,handle) \
     static classdesc _CD(obj)={#obj}; \
     struct tag_##handle
 
 /* Object verification macros */
-/*
- * verify that the object (variable name) matches the object type, as
+/**
+ * @brief verify an object
+ *
+ * @desc verify that the object (variable name) matches the object type, as
  * declared to the heap manager
  *
- * eg:
- *   VERIFY(obj);
- * or
- *   VERIFY(obj) {
+ * @eg VERIFY(obj);
+ * @eg VERIFY(obj) {
  *     // only executed if verfication holds
- *   }
+ * }
  */
 #define VERIFY(obj) xassert(_VERIFY(obj))
-/*
- * same as verify, but allows NULL too
+/**
+ * @brief verify an object, allows NULL too
+ *
+ * @desc verify that the object (variable name) matches the object type, as
+ * declared to the heap manager, or that the object is NULL
+ *
+ * @eg VERIFY(obj);
+ * @eg VERIFY(obj) {
+ *     // only executed if verfication holds
+ * }
  */
 #define VERIFYZ(obj) if (!(obj)) {} else VERIFY(obj)
 
@@ -108,26 +120,30 @@ typedef struct classdesc_tag {
       && ((&_CD(obj)) == *(classdesc **)((char *)obj-_S4)) )
 
 /* NEWOBJ() and FREEOBJ() interface macros */
-/*
- * allocate memory for an object
+/**
+ * @brief allocate memory for an object
  *
- * eg:
- *   obj_t obj;
- *   NEWOBJ(obj);
+ * @param obj object to allocate
+ *
+ * @eg obj_t obj; NEWOBJ(obj);
  */
 #define NEWOBJ(obj) \
   (obj = xnew(sizeof(*obj),&_CD(obj),SRCFILE,__LINE__))
-/*
- * free memory allocated memory for an object
+/**
+ * @brief free memory allocated memory for an object
  *
- * eg:
- *   FREEOBJ(obj);
+ * @param obj object to free
+ *
+ * @eg FREEOBJ(obj);
  */
 #define FREEOBJ(obj) (obj = xfree(obj))
 
 /* String interface macros */
-/*
- * allocates memory for a string of size - 1 bytes
+/**
+ * @brief allocates memory for a string of size - 1 bytes
+ *
+ * 
+ *
  */
 #define NEWSTRING(dst, size) \
   (dst = xnew((size_t)(size),NULL,SRCFILE,__LINE__))

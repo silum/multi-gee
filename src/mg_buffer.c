@@ -14,9 +14,6 @@ USE_XASSERT;
 
 CLASS(mg_buffer, mg_buffer_t)
 {
-	bool used;
-	struct timespec timestamp;
-	unsigned int sequence;
 	void **start;
 	size_t *length;
 	unsigned int number; /* of alloced buffers */
@@ -27,13 +24,6 @@ mg_buffer_create()
 {
 	mg_buffer_t mg_buffer;
 	NEWOBJ(mg_buffer);
-
-	mg_buffer->used = false;
-
-	mg_buffer->timestamp.tv_sec = 0;
-	mg_buffer->timestamp.tv_nsec = 0;
-
-	mg_buffer->sequence = 0;
 
 	mg_buffer->start = 0;
 	mg_buffer->length = 0;
@@ -55,7 +45,7 @@ mg_buffer_destroy(mg_buffer_t mg_buffer)
 	return 0;
 }
 
-int
+unsigned int
 mg_buffer_number(mg_buffer_t mg_buffer)
 {
 	int number = 0;
@@ -68,8 +58,8 @@ mg_buffer_number(mg_buffer_t mg_buffer)
 }
 
 mg_buffer_t
-mg_buffer_alloc_buffer(mg_buffer_t mg_buffer,
-		       unsigned int n)
+mg_buffer_alloc(mg_buffer_t mg_buffer,
+		unsigned int n)
 {
 	mg_buffer_t p = 0;
 
@@ -86,10 +76,10 @@ mg_buffer_alloc_buffer(mg_buffer_t mg_buffer,
 }
 
 mg_buffer_t
-mg_buffer_set_buffer(mg_buffer_t mg_buffer,
-		     int n,
-		     void *start,
-		     size_t length)
+mg_buffer_set(mg_buffer_t mg_buffer,
+	      unsigned int n,
+	      void *start,
+	      size_t length)
 {
 	mg_buffer_t p = 0;
 
@@ -108,7 +98,7 @@ mg_buffer_set_buffer(mg_buffer_t mg_buffer,
 
 void *
 mg_buffer_start(mg_buffer_t mg_buffer,
-	       	int n)
+		unsigned int n)
 {
 	void *p = 0;
 
@@ -121,9 +111,9 @@ mg_buffer_start(mg_buffer_t mg_buffer,
 }
 
 
-size_t /* length */
+size_t
 mg_buffer_length(mg_buffer_t mg_buffer,
-		 int n)
+		 unsigned int n)
 {
 	size_t s = 0;
 
@@ -135,76 +125,6 @@ mg_buffer_length(mg_buffer_t mg_buffer,
 	return s;
 }
 
-mg_buffer_t
-mg_buffer_set_timestamp(mg_buffer_t mg_buffer,
-			unsigned int seq,
-			struct timespec ts)
-{
-	mg_buffer_t p = 0;
-
-	VERIFY(mg_buffer) {
-		mg_buffer->sequence = seq;
-
-		mg_buffer->timestamp.tv_sec = ts.tv_sec;
-		mg_buffer->timestamp.tv_nsec = ts.tv_nsec;
-
-		mg_buffer->used = false;
-		p = mg_buffer;
-	}
-
-	return p;
-}
-
-unsigned int
-mg_buffer_sequence(mg_buffer_t mg_buffer)
-{
-	unsigned int seq = 0;
-
-	VERIFY(mg_buffer) {
-		seq = mg_buffer->sequence;
-	}
-
-	return seq;
-}
-
-struct timespec
-mg_buffer_timestamp(mg_buffer_t mg_buffer)
-{
-	struct timespec ts = {0, 0};
-
-	VERIFY(mg_buffer) {
-		 ts.tv_sec =  mg_buffer->timestamp.tv_sec;
-		 ts.tv_nsec = mg_buffer->timestamp.tv_nsec;
-	}
-
-	return ts;
-}
-
-mg_buffer_t
-mg_buffer_set_used(mg_buffer_t mg_buffer)
-{
-	mg_buffer_t p = 0;
-
-	VERIFY(mg_buffer) {
-		mg_buffer->used = true;
-		p = mg_buffer;
-	}
-
-	return p;
-}
-
-bool
-mg_buffer_used(mg_buffer_t mg_buffer)
-{
-	bool b = false;
-
-	VERIFY(mg_buffer) {
-		b = mg_buffer->used;
-	}
-
-	return b;
-}
-
 #ifdef DEBUG_BUFFER
 
 #include <stdlib.h>
@@ -214,82 +134,55 @@ mg_buffer_used(mg_buffer_t mg_buffer)
 
 void
 verify_buffer(mg_buffer_t buffer,
-	      int n,
+	      unsigned int n,
 	      unsigned int number,
-	      int sequence,
-	      struct timespec ts,
 	      void *start,
-	      size_t length,
-	      bool used)
+	      size_t length)
 {
-	struct timespec buffer_ts = mg_buffer_timestamp(buffer);
-	xassert(buffer_ts.tv_sec == ts.tv_sec);
-	xassert(buffer_ts.tv_nsec == ts.tv_nsec);
-
-	xassert(mg_buffer_number(buffer) == number);
-
-	xassert(mg_buffer_sequence(buffer) == sequence);
-	xassert(mg_buffer_start(buffer, n) == start);
-	xassert(mg_buffer_length(buffer, n) == length);
-	xassert(mg_buffer_used(buffer) == used);
+	xassert(mg_buffer_number(buffer) == number) {}
+	xassert(mg_buffer_start(buffer, n) == start) {}
+	xassert(mg_buffer_length(buffer, n) == length) {}
 }
 
 void
-test_buffer(struct timespec ts,
-	    unsigned int sequence,
-	    void *start_0,
+test_buffer(void *start_0,
 	    size_t length_0,
 	    void *start_1,
 	    size_t length_1)
 {
-	struct timespec ts_zero = {0, 0};
-
 	/* create */
 	mg_buffer_t buffer = mg_buffer_create();
-	verify_buffer(buffer, 0, 0, 0, ts_zero, 0, 0, false);
+	verify_buffer(buffer, 0, 0, 0, 0);
 
 	/* allocate buffers */
-	buffer = mg_buffer_alloc_buffer(buffer, 2);
-	verify_buffer(buffer, 0, 2, 0, ts_zero, 0, 0, 0);
-	verify_buffer(buffer, 1, 2, 0, ts_zero, 0, 0, 0);
-	verify_buffer(buffer, 2, 2, 0, ts_zero, 0, 0, 0);
+	buffer = mg_buffer_alloc(buffer, 2);
+	verify_buffer(buffer, 0, 2, 0, 0);
+	verify_buffer(buffer, 1, 2, 0, 0);
+	verify_buffer(buffer, 2, 2, 0, 0);
 
 	/* set start and length of buffers */
-	buffer = mg_buffer_set_buffer(buffer, 0, start_0, length_0);
-	buffer = mg_buffer_set_buffer(buffer, 1, start_1, length_1);
-	buffer = mg_buffer_set_buffer(buffer, 2, start_1, length_1);
-	verify_buffer(buffer, 0, 2, 0, ts_zero, start_0, length_0, false);
-	verify_buffer(buffer, 1, 2, 0, ts_zero, start_1, length_1, false);
-	verify_buffer(buffer, 2, 2, 0, ts_zero, 0, 0, false);
+	buffer = mg_buffer_set(buffer, 0, start_0, length_0);
+	buffer = mg_buffer_set(buffer, 1, start_1, length_1);
+	buffer = mg_buffer_set(buffer, 2, start_1, length_1);
+	verify_buffer(buffer, 0, 2, start_0, length_0);
+	verify_buffer(buffer, 1, 2, start_1, length_1);
+	verify_buffer(buffer, 2, 2, 0, 0);
 
 	/* try to reset start and length of a buffer */
-	buffer = mg_buffer_set_buffer(buffer, 1, start_0, length_0);
-	verify_buffer(buffer, 1, 2, 0, ts_zero, start_1, length_1, false);
+	buffer = mg_buffer_set(buffer, 1, start_0, length_0);
+	verify_buffer(buffer, 1, 2, start_1, length_1);
 
-	/* set the used state */
-	buffer = mg_buffer_set_used(buffer);
-	verify_buffer(buffer, 0, 2, 0, ts_zero, start_0, length_0, true);
-	verify_buffer(buffer, 1, 2, 0, ts_zero, start_1, length_1, true);
-	verify_buffer(buffer, 2, 2, 0, ts_zero, 0, 0, true);
-
-	/* set the timestamp */
-	buffer = mg_buffer_set_timestamp(buffer, sequence, ts);
-	verify_buffer(buffer, 0, 2, sequence, ts, start_0, length_0, false);
-	verify_buffer(buffer, 1, 2, sequence, ts, start_1, length_1, false);
-	verify_buffer(buffer, 2, 2, sequence, ts, 0, 0, false);
-
+	/* destroy */
 	buffer = mg_buffer_destroy(buffer);
-	xassert(buffer == 0);
+	xassert(buffer == 0) {}
 }
 
 void
 mg_buffer()
 {
-	struct timespec ts_0 = {1000, 2000};
-	struct timespec ts_1 = {3000, 4000};
+	test_buffer(0, 0, 0, 0);
 
-	test_buffer(ts_0, 6666,
-		    (void *) 0xdeadbeef, 7777,
+	test_buffer((void *) 0xdeadbeef, 7777,
 		    (void *) 0xffffffff, 8888);
 }
 

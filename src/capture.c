@@ -66,6 +66,7 @@ xioctl(int fd, int request, void *arg)
 static void
 process_image(const void *p)
 {
+	(void) p;
 	struct timeval tv;
 	gettimeofday(&tv, 0);
 
@@ -75,8 +76,8 @@ process_image(const void *p)
 	long diff = now - then;
 	then = now;
 
-	printf("%10d.%06d\n", tv.tv_sec, tv.tv_usec);
-	printf("  %d\n", diff);
+	printf("%10d.%06d\n", (int) tv.tv_sec, (int) tv.tv_usec);
+	printf("  %ld\n", diff);
 //	fflush(stdout);
 }
 
@@ -84,7 +85,6 @@ static int
 read_frame(void)
 {
 	struct v4l2_buffer buf;
-	unsigned int i;
 
 	switch (io) {
 	case IO_METHOD_READ:
@@ -158,13 +158,13 @@ read_frame(void)
 			}
 		}
 
-		for (i = 0; i < n_buffers; ++i)
+		for (unsigned int i = 0; i < n_buffers; ++i)
 			if (buf.m.userptr ==
 			    (unsigned long) buffers[i].start
 			    && buf.length == buffers[i].length)
 				break;
 
-		assert(i < n_buffers);
+		assert(buf.index < n_buffers);
 
 		process_image((void *) buf.m.userptr);
 
@@ -243,7 +243,6 @@ stop_capturing(void)
 static void
 start_capturing(void)
 {
-	unsigned int i;
 	enum v4l2_buf_type type;
 
 	switch (io) {
@@ -252,7 +251,7 @@ start_capturing(void)
 		break;
 
 	case IO_METHOD_MMAP:
-		for (i = 0; i < n_buffers; ++i) {
+		for (unsigned int i = 0; i < n_buffers; ++i) {
 			struct v4l2_buffer buf;
 
 			CLEAR(buf);
@@ -273,7 +272,7 @@ start_capturing(void)
 		break;
 
 	case IO_METHOD_USERPTR:
-		for (i = 0; i < n_buffers; ++i) {
+		for (unsigned int i = 0; i < n_buffers; ++i) {
 			struct v4l2_buffer buf;
 
 			CLEAR(buf);
@@ -299,22 +298,20 @@ start_capturing(void)
 static void
 uninit_device(void)
 {
-	unsigned int i;
-
 	switch (io) {
 	case IO_METHOD_READ:
 		free(buffers[0].start);
 		break;
 
 	case IO_METHOD_MMAP:
-		for (i = 0; i < n_buffers; ++i)
+		for (unsigned int i = 0; i < n_buffers; ++i)
 			if (-1 ==
 			    munmap(buffers[i].start, buffers[i].length))
 				errno_exit("munmap");
 		break;
 
 	case IO_METHOD_USERPTR:
-		for (i = 0; i < n_buffers; ++i)
+		for (unsigned int i = 0; i < n_buffers; ++i)
 			free(buffers[i].start);
 		break;
 	}
@@ -582,6 +579,8 @@ open_device(void)
 static void
 usage(FILE *fp, int argc, char **argv)
 {
+	(void) argc;
+
 	fprintf(fp,
 		"Usage: %s [options]\n\n"
 		"Options:\n"

@@ -7,6 +7,9 @@
  * Date:      $Date$
  */
 
+#include <stdint.h>
+#include <sys/time.h>
+
 #include "mg_frame.h"
 #include "mg_device.h"
 #include "multi-gee.h"
@@ -17,29 +20,34 @@ USE_XASSERT;
 
 CLASS(mg_frame, mg_frame_t)
 {
-	multi_gee_t multi_gee;
 	mg_device_t device;
-	void *image;
-	struct timespec timestamp;
-	int sequence;
+	unsigned int index; /* device buffer index */
+	struct timeval timestamp;
+	uint32_t sequence;
 	bool used;
 };
 
 mg_frame_t
-mg_frame_create(multi_gee_t multi_gee,
-		mg_device_t mg_device,
-		void *image,
-		struct timespec timestamp,
-		int sequence)
+mg_frame_create(mg_device_t mg_device,
+		struct v4l2_buffer *buf)
 {
 	mg_frame_t mg_frame = 0;
 	NEWOBJ(mg_frame);
 
-	mg_frame->multi_gee = multi_gee;
 	mg_frame->device = mg_device;
-	mg_frame->image = image;
-	mg_frame->timestamp = timestamp;
-	mg_frame->sequence = sequence;
+
+	if (buf) {
+		mg_frame->index = buf->index;
+		mg_frame->timestamp = buf->timestamp;
+		mg_frame->sequence = buf->sequence;
+	} else {
+		mg_frame->index = -1;
+		struct timeval timestamp = {0, 0};
+		gettimeofday(&timestamp, 0);
+		mg_frame->timestamp = timestamp;
+		mg_frame->sequence = 0;
+	}
+
 	mg_frame->used = false;
 
 	return mg_frame;
@@ -55,16 +63,15 @@ mg_frame_destroy(mg_frame_t mg_frame)
 	return 0;
 }
 
-multi_gee_t
-mg_frame_multi_gee(mg_frame_t mg_frame)
+int
+mg_frame_index(mg_frame_t mg_frame)
 {
-	multi_gee_t multi_gee = 0;
-
+	int index = -1;
 	VERIFY(mg_frame) {
-		multi_gee = mg_frame->multi_gee;
+		index = mg_frame->index;
 	}
 
-	return multi_gee;
+	return index;
 }
 
 mg_device_t
@@ -85,16 +92,17 @@ mg_frame_image(mg_frame_t mg_frame)
 	void *image = 0;
 
 	VERIFY(mg_frame) {
-		image = mg_frame->image;
+		mg_buffer_t buf = mg_device_buffer(mg_frame->device);
+		image = mg_buffer_start(buf, mg_frame->index);
 	}
 
 	return image;
 }
 
-struct timespec
+struct timeval
 mg_frame_timestamp(mg_frame_t mg_frame)
 {
-	struct timespec timestamp = { 0, 0 };
+	struct timeval timestamp = {0, 0};
 
 	VERIFY(mg_frame) {
 		timestamp = mg_frame->timestamp;
@@ -103,7 +111,7 @@ mg_frame_timestamp(mg_frame_t mg_frame)
 	return timestamp;
 }
 
-int
+uint32_t
 mg_frame_sequence(mg_frame_t mg_frame)
 {
 	int sequence = -1;
@@ -142,36 +150,41 @@ mg_frame_set_used(mg_frame_t mg_frame)
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "xmalloc.h"
 #include "debug_xassert.h"
 #include "multi-gee.h"
 
 void
-test_frame(multi_gee_t multi_gee,
-	   mg_device_t device,
+test_frame(mg_device_t device,
 	   void *image,
-	   struct timespec timestamp,
-	   int sequence)
+	   struct timeval timestamp,
+	   uint32_t sequence)
 {
 
-	mg_frame_t frame = mg_frame_create(multi_gee, device, image, timestamp, sequence);
+	struct v4l2_buffer buf;
+	memset(&buf, 0, sizeof(buf));
+	buf.index = 0;
+	buf.timestamp = timestamp;
+	buf.sequence = sequence;
 
-	xassert(mg_frame_multi_gee(frame) == multi_gee);
-	xassert(mg_frame_device(frame) == device);
-	xassert(mg_frame_image(frame) == image);
+	mg_frame_t frame = mg_frame_create(device, &buf);
 
-	struct timespec ts = mg_frame_timestamp(frame);
-	xassert(ts.tv_sec == timestamp.tv_sec);
-	xassert(ts.tv_nsec == timestamp.tv_nsec);
+	XASSERT(mg_frame_device(frame) == device);
+	XASSERT(mg_frame_image(frame) == image);
 
-	xassert(mg_frame_sequence(frame) == sequence);
+	struct timeval tv = mg_frame_timestamp(frame);
+	XASSERT(tv.tv_sec == timestamp.tv_sec);
+	XASSERT(tv.tv_usec == timestamp.tv_usec);
 
-	xassert(mg_frame_used(frame) == false);
+	XASSERT(mg_frame_sequence(frame) == sequence);
+
+	XASSERT(mg_frame_used(frame) == false);
 	frame = mg_frame_set_used(frame);
-	xassert(mg_frame_used(frame) == true);
+	XASSERT(mg_frame_used(frame) == true);
 	frame = mg_frame_set_used(frame);
-	xassert(mg_frame_used(frame) == true);
+	XASSERT(mg_frame_used(frame) == true);
 
 	mg_frame_destroy(frame);
 }
@@ -179,15 +192,23 @@ test_frame(multi_gee_t multi_gee,
 void
 mg_frame()
 {
-	struct timespec timestamp = {0 , 0};
-	test_frame(0, 0, 0, timestamp, 0);
+	struct timeval timestamp = {0 , 0};
+	mg_device_t mg_device = mg_device_create("/dev/null");
+	mg_buffer_t mg_buffer = mg_device_buffer(mg_device);
+	mg_buffer_alloc(mg_buffer, 1);
+
+	test_frame(mg_device, 0, timestamp, 0);
 
 	timestamp.tv_sec = 300;
-	timestamp.tv_nsec = 400;
+	timestamp.tv_usec = 400;
 
-	test_frame(0, 0, 0, timestamp, 0);
+	test_frame(mg_device, 0, timestamp, 0);
 
-	test_frame((multi_gee_t) 1, (mg_device_t) 2, (void *)3, timestamp, 4);
+	mg_buffer_set(mg_buffer, 0, (void *) 3, 0);
+
+	test_frame(mg_device, (void *)3, timestamp, 4);
+
+	mg_device = mg_device_destroy(mg_device);
 }
 
 int

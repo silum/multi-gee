@@ -11,8 +11,12 @@
 #ifndef DSM_MG_FRAME_H
 #define DSM_MG_FRAME_H 1
 
+#include <stdint.h> /* uint32_t */
+#include <sys/types.h> /* struct timespec */
+#include <asm/types.h> /* needed for videodev2.h */
+#include "linux/videodev2.h"
+
 #include "classdef.h"
-#include "multi-gee.h"
 #include "mg_device.h"
 
 __BEGIN_DECLS
@@ -23,18 +27,15 @@ NEWHANDLE(mg_frame_t); /* multi-gee frame object handle */
 
 /* create object */
 mg_frame_t /* new handle */
-mg_frame_create(multi_gee_t, /* capture object */
-		mg_device_t device,
-		void *image,
-		struct timespec timestamp,
-		int sequence);
+mg_frame_create(mg_device_t /* capture device */,
+		struct v4l2_buffer * /* capture buffer */);
 
 /* destroy object */
 mg_frame_t
 mg_frame_destroy(mg_frame_t /* object to destroy */);
 
-multi_gee_t /* capture object */
-mg_frame_multi_gee(mg_frame_t);
+int /* index */
+mg_frame_index(mg_frame_t);
 
 mg_device_t /* device */
 mg_frame_device(mg_frame_t);
@@ -42,10 +43,10 @@ mg_frame_device(mg_frame_t);
 void * /* image */
 mg_frame_image(mg_frame_t);
 
-struct timespec /* time stamp */
+struct timeval /* time stamp */
 mg_frame_timestamp(mg_frame_t);
 
-int /* sequence number */
+uint32_t /* sequence number */
 mg_frame_sequence(mg_frame_t);
 
 bool /* old frame */

@@ -259,7 +259,7 @@ void
 print_v4l2_capability(struct v4l2_capability *capability)
 {
 	if (capability) {
-		PRINTF("", "v4l2_capability: ", 0);
+		PRINTF("%s", "v4l2_capability: ", "");
 		PRINTF("%s", "driver",   capability->driver);
 		PRINTF("%s", "card",     capability->card);
 		PRINTF("%s", "bus_info", capability->bus_info);
@@ -269,10 +269,10 @@ print_v4l2_capability(struct v4l2_capability *capability)
 		       KERNEL_VERSION_C(capability->version));
 		PRINTF("0x%08x", "capabilities", capability->capabilities);
 
-		for (int i = 0; i < sizeof(capability->capabilities) * 8; ++i)
+		for (unsigned int i = 0; i < sizeof(capability->capabilities) * 8; ++i)
 			print_capability(capability->capabilities & (1 << i));
 
-		for (int i = 0; i < 4; ++i)
+		for (unsigned int i = 0; i < 4; ++i)
 			PRINTF("0x%08x", "reserved[]", capability->reserved[i]);
 	}
 }
@@ -282,7 +282,7 @@ void
 print_v4l2_input(struct v4l2_input *input)
 {
 	if (input) {
-		PRINTF("", "v4l2_input: ", 0);
+		PRINTF("%s", "v4l2_input: ", "");
 		PRINTF("%d", "index", input->index);
 		PRINTF("%s", "name", input->name);
 		PRINTF("%d", "type", input->type);
@@ -292,15 +292,15 @@ print_v4l2_input(struct v4l2_input *input)
 		PRINTF("%d", "audioset", input->audioset);
 		PRINTF("%d", "tuner", input->tuner);
 
-		PRINTF("0x%016x", "std", input->std);
-		for (int i= 0; i < sizeof(input->std) * 8; ++i)
+		PRINTF("0x%016x", "std", (unsigned int) input->std);
+		for (unsigned int i= 0; i < sizeof(input->std) * 8; ++i)
 			print_v4l2_std_id(input->std & (1ull << i));
 		PRINTF("%s", "", "class:");
 		print_v4l2_std_id_class(input->std);
 
 
 		PRINTF("0x%016x", "status", input->status);
-		for (int i = 0; i < sizeof(input->status) * 8; ++i)
+		for (unsigned int i = 0; i < sizeof(input->status) * 8; ++i)
 			print_v4l2_input_status(input->status & (1 << i));
 
 		for (int i = 0; i < 4; ++i)
@@ -365,7 +365,7 @@ main(void)
 			printf("VIDIOC_QUERYSTD ioctl not supported\n");
 	} else {
 		PRINTF("%016llx", "detected input", std_id);
-		for (int i= 0; i < sizeof(std_id) * 8; ++i)
+		for (unsigned int i= 0; i < sizeof(std_id) * 8; ++i)
 			print_v4l2_std_id(std_id & (1ull << i));
 	}
 
@@ -376,7 +376,7 @@ main(void)
 			printf("VIDIOC_G_STD ioctl not supported\n");
 	} else {
 		PRINTF("%016llx", "current input std", std_id);
-		for (int i= 0; i < sizeof(std_id) * 8; ++i)
+		for (unsigned int i= 0; i < sizeof(std_id) * 8; ++i)
 			print_v4l2_std_id(std_id & (1ull << i));
 		printf("\n");
 		print_v4l2_std_id_class(std_id);

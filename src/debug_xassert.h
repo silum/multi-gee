@@ -15,6 +15,8 @@
 
 __BEGIN_DECLS
 
+#define XASSERT(expr) xassert(expr){}
+
 extern bool XASSERT_INTERACTIVE;
 extern bool XASSERT_FAILURE;
 

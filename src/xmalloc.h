@@ -14,7 +14,7 @@
 #ifndef DSM_XMALLOC_H
 #define DSM_XMALLOC_H 1
 
-#include <sys/cdefs.h>
+#include <stdio.h>
 #include "classdef.h"
 
 __BEGIN_DECLS
@@ -30,6 +30,15 @@ int  xwalkheap(void);
 bool xtestptr(void *);
 
 void report_xassert(char *, int);
+
+/**
+ * @brief print error message corresponding to errno
+ *
+ * @param  file  file to print error message to
+ * @param  string
+ */
+void
+ferrno(FILE* f, const char *s);
 
 __END_DECLS
 

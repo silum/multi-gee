@@ -7,21 +7,23 @@
  * Date:      $Date$
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-
-#include "xmalloc.h"
 #include "mg_device.h"
+#include "xmalloc.h"
 
 USE_XASSERT;
 
 CLASS(mg_device, mg_device_t)
 {
 	int fd;
-	char *file_name;
+	char *name;
 	int major;
 	int minor;
 	mg_buffer_t buffer;
@@ -29,22 +31,26 @@ CLASS(mg_device, mg_device_t)
 };
 
 mg_device_t
-mg_device_create(char *file_name)
+mg_device_create(char *name)
 {
 	mg_device_t mg_device;
 	NEWOBJ(mg_device);
 
 	mg_device->fd = -1;
-	mg_device->file_name = xstrdup(file_name, __FILE__, __LINE__);
+	mg_device->major = -1;
+	mg_device->minor = -1;
 
-	struct stat buf;
-	int ret = stat(file_name, &buf);
-	if (S_ISCHR(buf.st_mode)) {
-		mg_device->major = major(buf.st_rdev);
-		mg_device->minor = minor(buf.st_rdev);
+	mg_device->name = xstrdup(name, __FILE__, __LINE__);
+
+	struct stat st;
+	if (0 != stat(name, &st)) {
+		fprintf(stderr, "Cannot identify '%s': %d, %s\n",
+			name, errno, strerror(errno));
+	} else if (!S_ISCHR(st.st_mode)) {
+		fprintf(stderr, "%s is no device\n", name);
 	} else {
-		mg_device->major = -1;
-		mg_device->minor = -1;
+		mg_device->major = major(st.st_rdev);
+		mg_device->minor = minor(st.st_rdev);
 	}
 
 	mg_device->buffer = mg_buffer_create();
@@ -59,6 +65,7 @@ mg_device_destroy(mg_device_t mg_device)
 		if (mg_device->fd != -1)
 			close(mg_device->fd);
 
+		xfree(mg_device->name);
 		mg_buffer_destroy(mg_device->buffer);
 
 		FREEOBJ(mg_device);
@@ -68,14 +75,14 @@ mg_device_destroy(mg_device_t mg_device)
 }
 
 char *
-mg_device_file_name(mg_device_t mg_device)
+mg_device_name(mg_device_t mg_device)
 {
-	char * file_name = 0;
+	char * name = 0;
 	VERIFY(mg_device) {
-		file_name = mg_device->file_name;
+		name = mg_device->name;
 	}
 
-	return file_name;
+	return name;
 }
 
 int
@@ -83,9 +90,13 @@ mg_device_open(mg_device_t mg_device)
 {
 	VERIFY(mg_device) {
 		if (mg_device->fd == -1)
-			mg_device->fd = open(mg_device->file_name,
+			mg_device->fd = open(mg_device->name,
 					     O_RDWR | O_SYNC |
 					     O_NONBLOCK);
+		if (-1 == mg_device->fd) {
+			fprintf(stderr, "Cannot open '%s': %d, %s\n",
+				mg_device->name, errno, strerror(errno));
+		}
 	}
 
 	return mg_device->fd;
@@ -153,40 +164,40 @@ mg_device_buffer(mg_device_t mg_device)
 
 #include "debug_xassert.h"
 
-bool
-test_device(char *file_name,
+void
+test_device(char *name,
 	    int major,
 	    int minor)
 {
 	/* create */
 	mg_device_t dev;
-	dev = mg_device_create(file_name);
+	dev = mg_device_create(name);
 
-	xassert(mg_device_fd(dev) == -1);
-	xassert(mg_device_major(dev) == major);
-	xassert(mg_device_minor(dev) == minor);
+	XASSERT(mg_device_fd(dev) == -1);
+	XASSERT(mg_device_major(dev) == major);
+	XASSERT(mg_device_minor(dev) == minor);
 
 	/* device still valid */
-	xassert(dev);
+	XASSERT(dev);
 
 	int fd = mg_device_open(dev);
-	xassert(fd == mg_device_fd(dev));
+	XASSERT(fd == mg_device_fd(dev));
 
 	/* device still valid */
-	xassert(dev);
+	xassert(dev) { }
 
-	printf("%s file descriptor = %d\n", file_name, fd);
-	xassert(mg_device_major(dev) == major);
-	xassert(mg_device_minor(dev) == minor);
+	printf("%s file descriptor = %d\n", name, fd);
+	XASSERT(mg_device_major(dev) == major);
+	XASSERT(mg_device_minor(dev) == minor);
 
 	/* device still valid */
-	xassert(dev);
+	XASSERT(dev);
 
 	/* destroy */
 	dev = mg_device_destroy(dev);
 
 	/* device still valid */
-	xassert(dev == 0);
+	XASSERT(dev == 0);
 }
 
 void

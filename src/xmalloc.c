@@ -18,12 +18,13 @@
  *    environment.
  */
 
-#include <stdlib.h>
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "xmalloc.h"
 #include "classdef.h"
+#include "xmalloc.h"
 
 USE_XASSERT;
 
@@ -351,5 +352,16 @@ render(prefix *p, char *buffer)
 	} else {
 		strcpy(buffer, "(bad)");
 	}
+}
+
+/**
+ * @brief print error message corresponding to errno
+ */
+void
+ferrno(FILE* f, const char *s)
+{
+	fprintf(f, "%s error %d, %s\n", s, errno, strerror(errno));
+
+	fflush(f);
 }
 

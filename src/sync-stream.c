@@ -26,10 +26,96 @@
 
 #include "sllist.h"
 #include "mg_device.h"
+#include "mg_frame.h"
 #include "xmalloc.h"
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+static const unsigned int REQ_BUFS = 3;
+
+static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
+static struct timeval TV_NO_SYNC = {0, 120000}; /* 3 frames */
+
+
+/*
+static void
+peruse_frame(mg_frame_t frame)
+{
+	printf("  peruse frame\n");
+	printf("  index      : %d\n", mg_frame_index(frame));
+	printf("  device     : %p\n", mg_frame_device(frame));
+	printf("  image      : %p\n", mg_frame_image(frame));
+	printf("  timestamp  : %ld.%06ld\n",
+	       mg_frame_timestamp(frame).tv_sec,
+	       mg_frame_timestamp(frame).tv_usec);
+	printf("  used       : %d\n", mg_frame_used(frame));
+}
+
+static void
+peruse_frame_list(sllist_t frame)
+{
+	printf("peruse frame list\n");
+	for (sllist_t f = frame; f; f = sll_next(f)) {
+		printf("item = %p\n", f);
+		printf("next = %p\n", sll_next(f));
+		printf("data = %p\n", sll_data(f));
+		peruse_frame(sll_data(f));
+	}
+	printf("\n");
+}
+*/
+
+static bool
+tv_eq(struct timeval tv_0,
+      struct timeval tv_1)
+{
+	return (tv_0.tv_sec == tv_1.tv_sec
+		&& tv_0.tv_usec == tv_1.tv_usec);
+}
+
+static bool
+tv_lt(struct timeval tv_0,
+      struct timeval tv_1)
+{
+	if (tv_0.tv_sec == tv_1.tv_sec) {
+		if (tv_0.tv_usec < tv_1.tv_usec)
+			return true;
+		else
+			return false;
+	} else if (tv_0.tv_sec < tv_1.tv_sec)
+		return true;
+	else /* tv_1.tv_sec < tv_0.tv_sec */
+		return false;
+}
+
+static struct timeval
+tv_abs_diff(struct timeval tv_0,
+	    struct timeval tv_1)
+{
+	struct timeval tv = {0, 0};
+
+	if (tv_eq(tv_0, tv_1))
+		return tv;
+
+	if (tv_lt(tv_0, tv_1)) {
+		tv.tv_sec = tv_1.tv_sec - tv_0.tv_sec;
+		tv.tv_usec = tv_1.tv_usec - tv_0.tv_usec;
+	} else {
+		tv.tv_sec = tv_0.tv_sec - tv_1.tv_sec;
+		tv.tv_usec = tv_0.tv_usec - tv_1.tv_usec;
+	}
+
+	if (tv.tv_usec < 0) {
+		tv.tv_sec--;
+		tv.tv_usec += 1000000;
+	}
+
+	return tv;
+}
+
+/**
+ * @brief print error message corresponding to errno and exit
+ */
 static void
 errno_exit(const char *s)
 {
@@ -38,52 +124,78 @@ errno_exit(const char *s)
 	exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief retry ioctl until it happens
+ */
 static int
 xioctl(int fd, int request, void *arg)
 {
-	int r;
+	int ret;
 
 	do
-		r = ioctl(fd, request, arg);
-	while (-1 == r && EINTR == errno);
+		ret = ioctl(fd, request, arg);
+	while (-1 == ret && EINTR == errno);
 
-	return r;
+	return ret;
 }
 
 static void
-process_image(const void *p)
+process_image(const void *p,
+	      struct timeval tv)
 {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
+	(void) p;
+	struct timeval now;
+	gettimeofday(&now, 0);
 
-	static long then = 0;
+	printf("now: %10ld.%06ld\n", now.tv_sec, now.tv_usec);
+	printf(" tv: %10ld.%06ld\n",  tv.tv_sec,  tv.tv_usec);
+	fflush(0);
 
-	long now = (tv.tv_sec) * 1000000 + tv.tv_usec;
-	long diff = now - then;
+	static struct timeval then = {0, 0};
+	static struct timeval diff = {0, 0};
+
+	diff = tv_abs_diff(tv, now);
+	printf("  tv   now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
+
+	diff = tv_abs_diff(then, now);
+	printf("  then now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
+
 	then = now;
-
-	printf("%10d.%06d\n", tv.tv_sec, tv.tv_usec);
-	printf("  %d\n", diff);
-	//	fflush(stdout);
 }
 
-static int
-read_frame(mg_device_t dev)
+/**
+ * @brief enqueue a capture buffer for filling by the driver
+ */
+static void
+enqueue(int fd, int i)
 {
-	unsigned int i;
-	int fd = mg_device_fd(dev);
-	printf("fd = %d\n", fd);
-
 	struct v4l2_buffer buf;
+
 	CLEAR(buf);
 
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	buf.memory = V4L2_MEMORY_MMAP;
+	buf.index = i;
 
-	if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
+	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
+		errno_exit("VIDIOC_QBUF");
+}
+
+/**
+ * @brief dequeue a buffer for user processing
+ */
+static bool
+dequeue(int fd, struct v4l2_buffer *buf)
+{
+	CLEAR(*buf);
+
+	buf->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf->memory = V4L2_MEMORY_MMAP;
+
+	if (-1 == xioctl(fd, VIDIOC_DQBUF, buf)) {
 		switch (errno) {
 			case EAGAIN:
-				return 0;
+				return false;
 
 			case EIO:
 				/* Could ignore EIO, see spec. */
@@ -95,71 +207,210 @@ read_frame(mg_device_t dev)
 		}
 	}
 
-	assert(buf.index < mg_device_num_bufs(dev));
-
-	process_image(mg_device_buffer(dev)[buf.index].start);
-
-	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
-		errno_exit("VIDIOC_QBUF");
-
-	return 1;
+	return buf;
 }
 
-static void
-mainloop(sllist_t list)
+/**
+ * @brief enqueue old frame, dequeue new frame
+ */
+static sllist_t
+swap_frame(sllist_t frame_list,
+	   mg_device_t dev)
 {
-	unsigned int count;
+	int fd = mg_device_fd(dev);
+	// printf("fd = %d\n", fd);
 
-	count = 100;
+	struct v4l2_buffer buf;
+	if (!dequeue(fd, &buf))
+		return frame_list;
 
-	while (count-- > 0) {
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	assert(buf.index < mg_buffer_number(dev_buf));
+
+	for (sllist_t f = frame_list; f; f = sll_next(f)) {
+		mg_frame_t frame = sll_data(f);
+		if (dev == mg_frame_device(frame)) {
+			int index = mg_frame_index(frame);
+			if (index >= 0)
+				enqueue(mg_device_fd(dev), index);
+
+			frame_list = sll_remove_data(frame_list, frame);
+			frame = mg_frame_destroy(frame);
+			frame = mg_frame_create(dev, &buf);
+			frame_list = sll_insert_data(frame_list, frame);
+
+			break;
+		}
+	}
+
+	return frame_list;
+}
+
+/**
+ * @brief create a list of all device frames
+ *
+ * @desc frames without corresponding devices are removed while frames
+ * for devices without correspoding frames are added
+ *
+ * @param frame  a list of all previously added frames
+ * @param device  a list of devices
+ */
+static sllist_t
+add_frame(sllist_t frame,
+	  sllist_t device)
+{
+	sllist_t list = 0;
+
+	for (sllist_t d = device; d; d = sll_next(d)) {
+		bool found = false;
+		mg_device_t dev = sll_data(d);
+
+		for (sllist_t f = frame; f; f = sll_next(f)) {
+			if (mg_frame_device(sll_data(f)) == dev) {
+				list = sll_insert_data(list, f);
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			mg_frame_t new_frame = mg_frame_create(dev, 0);
+			list = sll_insert_data(list, new_frame);
+		}
+	}
+
+	for (sllist_t f = frame; f; f = sll_next(f))
+		mg_frame_destroy(sll_data(f));
+
+	frame = sll_empty(frame);
+	return list;
+}
+
+static bool
+sync_test(sllist_t frame_list)
+{
+	struct timeval tv_max;
+	struct timeval tv_min;
+	bool ready = true;
+	bool processed = false;
+
+	if (frame_list) {
+		mg_frame_t frame = sll_data(frame_list);
+		tv_max = mg_frame_timestamp(frame);
+		tv_min = mg_frame_timestamp(frame);
+		ready &= !mg_frame_used(frame);
+
+		for (sllist_t f = sll_next(frame_list); f; f = sll_next(f)) {
+			frame = sll_data(f);
+			struct timeval tv = mg_frame_timestamp(frame);
+			if (tv_lt(tv, tv_min))
+				tv_min = tv;
+			if (tv_lt(tv_max, tv))
+				tv_max = tv;
+			ready &= !mg_frame_used(frame);
+		}
+
+		struct timeval tv_diff= tv_abs_diff(tv_min, tv_max);
+		if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
+			for (sllist_t f = frame_list; f; f = sll_next(f)) {
+				process_image(mg_frame_image(sll_data(f)),
+					      mg_frame_timestamp(sll_data(f)));
+				mg_frame_set_used(sll_data(f));
+				processed = true;
+			}
+			printf("\n");
+		} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
+			fprintf(stderr, "sync lost\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	return processed;
+}
+
+/**
+ * @brief main capture loop
+ */
+static void
+mainloop(sllist_t device, int n)
+{
+	int count = 0;
+
+	/* add frames for all devices */
+	sllist_t frame = add_frame(0 , device);
+	// peruse_frame_list(frame);
+
+	bool done = false;
+
+	while (n && !done) {
 		for (;;) {
 			fd_set fds;
-			struct timeval tv;
-			int r;
-			int max_fd = -1;
 
 			FD_ZERO(&fds);
 
-			sllist_t l;
-			for (l = list; l; l = sll_next(l)) {
-				int fd = mg_device_fd(sll_data(l));
+			int max_fd = -1;
+			for (sllist_t d = device; d; d = sll_next(d)) {
+				int fd = mg_device_fd(sll_data(d));
 				max_fd = (fd > max_fd) ? fd : max_fd;
 				FD_SET(fd, &fds);
 			}
+			max_fd += 1;
 
-			/* Timeout. */
-			tv.tv_sec = 2;
-			tv.tv_usec = 0;
+			struct timeval timeout = TV_NO_SYNC;
+			int ret = select(max_fd, &fds, NULL, NULL, &timeout);
 
-			r = select(max_fd + 1, &fds, NULL, NULL, &tv);
-
-			if (-1 == r) {
+			if (-1 == ret) {
 				if (EINTR == errno)
 					continue;
 
 				errno_exit("select");
 			}
 
-			if (0 == r) {
+			if (0 == ret) {
 				fprintf(stderr, "select timeout\n");
 				exit(EXIT_FAILURE);
 			}
 
-			r = 0;
-			for (l = list; l; l = sll_next(l)) {
-				mg_device_t dev = sll_data(l);
-				if (FD_ISSET(mg_device_fd(dev), &fds))
-					if (read_frame(dev))
-						r = 1;
+			for (sllist_t d = device; d; d = sll_next(d)) {
+				mg_device_t dev = sll_data(d);
+				if (FD_ISSET(mg_device_fd(dev), &fds)) {
+					frame = swap_frame(frame, dev);
+					done = sync_test(frame);
+				}
 			}
-			if (r) break;
+			if (done)
+				break;
 
 			/* EAGAIN - continue select loop. */
 		}
+		// usleep(39500);
+		// usleep(38500);
+		done = (0 < n && n <= ++count) ? true : false;
 	}
+	frame = add_frame(frame, 0);
 }
 
+/**
+ * @brief start streaming capturing on device
+ */
+static void
+start_capturing(mg_device_t dev)
+{
+	enum v4l2_buf_type type;
+	int fd = mg_device_fd(dev);
+	unsigned int bufs = mg_buffer_number(mg_device_buffer(dev));
+
+	for (unsigned int i = 0; i < bufs; ++i)
+		enqueue(fd, i);
+
+	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type))
+		errno_exit("VIDIOC_STREAMON");
+}
+
+/**
+ * @brief stop streaming capturing on device
+ */
 static void
 stop_capturing(mg_device_t dev)
 {
@@ -170,85 +421,22 @@ stop_capturing(mg_device_t dev)
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type))
 		errno_exit("VIDIOC_STREAMOFF");
-
 }
 
-static void
-start_capturing(mg_device_t dev)
-{
-	unsigned int i;
-	enum v4l2_buf_type type;
-	int fd = mg_device_fd(dev);
-	unsigned int n_buffers = mg_device_num_bufs(dev);
-
-	for (i = 0; i < n_buffers; ++i) {
-		struct v4l2_buffer buf;
-
-		CLEAR(buf);
-
-		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = i;
-
-		if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
-			errno_exit("VIDIOC_QBUF");
-	}
-
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type))
-		errno_exit("VIDIOC_STREAMON");
-}
-
-static void
-uninit_device(mg_device_t dev)
-{
-	unsigned int i;
-	int fd = mg_device_fd(dev);
-	unsigned int n_buffers = mg_device_num_bufs(dev);
-	struct buffer *buffers = mg_device_buffer(dev);
-
-	for (i = 0; i < n_buffers; ++i)
-		if (-1 ==
-		    munmap(buffers[i].start, buffers[i].length))
-			errno_exit("munmap");
-
-//	free(buffers);
-}
-
-static void
-init_read(unsigned int buffer_size,
-	  mg_device_t dev)
-{
-	struct buffer *buffers = mg_device_buffer(dev);
-	buffers = calloc(1, sizeof(*buffers));
-
-	if (!buffers) {
-		fprintf(stderr, "Out of memory\n");
-		exit(EXIT_FAILURE);
-	}
-
-	buffers[0].length = buffer_size;
-	buffers[0].start = malloc(buffer_size);
-
-	if (!buffers[0].start) {
-		fprintf(stderr, "Out of memory\n");
-		exit(EXIT_FAILURE);
-	}
-}
-
+/**
+ * @brief intialise memory mapping
+ */
 static void
 init_mmap(mg_device_t dev)
 {
-	struct v4l2_requestbuffers req;
 	int fd = mg_device_fd(dev);
-	char *dev_name = mg_device_file_name(dev);
-	struct buffer *buffers = mg_device_buffer(dev);
-	unsigned int n_buffers = mg_device_num_bufs(dev);
+	char *dev_name = mg_device_name(dev);
+
+	struct v4l2_requestbuffers req;
 
 	CLEAR(req);
 
-	req.count = 4;
+	req.count = REQ_BUFS;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 
@@ -262,57 +450,68 @@ init_mmap(mg_device_t dev)
 		}
 	}
 
-	if (req.count < 2) {
+	if (req.count < REQ_BUFS) {
 		fprintf(stderr, "Insufficient buffer memory on %s\n",
 			dev_name);
 		exit(EXIT_FAILURE);
 	}
 
-	// buffers = calloc(req.count, sizeof(*buffers));
-	buffers = mg_device_alloc_buffer(dev, req.count);
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	dev_buf = mg_buffer_alloc(dev_buf, req.count);
 
-	if (!buffers) {
-		fprintf(stderr, "Out of memory\n");
-		exit(EXIT_FAILURE);
-	}
-
-	for (n_buffers = 0; n_buffers < req.count; ++n_buffers) {
+	for (unsigned int i = 0; i < req.count; ++i) {
 		struct v4l2_buffer buf;
 
 		CLEAR(buf);
 
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = n_buffers;
+		buf.index = i;
 
 		if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf))
 			errno_exit("VIDIOC_QUERYBUF");
 
-		buffers[n_buffers].length = buf.length;
-		buffers[n_buffers].start = mmap(NULL /* start anywhere */ ,
-						buf.length,
-						PROT_READ | PROT_WRITE
-						/* required */ ,
-						MAP_SHARED
-						/* recommended */ ,
-						fd, buf.m.offset);
+		void *start = mmap(NULL /* start anywhere */ ,
+				   buf.length,
+				   PROT_READ | PROT_WRITE
+				   /* required */ ,
+				   MAP_SHARED
+				   /* recommended */ ,
+				   fd, buf.m.offset);
 
-		if (MAP_FAILED == buffers[n_buffers].start)
+		mg_buffer_set(dev_buf, i, start, buf.length);
+
+		if (MAP_FAILED == start)
 			errno_exit("mmap");
 	}
 }
 
+/**
+ * @brief unmap memmapped memory
+ */
 static void
-init_device(mg_device_t dev)
+uninit_mmap(mg_device_t dev)
+{
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	unsigned int bufs = mg_buffer_number(dev_buf);
+
+	for (unsigned int i = 0; i < bufs; ++i) {
+		if (-1 == munmap(mg_buffer_start(dev_buf, i),
+				 mg_buffer_length(dev_buf, i)))
+			errno_exit("munmap");
+	}
+}
+
+/**
+ * @brief test device capabilities
+ *
+ * @desc will not return if insufficient capabilities is detected
+ */
+static void
+test_capability(int fd,
+		char *dev_name)
 {
 	struct v4l2_capability cap;
-	struct v4l2_cropcap cropcap;
-	struct v4l2_crop crop;
-	struct v4l2_format fmt;
-	unsigned int min;
-	int fd = mg_device_fd(dev);
-	char *dev_name = mg_device_file_name(dev);
-
 	if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
 		if (EINVAL == errno) {
 			fprintf(stderr, "%s is no V4L2 device\n",
@@ -335,9 +534,14 @@ init_device(mg_device_t dev)
 			dev_name);
 		exit(EXIT_FAILURE);
 	}
+}
 
-	/* Select video input, video standard and tune here. */
-
+/**
+ * @brief select video input and video standard
+ */
+static void
+select_input(int fd)
+{
 	int index = 1;
 	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index))
 		errno_exit("VIDIOC_S_INPUT");
@@ -345,13 +549,22 @@ init_device(mg_device_t dev)
 	v4l2_std_id std = V4L2_STD_PAL;
 	if (-1 == xioctl(fd, VIDIOC_S_STD, &std))
 		errno_exit("VIDIOC_S_STD");
+}
 
+/**
+ * @brief reset cropping
+ */
+static void
+set_crop(int fd)
+{
+	struct v4l2_cropcap cropcap;
 	cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if (-1 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
 		/* Errors ignored. */
 	}
 
+	struct v4l2_crop crop;
 	crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	crop.c = cropcap.defrect;	/* reset to default */
 
@@ -365,14 +578,27 @@ init_device(mg_device_t dev)
 				break;
 		}
 	}
+}
+
+/**
+ * @brief set capture format
+ *
+ * @desc set the following parameters:
+ *  - height
+ *  - width
+ *  - depth
+ *  - interlacing
+ */
+static void
+set_format(int fd)
+{
+	struct v4l2_format fmt;
 
 	CLEAR(fmt);
 
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	// fmt.fmt.pix.width = 768;
-	// fmt.fmt.pix.height = 576;
-	fmt.fmt.pix.width = 320;
-	fmt.fmt.pix.height = 200;
+	fmt.fmt.pix.width = 768;
+	fmt.fmt.pix.height = 576;
 	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
 	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
@@ -382,20 +608,42 @@ init_device(mg_device_t dev)
 	/* Note VIDIOC_S_FMT may change width and height. */
 
 	/* Buggy driver paranoia. */
+	unsigned int min;
 	min = fmt.fmt.pix.width * 2;
 	if (fmt.fmt.pix.bytesperline < min)
 		fmt.fmt.pix.bytesperline = min;
 	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
 	if (fmt.fmt.pix.sizeimage < min)
 		fmt.fmt.pix.sizeimage = min;
-
-	init_mmap(dev);
 }
 
+/**
+ * @brief initialise frame capture device
+ */
+static void
+init_device(mg_device_t dev)
+{
+	int fd = mg_device_fd(dev);
+	char *dev_name = mg_device_name(dev);
+
+	test_capability(fd, dev_name);
+
+	select_input(fd);
+
+	set_crop(fd);
+
+	set_format(fd);
+}
+
+/**
+ * @brief open device for reading and writing
+ *
+ * @desc will not return if a problem is detected
+ */
 static void
 open_device(mg_device_t dev)
 {
-	char *dev_name = mg_device_file_name(dev);
+	char *dev_name = mg_device_name(dev);
 	struct stat st;
 
 	if (-1 == stat(dev_name, &st)) {
@@ -409,18 +657,18 @@ open_device(mg_device_t dev)
 		exit(EXIT_FAILURE);
 	}
 
-	int fd = mg_device_open(dev);
-	printf("open device: fd = %d\n", fd);
-
-	if (-1 == fd) {
+	if (-1 == mg_device_open(dev)) {
 		fprintf(stderr, "Cannot open '%s': %d, %s\n",
 			dev_name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
 
+/**
+ * @brief programme usage message
+ */
 static void
-usage(FILE *fp, int argc, char **argv)
+usage(FILE *fp, char **argv)
 {
 	fprintf(fp,
 		"Usage: %s [options]\n\n"
@@ -429,7 +677,7 @@ usage(FILE *fp, int argc, char **argv)
 		"", argv[0]);
 }
 
-static const char short_options[] = "d:hmru";
+static const char short_options[] = "h";
 
 static const struct option long_options[] = {
 	{"help", no_argument, NULL, 'h'},
@@ -437,7 +685,7 @@ static const struct option long_options[] = {
 };
 
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	sllist_t list = 0;
 	mg_device_t dev;
@@ -446,6 +694,12 @@ main(int argc, char **argv)
 	list = sll_insert_data(list, dev);
 
 	dev = mg_device_create("/dev/video1");
+	list = sll_insert_data(list, dev);
+
+	dev = mg_device_create("/dev/video2");
+	list = sll_insert_data(list, dev);
+
+	dev = mg_device_create("/dev/video3");
 	list = sll_insert_data(list, dev);
 
 	dev = 0;
@@ -465,35 +719,37 @@ main(int argc, char **argv)
 				break;
 
 			case 'h':
-				usage(stdout, argc, argv);
+				usage(stdout, argv);
 				exit(EXIT_SUCCESS);
 
 			default:
-				usage(stderr, argc, argv);
+				usage(stderr, argv);
 				exit(EXIT_FAILURE);
 		}
 	}
 
-	sllist_t l;
-	for (l = list; l; l = sll_next(l))
-		open_device(sll_data(l));
+	for (sllist_t l = list; l; l = sll_next(l)) {
+		mg_device_t dev = sll_data(l);
 
-	for (l = list; l; l = sll_next(l))
-		init_device(sll_data(l));
+		open_device(dev);
+		init_device(dev);
+		init_mmap(dev);
+		start_capturing(dev);
+	}
 
-	for (l = list; l; l = sll_next(l))
-		start_capturing(sll_data(l));
+	// usleep(TV_NO_SYNC.tv_usec);
+	// usleep(20000);
+	usleep(TV_IN_SYNC.tv_usec);
+	// mainloop(list, 250);
+	mainloop(list, -1);
 
-	mainloop(list);
+	for (sllist_t l = list; l; l = sll_next(l)) {
+		mg_device_t dev = sll_data(l);
 
-	for (l = list; l; l = sll_next(l))
-		stop_capturing(sll_data(l));
-
-	for (l = list; l; l = sll_next(l))
-		uninit_device(sll_data(l));
-
-	for (l = list; l; l = sll_next(l))
-		mg_device_destroy(sll_data(l));
+		stop_capturing(dev);
+		uninit_mmap(dev);
+		mg_device_destroy(dev);
+	}
 
 	list = sll_empty(list);
 

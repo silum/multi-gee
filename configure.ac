@@ -3,7 +3,7 @@
 # Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
 
 AC_PREREQ(2.57)
-AC_INIT([multi-gee], [0.0], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.1rc0], [dsm@tlabs.ac.za])
 
 AC_REVISION($Rev$)
 
