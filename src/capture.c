@@ -48,25 +48,6 @@ struct buffer *buffers = NULL;
 static unsigned int n_buffers = 0;
 
 static void
-foo(void)
-{
-	struct v4l2_requestbuffers reqbuf;
-
-	reqbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	reqbuf.memory = V4L2_MEMORY_USERPTR;
-
-	if (ioctl(fd, VIDIOC_REQBUFS, &reqbuf) == -1) {
-		if (errno == EINVAL)
-			printf
-			    ("Video capturing or user pointer streaming is not supported\n");
-		else
-			perror("VIDIOC_REQBUFS");
-
-		exit(EXIT_FAILURE);
-	}
-}
-
-static void
 errno_exit(const char *s)
 {
 	fprintf(stderr, "%s error %d, %s\n", s, errno, strerror(errno));
