@@ -14,15 +14,16 @@ The aim of this document is to describe the image acquisition software from
 the view of a developer planning to integrate this image acquisition library
 into custom software.
 
-The implementation of the multi-gee library is based around the concept of
-C-style private objects.  This approach makes heavy use of object handles, or
-structure pointers if you will.  No direct access to the actual members of the
-structure is available, and usage of the object is limited to fuctions that
-operate on the structure.  It is therefore neccesary to do a function call to
+The implementation of the library is based around the concept of C-style
+private objects.  This approach makes heavy use of object handles in the form
+of structure pointers.  No direct access to the actual members of the
+structure is available, and usage of the object is limited to functions that
+operate on the structure.  It is therefore necessary to do a function call to
 create an object, so it can be used, and destroy the object when it's of no
 further use.  Please refer to ``Writing Bug-Free C Code -- A Programming Style
 That Automatically Detects Bugs in C Code'' by Jerry Jongerius, January 1995.
 It is available as an online resource at http://www.duckware.com/bugfreec/.
+
 
 Example Usage
 -------------
@@ -239,6 +240,9 @@ parameters are:
 
 Change Log
 ==========
+
+* Fri Mar 18 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+- Reword the private structure library slightly
 
 * Mon Mar 14 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
 - Add example section for callback function
