@@ -6,8 +6,6 @@ DIST_SUBDIRS = multi-gee src
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 
-#noinst_PROGRAMS = multi-gee/capture
-
 lib_LTLIBRARIES = multi-gee/libmulti-gee.la
 
 TESTS = \
@@ -23,9 +21,6 @@ bin_PROGRAMS = \
 
 noinst_PROGRAMS = \
     $(TESTS) \
-    multi-gee/capture \
-    multi-gee/dvideo \
-    multi-gee/sync-stream \
     multi-gee/multi-gee
 
 nobase_include_HEADERS = \
@@ -43,6 +38,13 @@ nobase_include_HEADERS = \
 
 noinst_HEADERS = \
     linux/videodev2.h
+
+.PHONY: doc
+doc:
+	doxygen doxygen.conf
+
+maintainer-clean-local:
+	-rm -rf doc/html/ doc/latex/
 
 multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 multi_gee_libmulti_gee_la_LDFLAGS = -version-info @LIBVERSION@
@@ -112,45 +114,12 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/tv_util.c \
     multi-gee/xmalloc.c
 
-multi_gee_sync_stream_SOURCES = \
-    multi-gee/debug_xassert.c \
-    multi-gee/log.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c \
-    multi-gee/mg_frame.c \
-    multi-gee/sllist.c \
-    multi-gee/sync-stream.c \
-    multi-gee/xmalloc.c
-
 src_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
 src_check_rate_SOURCES = \
     src/check-rate.c \
     multi-gee/libmulti-gee.la
-
-#multi_gee_mg_test_LDADD = -Lmulti-gee -lmulti-gee
-# multi_gee_test_mg_SOURCES = \
-#     multi-gee/debug_xassert.c \
-#     multi-gee/mg_buffer.c \
-#     multi-gee/mg_device.c \
-#     multi-gee/mg_frame.c \
-#     multi-gee/multi-gee.c \
-#     multi-gee/sllist.c \
-#     multi-gee/test_mg.c \
-#     multi-gee/xmalloc.c
-
-# multi_gee_test_multi_gee_SOURCES = \
-#     multi-gee/test_multi-gee.c \
-#     multi-gee/fg_util.c \
-#     multi-gee/mg_buffer.c \
-#     multi-gee/mg_device.c \
-#     multi-gee/mg_frame.c \
-#     multi-gee/multi-gee.c \
-#     multi-gee/sllist.c \
-#     multi-gee/tv_util.c \
-#     multi-gee/xmalloc.c
-
 
 AUX_DIR = @ac_aux_dir@
 
@@ -178,11 +147,4 @@ MAINTAINERCLEANFILES = \
     configure \
     Makefile.in \
     $(AUX_DIST)
-
-.PHONY: doc
-doc:
-	doxygen doxygen.conf
-
-maintainer-clean-local:
-	-rm -rf doc/html/ doc/latex/
 
