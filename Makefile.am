@@ -19,7 +19,7 @@ TESTS = \
     multi-gee/tv_util
 
 bin_PROGRAMS = \
-    multi-gee/check-rate
+    src/check-rate
 
 noinst_PROGRAMS = \
     $(TESTS) \
