@@ -21,7 +21,10 @@ dnl AC_CANONICAL_HOST
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+
+AC_SUBST(LIBTOOL_DEPS)
 
 # Checks for libraries.
 

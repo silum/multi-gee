@@ -6,10 +6,35 @@ DIST_SUBDIRS = src
 
 AM_CFLAGS = -I$(top_srcdir)/src -std=gnu99
 
-bin_PROGRAMS = src/dvideo
-noinst_PROGRAMS = src/capture
+noinst_PROGRAMS = src/test_mg src/test_sllist src/sllist
 
-# noinst_LTLIBRARIES = src/bar.la
+#src/dvideo
+#noinst_PROGRAMS = src/capture
+
+#lib_LTLIBRARIES = src/libmulti-gee.la
+
+#src_mg_test_LDADD = -Lsrc -lmulti-gee
+src_test_mg_SOURCES = \
+    src/mg_device.c \
+    src/mg_frame.c \
+    src/multi-gee.c \
+    src/sllist.c \
+    src/test_mg.c \
+    src/xmalloc.c
+
+src_sllist_SOURCES = \
+    src/sllist.c \
+    src/xmalloc.c
+
+src_sllist_CFLAGS = -DDEBUG
+
+src_test_sllist_SOURCES = \
+    src/sllist.c \
+    src/test_sllist.c \
+    src/xmalloc.c
+
+#src_libmulti_gee_la_SOURCES = \
+#    src/mutli-gee.c
 
 # INCLUDES = -I $(top_srcdir)/include
 

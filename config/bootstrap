@@ -30,7 +30,7 @@ test $cfgaux = . && cfgaux=`pwd`
 cfgaux=`basename $cfgaux`
 
 aclocal -I $cfgaux
-# libtoolize --force # if we are making libs
+libtoolize --force # if we are making libs
 autoheader
 automake --add-missing
 autoconf
