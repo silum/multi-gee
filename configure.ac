@@ -51,7 +51,7 @@ AC_CHECK_HEADERS([sys/cdefs.h stdbool.h],,
 # Checks for library functions.
 
 AC_CONFIG_FILES([
-    doxygen.conf
+    doc/doxy/doxygen.conf
     example/Makefile
     Makefile
     multi-gee/Makefile
