@@ -4,7 +4,7 @@
 
 AC_PREREQ(2.57)
 AC_INIT([multi-gee], [0.91], [dsm@tlabs.ac.za])
-LIBVERSION="0.0.0"
+LIBVERSION="0:0:0"
 AC_SUBST(LIBVERSION)
 
 AC_REVISION($Rev$)
@@ -43,3 +43,5 @@ AC_CONFIG_FILES([
     multi-gee/Makefile
 ])
 AC_OUTPUT
+
+## -fin-
