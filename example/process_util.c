@@ -38,7 +38,7 @@ process(multi_gee_t multi_gee, mg_frame_t frame)
 		 tv.tv_sec,
 		 tv.tv_usec);
 
-	pgm_append("file.pgm",
+	pgm_append(PGM_FILE,
 		   768, 576, 255,
 		   comment,
 		   mg_frame_image(frame));
