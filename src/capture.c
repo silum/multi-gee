@@ -21,11 +21,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-#include <linux/compiler.h>
-#include <asm/types.h>		/* for videodev2.h */
-
-#define __user
-
+#include <asm/types.h>		/* needed for videodev2.h */
 #include "linux/videodev2.h"
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -70,8 +66,18 @@ xioctl(int fd, int request, void *arg)
 static void
 process_image(const void *p)
 {
-	fputc('.', stdout);
-	fflush(stdout);
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+
+	static long then = 0;
+
+	long now = (tv.tv_sec) * 1000000 + tv.tv_usec;
+	long diff = now - then;
+	then = now;
+
+	printf("%10d.%06d\n", tv.tv_sec, tv.tv_usec);
+	printf("  %d\n", diff);
+//	fflush(stdout);
 }
 
 static int

@@ -43,4 +43,4 @@ sll_empty(sllist_t);
 
 __END_DECLS
 
-#endif /* ndef DSM_MULTI_GEE_H */
+#endif /* ndef DSM_SLLIST_H */

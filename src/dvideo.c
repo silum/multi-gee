@@ -16,12 +16,8 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-#include <linux/compiler.h>
 #include <asm/types.h>		/* for videodev2.h */
-
-#define __user
-#include <linux/videodev2.h>
-
+#include "linux/videodev2.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -77,9 +73,9 @@ print_capability(uint32_t capability)
 		case V4L2_CAP_AUDIO:
 			PRINTF("0x%08x: %s", "", capability, "has audio support");
 			break;
-		case V4L2_CAP_RADIO:
-			PRINTF("0x%08x: %s", "", capability, "is a radio device");
-			break;
+//		case V4L2_CAP_RADIO:
+//			PRINTF("0x%08x: %s", "", capability, "is a radio device");
+//			break;
 		case V4L2_CAP_READWRITE:
 			PRINTF("0x%08x: %s", "", capability, "read/write systemcalls");
 			break;

@@ -196,20 +196,21 @@ sll_next(sllist_t sllist)
 	return 0;
 }
 
-
 sllist_t
 sll_empty(sllist_t sllist)
 {
 	VERIFYZ(sllist) {
 		while (sllist) {
+			sllist_t item = sllist;
 			sllist = sll_remove(sllist, sllist);
+			sll_destroy(item);
 		}
 	}
 
 	return 0;
 }
 
-#ifdef DEBUG
+#ifdef DEBUG_SLLIST
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -403,4 +404,4 @@ main()
 	return debug_test(sllist);
 }
 
-#endif
+#endif /* ndef DEBUG_SLLIST */

@@ -24,6 +24,8 @@ CLASS(mg_device, mg_device_t)
 	char *file_name;
 	int major;
 	int minor;
+	mg_buffer_t buffer;
+	unsigned int num_bufs;
 };
 
 mg_device_t
@@ -45,6 +47,8 @@ mg_device_create(char *file_name)
 		mg_device->minor = -1;
 	}
 
+	mg_device->buffer = mg_buffer_create();
+
 	return mg_device;
 }
 
@@ -55,7 +59,7 @@ mg_device_destroy(mg_device_t mg_device)
 		if (mg_device->fd != -1)
 			close(mg_device->fd);
 
-		xfree(mg_device->file_name);
+		mg_buffer_destroy(mg_device->buffer);
 
 		FREEOBJ(mg_device);
 	}
@@ -63,12 +67,25 @@ mg_device_destroy(mg_device_t mg_device)
 	return 0;
 }
 
+char *
+mg_device_file_name(mg_device_t mg_device)
+{
+	char * file_name = 0;
+	VERIFY(mg_device) {
+		file_name = mg_device->file_name;
+	}
+
+	return file_name;
+}
+
 int
 mg_device_open(mg_device_t mg_device)
 {
 	VERIFY(mg_device) {
 		if (mg_device->fd == -1)
-			mg_device->fd = open(mg_device->file_name, O_RDWR | O_SYNC);
+			mg_device->fd = open(mg_device->file_name,
+					     O_RDWR | O_SYNC |
+					     O_NONBLOCK);
 	}
 
 	return mg_device->fd;
@@ -107,7 +124,29 @@ mg_device_minor(mg_device_t mg_device)
 	return minor;
 }
 
-#ifdef DEBUG
+int
+mg_device_num_bufs(mg_device_t mg_device)
+{
+	int num_buf = 0;
+	VERIFY(mg_device) {
+		num_buf = mg_device->num_bufs;
+	}
+
+	return num_buf;
+}
+
+mg_buffer_t
+mg_device_buffer(mg_device_t mg_device)
+{
+	mg_buffer_t p = 0;
+	VERIFY(mg_device) {
+		p = mg_device->buffer;
+	}
+
+	return p;
+}
+
+#ifdef DEBUG_DEVICE
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -165,4 +204,4 @@ main()
 	return debug_test(mg_device);
 }
 
-#endif /* def DEBUG */
+#endif /* def DEBUG_DEVICE */

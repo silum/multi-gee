@@ -60,24 +60,18 @@ static void list_remove(prefix *);
 static bool list_verify(void *);
 static void render(prefix *, char *);
 
-
-/*
- *  DESCRIPTION: (Memory New)
+/**
+ *  @brief    Memory New
  *
- *    Allocate a new block of memory from the heap.
+ *  @desc     Allocate a new block of memory from the heap.
  *
- *  ARGUMENTS:
+ *  @param    size       Size of object to allocate
+ *  @param    classdesc  Class descriptor for object (or 0)
+ *  @param    file       Filename where object was allocated
+ *  @param    line       Line number where object was allocated
  *
- *    wSize       - Size of object to allocate
- *    lpClassDesc - Class descriptor for object (or 0)
- *    lpFile      - Filename where object was allocated
- *    nLine       - Line number where object was allocated
- *
- *  RETURNS:
- *
- *    A long pointer to the memory object or 0
+ *  @returns  A long pointer to the memory object or 0
  */
-
 void *
 xnew(size_t size, classdesc *class, char *file, int line)
 {
@@ -100,22 +94,14 @@ xnew(size_t size, classdesc *class, char *file, int line)
 	return (p ? p + 1 : 0);
 }
 
-
-/*
- *  DESCRIPTION: (Memory Free)
+/**
+ * @brief    Memory Free
  *
- *    Free a block of memory that was previously allocated
- *    through xnew().
+ * @desc     Free a block of memory that was previously allocated
+ *           through xnew().
  *
- *  ARGUMENTS:
- *
- *    lpMem - Heap pointer to free or 0
- *
- *  RETURNS:
- *
- *    0
+ * @param    mem  Heap pointer to free or 0
  */
-
 void *
 xfree(void *mem)
 {
@@ -130,23 +116,17 @@ xfree(void *mem)
 	return 0;
 }
 
-
-/*
- *  DESCRIPTION: (Memory String Dup)
+/**
+ * @brief    Memory String Dup
  *
- *    Helper function for the MYLSTRDUP() macro
+ * @desc     Helper function for the XSTRDUP() macro
  *
- *  ARGUMENTS:
+ * @param    s     String to duplicate (or 0)
+ * @param    file  Filename where string is being duplicated
+ * @param    line  Line number where string is being duplicated
  *
- *    lpS    - String to duplicate (or 0)
- *    lpFile - Filename where string is being duplicated
- *    nLine  - Line number where string is being duplicated
- *
- *  RETURNS:
- *
- *    A pointer to the duplicated string or 0
+ * @returns  A pointer to the duplicated string or 0
  */
-
 void *
 xstrdup(char *s, char *file, int line)
 {
@@ -162,24 +142,18 @@ xstrdup(char *s, char *file, int line)
 	return ret;
 }
 
-
-/*
- *  DESCRIPTION: (Memory Realloc)
+/**
+ * @brief    Memory Realloc
  *
- *    Reallocate a block of memory
+ * @desc     Reallocate a block of memory
  *
- *  ARGUMENTS:
+ * @param    old   Heap object to reallocate or 0
+ * @param    size  New size of the object
+ * @param    file  Filename where realloc is taking place
+ * @param    lIne  Line number where realloc is taking place
  *
- *    lpOld  - Heap object to reallocate or 0
- *    wSize  - New size of the object
- *    lpFile - Filename where realloc is taking place
- *    nLIne  - Line number where realloc is taking place
- *
- *  RETURNS:
- *
- *    A pointer to the reallocated memory or 0
+ * @returns  A pointer to the reallocated memory or 0
  */
-
 void *
 xrealloc(void *old, size_t size, char *file, int line)
 {
@@ -223,22 +197,12 @@ xrealloc(void *old, size_t size, char *file, int line)
 	return new;
 }
 
-
-/*
- *  DESCRIPTION: (Walk Heap)
+/**
+ * @brief    Walk Heap
  *
- *    Display a symbolic dump of the heap by walking the
- *    heap and displaying all objects in the heap.
- *
- *  ARGUMENTS:
- *
- *    (void)
- *
- *  RETURNS:
- *
- *    (void)
+ * @desc     Display a symbolic dump of the heap by walking the heap and
+ *           displaying all objects in the heap.
  */
-
 int
 xwalkheap(void)
 {
@@ -264,22 +228,14 @@ xwalkheap(void)
 	return alloced;
 }
 
-
-/*
- *  DESCRIPTION: (Add Heap Object to Linked List)
+/**
+ * @brief    Add Heap Object to Linked List)
  *
- *    Add the given heap object into the doubly linked list
- *    of heap objects.
+ * @desc     Add the given heap object into the doubly linked list
+ *           of heap objects.
  *
- *  ARGUMENTS:
- *
- *    lpAdd - Prefix pointer to heap object
- *
- *  RETURNS:
- *
- *    (void)
+ * @param    add  Prefix pointer to heap object
  */
-
 static
 void
 list_insert(prefix *p)
@@ -302,22 +258,14 @@ list_insert(prefix *p)
 	heap = p;
 }
 
-
-/*
- *  DESCRIPTION: (Remove Heap Object from Linked List)
+/**
+ *  @brief    Remove Heap Object from Linked List)
  *
- *    Remove the given heap object from the doubly linked list
- *    of heap objects.
+ *  @desc     Remove the given heap object from the doubly linked list
+ *            of heap objects.
  *
- *  ARGUMENTS:
- *
- *    lpRemove - Prefix pointer to heap object
- *
- *  RETURNS:
- *
- *    (void)
+ *  @param    p  Prefix pointer to heap object
  */
-
 static
 void
 list_remove(prefix *p)
@@ -332,22 +280,16 @@ list_remove(prefix *p)
 	}
 }
 
-
-/*
- *  DESCRIPTION: (Verify Heap Pointer)
+/**
+ * @brief    Verify Heap Pointer)
  *
- *    Verify that a pointer points into that heap to a valid
- *    object in the heap.
+ * @desc     Verify that a pointer points into that heap to a valid
+ *           object in the heap.
  *
- *  ARGUMENTS:
+ * @param    mem  Heap pointer to validate
  *
- *    lpMem - Heap pointer to validate
- *
- *  RETURNS:
- *
- *    Heap pointer is valid (TRUE) or not (FALSE)
+ * @returns  Heap pointer is valid (true) or not (false)
  */
-
 static
 bool
 list_verify(void *mem)
@@ -368,44 +310,30 @@ list_verify(void *mem)
 	return (ok);
 }
 
-
-/*
- *  DESCRIPTION: (Does Pointer Point into the Heap)
+/**
+ * @brief    Does Pointer Point into the Heap)
  *
- *    Does the given memory pointer point anywhere into
- *    the heap.
+ * @desc     Does the given memory pointer point anywhere into the heap.
  *
- *  ARGUMENTS:
+ * @param    mem  Heap pointer to check
  *
- *    lpMem - Heap pointer to check
- *
- *  RETURNS:
- *
- *    Pointer points into the heap (TRUE) or not (FALSE)
+ * @returns  Pointer points into the heap (TRUE) or not (FALSE)
  */
-
 bool
 xtestptr(void *mem)
 {
 	return ((mem) && (!((long) mem & (ALIGNMENT - 1))));
 }
 
-
-/*
- *  DESCRIPTION: (Render Description of Heap Object)
+/**
+ * @brief    Render Description of Heap Object)
  *
- *    Render a text description for the given heap object.
+ * @desc     Render a text description for the given heap object.
  *
- *  ARGUMENTS:
+ * @param    p       Prefix pointer to heap object
+ * @param    buffer  Where to place text description
  *
- *    prefix - Prefix pointer to heap object
- *    buffer - Where to place text description
- *
- *  RETURNS:
- *
- *    (void)
  */
-
 static
 void
 render(prefix *p, char *buffer)

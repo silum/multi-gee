@@ -217,7 +217,7 @@ mg_deregister_device(multi_gee_t multi_gee,
 	return ret;
 }
 
-#ifdef DEBUG_MG
+#ifdef DEBUG_MULTI_GEE
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -237,4 +237,4 @@ main()
 	return debug_test(multi_gee);
 }
 
-#endif /* def DEBUG_MG */
+#endif /* def DEBUG_MULTI_GEE */

@@ -8,6 +8,7 @@
  */
 
 #include "mg_frame.h"
+#include "mg_device.h"
 #include "multi-gee.h"
 
 #include "xmalloc.h"
@@ -17,16 +18,17 @@ USE_XASSERT;
 CLASS(mg_frame, mg_frame_t)
 {
 	multi_gee_t multi_gee;
-	int device_id;
-	unsigned char const **image;
+	mg_device_t device;
+	void *image;
 	struct timespec timestamp;
 	int sequence;
+	bool used;
 };
 
 mg_frame_t
 mg_frame_create(multi_gee_t multi_gee,
-		int device_id,
-		const unsigned char **image,
+		mg_device_t mg_device,
+		void *image,
 		struct timespec timestamp,
 		int sequence)
 {
@@ -34,10 +36,11 @@ mg_frame_create(multi_gee_t multi_gee,
 	NEWOBJ(mg_frame);
 
 	mg_frame->multi_gee = multi_gee;
-	mg_frame->device_id = device_id;
+	mg_frame->device = mg_device;
 	mg_frame->image = image;
 	mg_frame->timestamp = timestamp;
 	mg_frame->sequence = sequence;
+	mg_frame->used = false;
 
 	return mg_frame;
 }
@@ -64,22 +67,22 @@ mg_frame_multi_gee(mg_frame_t mg_frame)
 	return multi_gee;
 }
 
-int
-mg_frame_device_id(mg_frame_t mg_frame)
+mg_device_t
+mg_frame_device(mg_frame_t mg_frame)
 {
-	int device_id = -1;
+	mg_device_t device = 0;
 
 	VERIFY(mg_frame) {
-		device_id = mg_frame->device_id;
+		device = mg_frame->device;
 	}
 
-	return device_id;
+	return device;
 }
 
-const unsigned char **
+void *
 mg_frame_image(mg_frame_t mg_frame)
 {
-	const unsigned char **image = 0;
+	void *image = 0;
 
 	VERIFY(mg_frame) {
 		image = mg_frame->image;
@@ -112,7 +115,30 @@ mg_frame_sequence(mg_frame_t mg_frame)
 	return sequence;
 }
 
-#ifdef DEBUG
+bool
+mg_frame_used(mg_frame_t mg_frame)
+{
+	bool used = false;
+	VERIFY(mg_frame) {
+		used = mg_frame->used;
+	}
+
+	return used;
+}
+
+mg_frame_t
+mg_frame_set_used(mg_frame_t mg_frame)
+{
+	mg_frame_t frame = 0;
+	VERIFY(mg_frame) {
+		mg_frame->used = true;
+		frame = mg_frame;
+	}
+
+	return frame;
+}
+
+#ifdef DEBUG_FRAME
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -123,16 +149,16 @@ mg_frame_sequence(mg_frame_t mg_frame)
 
 void
 test_frame(multi_gee_t multi_gee,
-	   int device_id,
-	   unsigned char const ** image,
+	   mg_device_t device,
+	   void *image,
 	   struct timespec timestamp,
 	   int sequence)
 {
 
-	mg_frame_t frame = mg_frame_create(multi_gee, device_id, image, timestamp, sequence);
+	mg_frame_t frame = mg_frame_create(multi_gee, device, image, timestamp, sequence);
 
 	xassert(mg_frame_multi_gee(frame) == multi_gee);
-	xassert(mg_frame_device_id(frame) == device_id);
+	xassert(mg_frame_device(frame) == device);
 	xassert(mg_frame_image(frame) == image);
 
 	struct timespec ts = mg_frame_timestamp(frame);
@@ -140,6 +166,12 @@ test_frame(multi_gee_t multi_gee,
 	xassert(ts.tv_nsec == timestamp.tv_nsec);
 
 	xassert(mg_frame_sequence(frame) == sequence);
+
+	xassert(mg_frame_used(frame) == false);
+	frame = mg_frame_set_used(frame);
+	xassert(mg_frame_used(frame) == true);
+	frame = mg_frame_set_used(frame);
+	xassert(mg_frame_used(frame) == true);
 
 	mg_frame_destroy(frame);
 }
@@ -155,7 +187,7 @@ mg_frame()
 
 	test_frame(0, 0, 0, timestamp, 0);
 
-	test_frame((multi_gee_t) 1, 2, (unsigned char const **) 3, timestamp, 4);
+	test_frame((multi_gee_t) 1, (mg_device_t) 2, (void *)3, timestamp, 4);
 }
 
 int
@@ -164,4 +196,4 @@ main()
 	return debug_test(mg_frame);
 }
 
-#endif /* def DEBUG */
+#endif /* def DEBUG_FRAME */

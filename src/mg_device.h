@@ -14,6 +14,7 @@
 #include "classdef.h"
 
 #include "multi-gee.h"
+#include "mg_buffer.h"
 
 __BEGIN_DECLS
 
@@ -26,6 +27,9 @@ mg_device_create(char *file_name);
 /* destroy object */
 mg_device_t
 mg_device_destroy(mg_device_t /* object to destroy */);
+
+char * /* file name */
+mg_device_file_name(mg_device_t);
 
 int /* 1 - device already open,
        0 - action successful,
@@ -44,6 +48,9 @@ int /* device minor number,
        or -1 if not a device */
 mg_device_minor(mg_device_t);
 
+mg_buffer_t
+mg_device_buffer(mg_device_t);
+
 __END_DECLS
 
-#endif /* ndef DSM_MULTI_GEE_H */
+#endif /* ndef DSM_MG_DEVICE_H */
