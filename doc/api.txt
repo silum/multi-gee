@@ -117,17 +117,18 @@ status of 2 indicates that a call to mg_capture_halt() has been done.
 
 - void mg_capture_halt()
 
-Will cause capturing to halt when capturing is in progress otherwise
-will have no effect.
+A call to this function willl cause capturing to halt while the
+capturing is in progress, otherwise will have no effect.
 
 
 - int mg_register_callback(void (callback*)(struct frame* frame_list))
 
-Registers a callback function.  This function will be called each time a
-set of synced frames are available.  A call to this function can be
-performed at any time.  If this call happens multiple times, the
-function specified as argument to the last call performed will be
-registered as the active callback function.
+The mg_register_callback() function, eh..., registers a callback
+function.  This function will be called each time a set of synced frames
+are available.  A call to this function can be performed at any time.
+If this call happens multiple times, the function specified as argument
+to the last call performed will be registered as the active callback
+function.
 
 The return value indicates whether the call has completed succesfully.
 A return value indicates success, while a return value of -1 indicates
@@ -136,19 +137,19 @@ that the registration of the callback function has failed.
 
 - int mg_register_device(const char * filename)
 
-Will register an unregistered device.  This call can happen at any point
-in time, even after capturing has started.  The next call of the
-callback() function will include a frame captured by this device.  Note
-that one or more frame cycles may pass before the next call to the
-callback function.  This is the result of the fact that the callback
-function is called with synced frames.
+The function is used to register an unregistered device.  This call can
+happen at any point in time, even after capturing has started.  The next
+call of the callback() function will include a frame captured by this
+device.  Note that one or more frame cycles may pass before the next
+call to the callback function.  This is the result of the fact that the
+callback function is called with synced frames.
 
 This function checks the major and minor number of the device in order
 to prevent multiple opens of a device with multiple filenames.
 
-Returns the device identifier on success.  The identifier is a number
-greater or equal to zero.  -1 indicates a failure to register the
-device.
+It returns the device identifier on success.  The identifier is a number
+greater or equal to zero.  The value -1 indicates a failure to register
+the device.
 
 Multiple calls to mg_register_device() specifying the same device will
 return the same device identifier for each call to the function.
@@ -156,14 +157,15 @@ return the same device identifier for each call to the function.
 
 - int mg_deregister_device(int device_id)
 
-Will deregister a registered device.  This call can happen at any point
-in time, even before capturing has ended.  The next call of the
-callback() function will not include a frame from this device.  A
-device_id of -1 will cause all registered devices to be deregistered.
+This function will deregister a registered device.  A call to the
+function can happen at any point in time, even before capturing has
+ended.  The next call of the callback() function will not include a
+frame from this device.  A device_id of -1 will cause all registered
+devices to be deregistered.
 
-Returns a status value.  0 or a positive return value signifies success
-and indicates the number of remaining registered devices, -1 indicates
-failure.
+As return value the function returns a status value.  A return value of
+0 or a positive integer signifies success and indicates the number of
+remaining registered devices, while -1 indicates failure.
 
 
 
