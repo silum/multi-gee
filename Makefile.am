@@ -1,6 +1,20 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 ## $Id$
-## Copyright (C) 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+## Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software Foundation,
+## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 DIST_SUBDIRS = \
     example \
@@ -30,16 +44,13 @@ include_HEADERS = \
     multi-gee/multi-gee.h
 
 nobase_include_HEADERS = \
-    multi-gee/classdef.h \
-    multi-gee/debug_xassert.h \
     multi-gee/fg_util.h \
     multi-gee/log.h \
     multi-gee/mg_buffer.h \
     multi-gee/mg_device.h \
     multi-gee/mg_frame.h \
     multi-gee/sllist.h \
-    multi-gee/tv_util.h \
-    multi-gee/xmalloc.h
+    multi-gee/tv_util.h
 
 noinst_HEADERS = \
     example/pgm_util.h \
@@ -54,9 +65,10 @@ maintainer-clean-local:
 	-rm -rf doc/html/ doc/latex/
 
 multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
-multi_gee_libmulti_gee_la_LDFLAGS = -version-info @LIBVERSION@
+multi_gee_libmulti_gee_la_LDFLAGS = \
+    -version-info @LIBVERSION@ \
+    -lcclass
 multi_gee_libmulti_gee_la_SOURCES = \
-    multi-gee/debug_xassert.c \
     multi-gee/fg_util.c \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
@@ -64,53 +76,46 @@ multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/mg_frame.c \
     multi-gee/multi-gee.c \
     multi-gee/sllist.c \
-    multi-gee/tv_util.c \
-    multi-gee/xmalloc.c
+    multi-gee/tv_util.c
 
 multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
+multi_gee_mg_buffer_LDFLAGS = -lcclass
 multi_gee_mg_buffer_SOURCES = \
-    multi-gee/debug_xassert.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/xmalloc.c
+    multi-gee/mg_buffer.c
 
 multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
+multi_gee_mg_device_LDFLAGS = -lcclass
 multi_gee_mg_device_SOURCES = \
-    multi-gee/debug_xassert.c \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c \
-    multi-gee/xmalloc.c
+    multi-gee/mg_device.c
 
 multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
+multi_gee_mg_frame_LDFLAGS = -lcclass
 multi_gee_mg_frame_SOURCES = \
-    multi-gee/debug_xassert.c \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c \
-    multi-gee/mg_frame.c \
-    multi-gee/xmalloc.c
+    multi-gee/mg_frame.c
 
 multi_gee_sllist_CPPFLAGS = -DDEBUG_SLLIST
+multi_gee_sllist_LDFLAGS = -lcclass
 multi_gee_sllist_SOURCES = \
-    multi-gee/debug_xassert.c \
-    multi-gee/sllist.c \
-    multi-gee/xmalloc.c
+    multi-gee/sllist.c
 
+multi_gee_test_sllist_LDFLAGS = -lcclass
 multi_gee_test_sllist_SOURCES = \
-    multi-gee/debug_xassert.c \
     multi-gee/sllist.c \
-    multi-gee/test_sllist.c \
-    multi-gee/xmalloc.c
+    multi-gee/test_sllist.c
 
 multi_gee_tv_util_CPPFLAGS = -DDEBUG_TV_UTIL
+multi_gee_tv_util_LDFLAGS = -lcclass
 multi_gee_tv_util_SOURCES = \
-    multi-gee/debug_xassert.c \
-    multi-gee/tv_util.c \
-    multi-gee/xmalloc.c
+    multi-gee/tv_util.c
 
 multi_gee_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
+multi_gee_multi_gee_LDFLAGS = -lcclass
 multi_gee_multi_gee_SOURCES = \
-    multi-gee/debug_xassert.c \
     multi-gee/fg_util.c \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
@@ -118,8 +123,7 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/mg_frame.c \
     multi-gee/multi-gee.c \
     multi-gee/sllist.c \
-    multi-gee/tv_util.c \
-    multi-gee/xmalloc.c
+    multi-gee/tv_util.c
 
 example_check_rate_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_check_rate_LDADD = \

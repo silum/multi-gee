@@ -1,15 +1,22 @@
-/* $Id$ */
-
-/*
- * Author:    Deneys S. Maartens
- * Copyright: Deneys S. Maartens (C) 2004
- * Revision:  $Rev$
- * Date:      $Date$
+/* $Id$
+ * Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-
-// #include <stdint.h> /* uint32_t */
-// #include <stdlib.h> /* struct timeval */
 #include <sys/time.h> /* gettimeofday */
+#include <xmalloc.h>
 
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
@@ -18,7 +25,6 @@
 #include "mg_device.h"
 #include "multi-gee.h"
 
-#include "xmalloc.h"
 
 USE_XASSERT;
 
@@ -153,9 +159,9 @@ mg_frame_set_used(mg_frame_t mg_frame)
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <xassert.h>
+#include <xmalloc.h>
 
-#include "xmalloc.h"
-#include "debug_xassert.h"
 #include "multi-gee.h"
 
 void
