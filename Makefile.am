@@ -32,8 +32,8 @@ TESTS = \
     multi-gee/test_sllist \
     multi-gee/tv_util
 
-bin_PROGRAMS = \
-    example/check-rate
+#bin_PROGRAMS = \
+#    example/check-rate
 
 noinst_PROGRAMS = \
     $(TESTS) \
