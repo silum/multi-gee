@@ -71,7 +71,7 @@ the devices are deregistered in the for loop (Line 13).  The object handle is
 destroyed then in Line 17.
 
 The values of the variables N and M need not be the same.  The valid range of
-values for N is [1..n] and M is [0..n].  Theoretically the maximum number of
+values for N is [1..n] and M is [0..n].  In theory, the maximum number of
 devices that can be registered is not constrained.
 
 A code segment illustrating a typical user defined callback function:
