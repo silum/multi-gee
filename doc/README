@@ -4,7 +4,7 @@ The structure for the documentation is as follows:
 
 - README: this document
 - layout.txt: introduction and requirements definition
-- api.txt: requirements specification
+- video-capture-api.txt: requirements specification
 - design.txt: software specification
 - integration.txt: a discussion on the integration of the library into a
   larger project
