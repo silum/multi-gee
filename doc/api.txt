@@ -1,0 +1,107 @@
+multi-gee Framegrabber Library API
+----------------------------------
+
+Version: 0.1
+Author: Deneys S. Maartens
+
+Example Usage:
+--------------
+
+The order of steps to follow to capture video is as follows:
+
+    typedef struct frame_tag {
+        int device_id;
+        char **image;
+        stamp_t timestamp;
+        struct frame * next;
+    } frame;
+
+    // callback function definition
+    // callback() may do further calls to mg_{,de}register_device
+    void callback(const struct frame *);
+
+    if (mg_register_callback(callback) < 0)
+        error();
+
+    for (int i = 0; i < N /* devices */; ++i) {
+        dev_id[i] = mg_register_device("device filename i")
+        if (dev_id[i] <= 0)
+            error();
+    }
+
+    mg_capture(-1); // calls callback() with synced frames
+
+    for (int i = 0; i < M /* devices */; ++i) {
+        mg_deregister_device(dev_id[i])
+        if (dev_id[i] <= 0)
+            error();
+    }
+
+
+
+callback() will be called whenever a synced set of images has been
+captured.  Note that the first images captured may contain bogus data as
+the framegrabber tries to get in sync with the video source.  It is
+customary to ignore the first 3 or 4 frames when commencing a capture.
+
+
+
+Function Reference:
+-------------------
+
+- int mg_capture(int n)
+
+mg_capture() will call the callback function n times with a synced
+set of frames.
+
+If n < 0 it will capture indefinitely.  To stop the capture the
+callback() function needs to deregister all devices at some point, or
+needs to call mg_capture_halt().
+
+If n = 0, mg_capture will return immeadeatly without capturing any
+frames.  This can be used to test wether any devices have been
+registered by examining the return value.
+
+
+- void mg_capture_halt()
+
+Will cause capturing to halt when capturing is in progress otherwise
+will have no effect.
+
+
+- int mg_register_callback(void (callback*)(struct frame* frame_list))
+
+Registers a callback function.  This function will be called each time a
+set of synced frames are available.
+
+
+- int mg_register_device(const char * filename)
+
+Will register an unregistered device.  This call can happen at any point
+in time, even after capturing has started.  The next call of the
+callback() function will include a frame captured by this device.  This
+function checks the major and minor number of the device in order to
+prevent multiple opens of a device with multiple filenames.
+
+Returns the device identifier on success.  The identifier is a number
+greater or equal to zero.  -1 indicates a failure to register the
+device.
+
+
+- int mg_deregister_device(int device_id)
+
+Will deregister a registered device.  This call can happen at any point
+in time, even before capturing has ended.  The next call of the
+callback() function will not include a frame from this device.  A
+device_id of -1 will cause all registered devices to be deregistered.
+
+Returns a status value.  0 or a positive return value signifies success
+and indicates the number of remaining registered devices, -1 indicates
+failure.
+
+
+ChangeLog:
+
+* Mon Nov 01 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+- Initial version of text file
+
