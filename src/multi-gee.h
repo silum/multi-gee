@@ -13,8 +13,8 @@
 
 #include <time.h>
 
-#include "classdef.h"
-#include "sllist.h"
+#include <multi_gee/classdef.h>
+#include <multi_gee/sllist.h>
 
 __BEGIN_DECLS
 

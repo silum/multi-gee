@@ -19,34 +19,54 @@
 
 __BEGIN_DECLS
 
-/* Assert during compiling (not run-time) */
+/**
+ * @brief assert during compiling (not run-time)
+ *
+ * @desc will produce a compiler error of assertion does not hold
+ *
+ * @param expression  to be asserted
+ */
 #define compiler_assert(exp) extern char _compiler_assert[(exp)?1:-1]
 
-/* Absolute value macro */
+/**
+ * @brief absolute value of value
+ */
 #define ABS(x) (((x)>0)?(x):-(x))
 
-/* Is a number a power of two */
+/**
+ * @brief test if a number is a power of two
+ */
 #define ISPOWER2(x) (!((x)&((x)-1)))
 
-/* Number of static elements in an array */
+/**
+ * @brief number of static elements in an array
+ */
 #define NUMSTATICELS(array) (sizeof(array)/sizeof(*array))
 
 /* Loop Macros */
-#define LOOP(arg) { int _max=arg; int loop; \
-    for (loop=0; loop<_max; ++loop)
-#define ULOOP(arg) { unsigned int _max=arg; unsigned int loop; \
-    for (loop=0; loop<_max; ++loop)
-#define ENDLOOP }
+//#define LOOP(arg) { int _max=arg; int loop; \ //
+//    for (loop=0; loop<_max; ++loop)
+//#define ULOOP(arg) { unsigned int _max=arg; unsigned int loop; \ //
+//    for (loop=0; loop<_max; ++loop)
+//#define ENDLOOP }
 
-/* xassert support */
+/**
+ * @brief enables xassert support in a source file
+ *
+ * @desc By calling this macro at the top of a source file, the
+ * _do_xassert macro declared.  xassert used the _do_xassert macro to
+ * print a run-time error message and by calling the user defined
+ * report_xassert() function with the file name and line number where
+ * the assertion failure occured.
+ */
 #define USE_XASSERT static char SRCFILE[]=__FILE__;  \
-  static bool _do_xassert(int line) {                \
+  static void /* bool */ _do_xassert(int line) {     \
     report_xassert(SRCFILE, line);                   \
-    xassert(line) {}                                 \
-    return(false);                                   \
+    /* xassert(line) {} */                           \
+    /* return false; */                              \
     }
 #define asserterror() _do_xassert(__LINE__)
-#define xassert(exp) if (!(exp)) {asserterror();} else
+#define xassert(exp) if (!(exp)) { asserterror(); } else
 
 /* What is a class descriptor */
 typedef struct classdesc_tag {
@@ -142,26 +162,35 @@ typedef struct classdesc_tag {
 /**
  * @brief allocates memory for a string of size - 1 bytes
  *
- * 
- *
+ * @param destination  new string
+ * @param size  number of bytes to allocate
  */
 #define NEWSTRING(dst, size) \
   (dst = xnew((size_t)(size),NULL,SRCFILE,__LINE__))
-/*
- * duplicate a string
+/**
+ * @brief  duplicate a string
+ *
+ * @param destination  duplicated string
+ * @param source  string to duplicate
  */
 #define STRDUP(dst, src) \
   (dst = xstrdup(src,SRCFILE,__LINE__))
 
 /* Array interface macros */
-/*
- * allocate memory to contain N (size) array elements
+/**
+ * @brief allocate memory to contain N (size) array elements
+ *
+ * @param array  new array
+ * @param size  number of elements to allocate
  */
 #define NEWARRAY(array, size) \
   (array = xnew((size_t)(sizeof(*(array))*(size)), \
   NULL,SRCFILE,__LINE__))
-/*
- * resize an array so contain N (size) array elements
+/**
+ * @brief resize an array so contain N (size) array elements
+ *
+ * @param array  resized array
+ * @param size  number of elements
  */
 #define RESIZEARRAY(array, size) \
   (array = xrealloc((array), \

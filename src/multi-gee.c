@@ -489,7 +489,6 @@ mg_deregister_device(multi_gee_t multi_gee,
 static void
 process_images(multi_gee_t mg, sllist_t frame_list)
 {
-	(void) mg;
 	static struct timeval then = {0, 0};
 	static int count = 0;
 

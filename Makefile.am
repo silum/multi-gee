@@ -6,6 +6,10 @@ DIST_SUBDIRS = src
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 
+#noinst_PROGRAMS = src/capture
+
+lib_LTLIBRARIES = src/multi-gee.la
+
 TESTS = \
     src/mg_buffer \
     src/mg_device \
@@ -14,6 +18,9 @@ TESTS = \
     src/test_sllist \
     src/tv_util
 
+bin_PROGRAMS = \
+    src/check-rate
+
 noinst_PROGRAMS = \
     $(TESTS) \
     src/capture \
@@ -21,9 +28,36 @@ noinst_PROGRAMS = \
     src/sync-stream \
     src/multi-gee
 
-#noinst_PROGRAMS = src/capture
+include_HEADERS = \
+    src/classdef.h \
+    src/debug_xassert.h \
+    src/fg_util.h \
+    src/log.h \
+    src/mg_buffer.h \
+    src/mg_device.h \
+    src/mg_frame.h \
+    src/multi-gee.h \
+    src/sllist.h \
+    src/tv_util.h \
+    src/xmalloc.h
 
-#lib_LTLIBRARIES = src/libmulti-gee.la
+noinst_HEADERS = \
+    src/linux/videodev2.h
+
+src_multi_gee_la_LDFLAGS = -module
+src_multi_gee_la_SOURCES = \
+    src/debug_xassert.c \
+    src/fg_util.c \
+    src/log.c \
+    src/mg_buffer.c \
+    src/mg_device.c \
+    src/mg_frame.c \
+    src/multi-gee.c \
+    src/sllist.c \
+    src/tv_util.c \
+    src/xmalloc.c
+
+src_multi_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 src_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
 src_mg_buffer_SOURCES = \
@@ -86,6 +120,13 @@ src_sync_stream_SOURCES = \
     src/sync-stream.c \
     src/xmalloc.c
 
+src_check_rate_LDADD = \
+    -lcurses
+
+src_check_rate_SOURCES = \
+    src/check-rate.c \
+    src/multi-gee.la
+
 #src_mg_test_LDADD = -Lsrc -lmulti-gee
 # src_test_mg_SOURCES = \
 #     src/debug_xassert.c \
@@ -108,18 +149,11 @@ src_sync_stream_SOURCES = \
 #     src/tv_util.c \
 #     src/xmalloc.c
 
-#src_libmulti_gee_la_SOURCES = \
-#    src/mutli-gee.c
-
 # INCLUDES = -I $(top_srcdir)/include
 
 # noinst_HEADERS = include/bar.h
 
 #src_dvideo_SOURCES = src/dvideo.c
-# foo_LDADD = src/bar.la
-
-# src_bar_la_SOURCES = src/bar.cc
-# src_bar_la_LDFLAGS = -module
 
 AUX_DIR = @ac_aux_dir@
 

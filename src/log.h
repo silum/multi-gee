@@ -11,7 +11,7 @@
 #ifndef DSM_LOG_H
 #define DSM_LOG_H 1
 
-#include "classdef.h"
+#include <multi_gee/classdef.h>
 
 __BEGIN_DECLS
 
