@@ -15,6 +15,9 @@
 
 #include <multi-gee/classdef.h>
 #include <multi-gee/sllist.h>
+#include <multi-gee/mg_buffer.h>
+#include <multi-gee/mg_device.h>
+#include <multi-gee/mg_frame.h>
 
 __BEGIN_DECLS
 

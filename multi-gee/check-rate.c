@@ -2,7 +2,7 @@
 #include <signal.h>
 #include <stdlib.h>
 
-#include "multi-gee.h"
+#include <multi-gee.h>
 
 static void finish(int sig);
 
