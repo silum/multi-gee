@@ -16,29 +16,21 @@
 
 #include <stdio.h>
 #include "classdef.h"
+#include "log.h"
 
 __BEGIN_DECLS
 
 #define xmalloc(size) \
      xnew(size, 0, __FILE__, __LINE__)
 
-void *xnew(size_t, classdesc *, char *, int);
+void *xnew(size_t, classdesc *, const char *, int);
 void *xfree(void *);
-void *xrealloc(void *, size_t, char *, int);
-void *xstrdup(char *, char *, int);
+void *xrealloc(void *, size_t, const char *, int);
+void *xstrdup(const char *, const char *, int);
 int  xwalkheap(void);
 bool xtestptr(void *);
 
-void report_xassert(char *, int);
-
-/**
- * @brief print error message corresponding to errno
- *
- * @param  file  file to print error message to
- * @param  string
- */
-void
-ferrno(FILE* f, const char *s);
+void report_xassert(const char *, int);
 
 __END_DECLS
 

@@ -28,6 +28,7 @@
 
 #include "xmalloc.h"
 
+#include "log.h"
 #include "mg_buffer.h"
 #include "mg_device.h"
 
@@ -56,7 +57,8 @@ xioctl(int fd, int request, void *arg)
 static bool
 init_mmap(int fd,
 	  char *dev_name,
-	  mg_buffer_t dev_buf)
+	  mg_buffer_t dev_buf,
+	  log_t log)
 {
 	struct v4l2_requestbuffers req;
 
@@ -68,17 +70,17 @@ init_mmap(int fd,
 
 	if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
 		if (EINVAL == errno) {
-			fprintf(stderr, "%s does not support "
-				"memory mapping\n", dev_name);
+			lg_log(log, "%s does not support "
+			       "memory mapping\n", dev_name);
 			return false;
 		} else {
-			ferrno(stderr, "VIDIOC_REQBUFS");
+			lg_errno(log, "VIDIOC_REQBUFS");
 			return false;
 		}
 	}
 
 	if (req.count < REQ_BUFS) {
-		fprintf(stderr, "Insufficient buffer memory on %s\n",
+		lg_log(log, "Insufficient buffer memory on %s\n",
 			dev_name);
 		return false;
 	}
@@ -95,7 +97,7 @@ init_mmap(int fd,
 		buf.index = i;
 
 		if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
-			ferrno(stderr, "VIDIOC_QUERYBUF");
+			lg_errno(log, "VIDIOC_QUERYBUF");
 			return false;
 		}
 
@@ -110,7 +112,7 @@ init_mmap(int fd,
 		mg_buffer_set(dev_buf, i, start, buf.length);
 
 		if (MAP_FAILED == start) {
-			ferrno(stderr, "mmap");
+			lg_errno(log, "mmap");
 			return false;
 		}
 	}
@@ -124,28 +126,29 @@ init_mmap(int fd,
  */
 static bool
 test_capability(int fd,
-		char *dev_name)
+		char *dev_name,
+		log_t log)
 {
 	struct v4l2_capability cap;
 	if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
 		if (EINVAL == errno) {
-			fprintf(stderr, "%s is no V4L2 device\n",
+			lg_log(log, "%s is no V4L2 device\n",
 				dev_name);
 			return false;
 		} else {
-			ferrno(stderr, "VIDIOC_QUERYCAP");
+			lg_errno(log, "VIDIOC_QUERYCAP");
 			return false;
 		}
 	}
 
 	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
-		fprintf(stderr, "%s is no video capture device\n",
+		lg_log(log, "%s is no video capture device\n",
 			dev_name);
 		return false;
 	}
 
 	if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
-		fprintf(stderr,
+		lg_log(log,
 			"%s does not support streaming i/o\n",
 			dev_name);
 		return false;
@@ -158,17 +161,18 @@ test_capability(int fd,
  * @brief select video input and video standard
  */
 static bool
-select_input(int fd)
+select_input(int fd,
+	     log_t log)
 {
 	int index = 1;
 	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index)) {
-		ferrno(stderr, "VIDIOC_S_INPUT");
+		lg_errno(log, "VIDIOC_S_INPUT");
 		return false;
 	}
 
 	v4l2_std_id std = V4L2_STD_PAL;
 	if (-1 == xioctl(fd, VIDIOC_S_STD, &std)) {
-		ferrno(stderr, "VIDIOC_S_STD");
+		lg_errno(log, "VIDIOC_S_STD");
 		return false;
 	}
 
@@ -214,7 +218,8 @@ set_crop(int fd)
  *  - interlacing
  */
 static bool
-set_format(int fd)
+set_format(int fd,
+	   log_t log)
 {
 	struct v4l2_format fmt;
 
@@ -227,7 +232,7 @@ set_format(int fd)
 	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
 	if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
-		ferrno(stderr, "VIDIOC_S_FMT");
+		lg_errno(log, "VIDIOC_S_FMT");
 		return false;
 	}
 
@@ -249,23 +254,24 @@ set_format(int fd)
  * @brief initialise frame capture device
  */
 bool
-fg_init_device(mg_device_t dev)
+fg_init_device(mg_device_t dev,
+	       log_t log)
 {
 	int fd = mg_device_fd(dev);
 	char *dev_name = mg_device_name(dev);
 
-	if (!test_capability(fd, dev_name))
+	if (!test_capability(fd, dev_name, log))
 		return false;
 
-	if (!select_input(fd))
+	if (!select_input(fd, log))
 		return false;
 
 	set_crop(fd);
 
-	if (!set_format(fd))
+	if (!set_format(fd, log))
 		return false;
 
-	if (!init_mmap(fd, dev_name, mg_device_buffer(dev)))
+	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
 		return false;
 
 	return true;
@@ -275,7 +281,8 @@ fg_init_device(mg_device_t dev)
  * @brief unmap memmapped memory
  */
 bool
-fg_uninit_device(mg_device_t dev)
+fg_uninit_device(mg_device_t dev,
+		 log_t log)
 {
 	mg_buffer_t dev_buf = mg_device_buffer(dev);
 	unsigned int bufs = mg_buffer_number(dev_buf);
@@ -283,7 +290,7 @@ fg_uninit_device(mg_device_t dev)
 	for (unsigned int i = 0; i < bufs; ++i) {
 		if (-1 == munmap(mg_buffer_start(dev_buf, i),
 				 mg_buffer_length(dev_buf, i))) {
-			ferrno(stderr, "munmap");
+			lg_errno(log, "munmap");
 			return false;
 		}
 	}
@@ -295,7 +302,9 @@ fg_uninit_device(mg_device_t dev)
  * @brief enqueue a capture buffer for filling by the driver
  */
 bool
-fg_enqueue(int fd, int i)
+fg_enqueue(int fd,
+	   int i,
+	   log_t log)
 {
 	struct v4l2_buffer buf;
 
@@ -306,7 +315,7 @@ fg_enqueue(int fd, int i)
 	buf.index = i;
 
 	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
-		ferrno(stderr, "VIDIOC_QBUF");
+		lg_errno(log, "VIDIOC_QBUF");
 		return false;
 	}
 
@@ -317,7 +326,9 @@ fg_enqueue(int fd, int i)
  * @brief dequeue a buffer for user processing
  */
 bool
-fg_dequeue(int fd, struct v4l2_buffer *buf)
+fg_dequeue(int fd,
+	   struct v4l2_buffer *buf,
+	   log_t log)
 {
 	CLEAR(*buf);
 
@@ -335,7 +346,7 @@ fg_dequeue(int fd, struct v4l2_buffer *buf)
 				/* fall through */
 
 			default:
-				ferrno(stderr, "VIDIOC_DQBUF");
+				lg_errno(log, "VIDIOC_DQBUF");
 				return false;
 		}
 	}
@@ -347,19 +358,20 @@ fg_dequeue(int fd, struct v4l2_buffer *buf)
  * @brief start streaming capturing on device
  */
 bool
-fg_start_capture(mg_device_t dev)
+fg_start_capture(mg_device_t dev,
+		 log_t log)
 {
 	enum v4l2_buf_type type;
 	int fd = mg_device_fd(dev);
 	unsigned int bufs = mg_buffer_number(mg_device_buffer(dev));
 
 	for (unsigned int i = 0; i < bufs; ++i)
-		fg_enqueue(fd, i);
+		fg_enqueue(fd, i, log);
 
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
-		ferrno(stderr, "VIDIOC_STREAMON");
+		lg_errno(log, "VIDIOC_STREAMON");
 		return false;
 	}
 
@@ -370,7 +382,8 @@ fg_start_capture(mg_device_t dev)
  * @brief stop streaming capturing on device
  */
 bool
-fg_stop_capture(mg_device_t dev)
+fg_stop_capture(mg_device_t dev,
+		log_t log)
 {
 	enum v4l2_buf_type type;
 	int fd = mg_device_fd(dev);
@@ -378,7 +391,7 @@ fg_stop_capture(mg_device_t dev)
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
-		ferrno(stderr, "VIDIOC_STREAMOFF");
+		lg_errno(log, "VIDIOC_STREAMOFF");
 		return false;
 	}
 

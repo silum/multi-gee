@@ -8,19 +8,17 @@
  */
 
 #include <assert.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
-
-#include "multi-gee.h"
+#include <stdlib.h>
+#include <sys/stat.h>
 
 #include "fg_util.h"
+#include "log.h"
 #include "mg_device.h"
 #include "mg_frame.h"
+#include "multi-gee.h" /* class implemented */
 #include "sllist.h"
 #include "tv_util.h"
-
 #include "xmalloc.h"
 
 static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
@@ -54,6 +52,8 @@ CLASS(multi_gee, multi_gee_t)
 
 	sllist_t frame;
 	sllist_t device;
+
+	log_t log;
 };
 
 /**
@@ -165,7 +165,8 @@ add_frame(sllist_t frame,
 	TODO
  */
 static enum sync_status
-sync_test(sllist_t frame_list)
+sync_test(sllist_t frame_list,
+	  log_t log)
 {
 	enum sync_status sync = SYNC_FAIL;
 
@@ -180,10 +181,11 @@ sync_test(sllist_t frame_list)
 
 	struct timeval tv_diff = tv_abs_diff(last_sync, now);
 	if (tv_lt(TV_NO_SYNC, tv_diff)) {
-		fprintf(stderr, "too long since last sync: "
-			"%10ld.%06ld\n",
-			tv_diff.tv_sec,
-			tv_diff.tv_usec);
+		lg_log(log,
+		       "too long since last sync: %ld.%06ld\n",
+		       tv_diff.tv_sec,
+		       tv_diff.tv_usec);
+
 		sync = SYNC_FATAL;
 	} else if (frame_list) {
 		mg_frame_t frame = sll_data(frame_list);
@@ -209,10 +211,10 @@ sync_test(sllist_t frame_list)
 			last_sync = now;
 			sync = SYNC_OK;
 		} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
-			fprintf(stderr, "fatal loss of sync:"
-				"%10ld.%06ld\n",
-				tv_diff.tv_sec,
-				tv_diff.tv_usec);
+			lg_log(log,
+			      "fatal loss of sync: %ld.%06ld\n",
+			      tv_diff.tv_sec,
+			      tv_diff.tv_usec);
 			sync = SYNC_FATAL;
 		}
 	}
@@ -248,13 +250,13 @@ sync_select(multi_gee_t multi_gee,
 			if (EINTR == errno)
 				continue;
 
-			ferrno(stderr, "select");
+			lg_log(multi_gee->log, "select");
 			sync = SYNC_FATAL;
 		}
 
 		if (0 == ret) {
 			/* select timeout */
-			fprintf(stderr, "wait too long for frame\n");
+			lg_log(multi_gee->log, "wait too long for frame");
 			sync = SYNC_FATAL;
 		}
 
@@ -284,7 +286,7 @@ find_device(sllist_t list,
 }
 
 multi_gee_t
-mg_create()
+mg_create(char* log_file)
 {
 	multi_gee_t multi_gee;
 	NEWOBJ(multi_gee);
@@ -298,6 +300,10 @@ mg_create()
 	multi_gee->frame = 0;
 	multi_gee->device = 0;
 
+	multi_gee->log = lg_create("multi-gee", log_file);
+
+	lg_log(multi_gee->log, "startup");
+
 	return multi_gee;
 }
 
@@ -309,6 +315,7 @@ mg_destroy(multi_gee_t multi_gee)
 			mg_device_destroy(sll_data(d));
 		multi_gee->device = sll_empty(multi_gee->device);
 		multi_gee->frame = add_frame(multi_gee->frame, 0);
+		multi_gee->log = lg_destroy(multi_gee->log);
 		FREEOBJ(multi_gee);
 	}
 
@@ -360,12 +367,12 @@ mg_capture(multi_gee_t multi_gee,
 					if (FD_ISSET(mg_device_fd(dev), &fds)) {
 						if (!swap_frame(multi_gee, dev))
 							break;
-						
-						sync = sync_test(multi_gee->frame);
-						
+
+						sync = sync_test(multi_gee->frame, multi_gee->log);
+
 						if (sync == SYNC_FATAL)
 							break;
-						
+
 						if (sync == SYNC_OK) {
 							multi_gee->callback(multi_gee, multi_gee->frame);
 							count++;
@@ -490,7 +497,7 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	gettimeofday(&now, 0);
 	printf("now: %10ld.%06ld\n", now.tv_sec, now.tv_usec);
 
-	struct timeval diff = diff = tv_abs_diff(then, now);
+	struct timeval diff = diff = tv_abs_diff(now, then);
 	printf("  then now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
 	then = now;
 
@@ -504,15 +511,15 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 		printf(" tv: %10ld.%06ld\n",  tv.tv_sec,  tv.tv_usec);
 
 
-		diff = tv_abs_diff(tv, now);
+		diff = tv_abs_diff(now, tv);
 		printf("  tv   now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
 		printf("  sequence: %d\n", mg_frame_sequence(frame));
 
 	}
 	printf("\n");
 
-//	usleep(38500);
-//	return;
+//	usleep(38975); // 3 devices
+	return;
 
 	static int dev_id = -1;
 	if (count % 1 == 0) {
@@ -529,16 +536,17 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 void
 multi_gee()
 {
-	multi_gee_t mg = mg_create();
+	multi_gee_t mg = mg_create("stderr");
 
 	mg_register_callback(mg, process_images);
 
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video0"));
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video1"));
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
-//	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
+	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 
-	printf("capture ret = %d\n", mg_capture(mg, -1));
+	// printf("capture ret = %d\n", mg_capture(mg, -1));
+	printf("capture ret = %d\n", mg_capture(mg, 100));
 
 	mg_destroy(mg);
 }

@@ -25,7 +25,7 @@ NEWHANDLE(multi_gee_t); /* multi-gee object handle */
 
 /* create object */
 multi_gee_t /* new handle */
-mg_create();
+mg_create(char *);
 
 /* destroy object */
 multi_gee_t

@@ -23,7 +23,7 @@ extern bool XASSERT_FAILURE;
 /*
  * user defined assertion failure report
  */
-void report_xassert(char *file_name, int line);
+void report_xassert(const char *file_name, int line);
 
 /*
  * test framework function

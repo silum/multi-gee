@@ -38,7 +38,7 @@ typedef struct prefix_tag {
 	struct prefix_tag *prev;	/* previous object in heap   */
 	struct prefix_tag *next;	/* next object in heap       */
 	struct postfix_tag *postfix;	/* ptr to postfix object     */
-	char *file;			/* file name ptr or 0        */
+	const char *file;			/* file name ptr or 0        */
 	long line;			/* line number or 0          */
 	void *mem;			/* xnew() ptr of object      */
 	classdesc *class;		/* class descriptor ptr or 0 */
@@ -74,7 +74,7 @@ static void render(prefix *, char *);
  *  @returns  A long pointer to the memory object or 0
  */
 void *
-xnew(size_t size, classdesc *class, char *file, int line)
+xnew(size_t size, classdesc *class, const char *file, int line)
 {
 	prefix *p;
 	size = DOALIGN(size);
@@ -129,7 +129,7 @@ xfree(void *mem)
  * @returns  A pointer to the duplicated string or 0
  */
 void *
-xstrdup(char *s, char *file, int line)
+xstrdup(const char *s, const char *file, int line)
 {
 	void *ret = 0;
 
@@ -156,7 +156,7 @@ xstrdup(char *s, char *file, int line)
  * @returns  A pointer to the reallocated memory or 0
  */
 void *
-xrealloc(void *old, size_t size, char *file, int line)
+xrealloc(void *old, size_t size, const char *file, int line)
 {
 	void *new = 0;
 
@@ -352,16 +352,5 @@ render(prefix *p, char *buffer)
 	} else {
 		strcpy(buffer, "(bad)");
 	}
-}
-
-/**
- * @brief print error message corresponding to errno
- */
-void
-ferrno(FILE* f, const char *s)
-{
-	fprintf(f, "%s error %d, %s\n", s, errno, strerror(errno));
-
-	fflush(f);
 }
 

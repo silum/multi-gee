@@ -18,7 +18,7 @@ bool XASSERT_FAILURE = false;
  * XASSERT_INTERACTIVE is true
  */
 void
-report_xassert(char *file_name, int line)
+report_xassert(const char *file_name, int line)
 {
 	printf(" ** xassert: %s-%d ", file_name, line);
 	XASSERT_FAILURE = true;
