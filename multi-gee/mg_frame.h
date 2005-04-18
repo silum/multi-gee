@@ -70,7 +70,7 @@ mg_frame_destroy(mg_frame_t frame);
  * @brief Buffer index accessor
  *
  * the image pointer is read from the v4l2 buffer.  if frame was
- * constructed without a valid v4l2 buffer it is 0.
+ * constructed without a valid v4l2 buffer it is -1.
  *
  * @param frame  object handle
  *
