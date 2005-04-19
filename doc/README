@@ -3,16 +3,15 @@ $Id$
 The structure for the documentation is as follows:
 
 - README: this document
-- layout.txt: introduction and requirements definition
-- image-capture-api.txt: requirements specification
-- design.txt: software specification
+- api.txt: description of function calls available to an application
+  programmer
+- design.txt: some musings on the design process of the library
+- mechanism: a description on how the internals of the library interact
 - integration.txt: a discussion on the integration of the library into a
   larger project
 
 Software related documents:
 
-- classdef.txt: introduces the class methodology used in implementation
-  of the library
 - sllist-tests.txt: software specification and test definition for a
   singly linked list
 
