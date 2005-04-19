@@ -49,16 +49,6 @@ open_log(log_t log,
 	 const char *file);
 
 /**
- * @brief Prints the current date and time to buffer
- *
- * @param buffer  the destination
- * @param size  the length of the buffer
- */
-static void
-put_time(char *buffer,
-	 size_t size);
-
-/**
  * @brief Output the header string to file
  *
  * the header string is the name, followed by a colon, the date and the
@@ -70,6 +60,16 @@ put_time(char *buffer,
 static void
 put_header(FILE *file,
 	   char *name);
+
+/**
+ * @brief Prints the current date and time to buffer
+ *
+ * @param buffer  the destination
+ * @param size  the length of the buffer
+ */
+static void
+put_time(char *buffer,
+	 size_t size);
 
 /**
  * @brief Log object structure
@@ -112,32 +112,6 @@ lg_destroy(log_t log)
 }
 
 void
-lg_log(log_t log,
-       const char *format,
-       ...)
-{
-	VERIFYZ(log) {
-		va_list ap;
-		va_start(ap, format);
-
-		FILE* out = stderr;
-		if (log->file) {
-			out = log->file;
-			put_header(out, log->name);
-		}
-
-		vfprintf(out, format, ap);
-		fprintf(out, "\n");
-		fflush(out);
-
-		va_end(ap);
-	}
-}
-
-/**
- * @brief Print error message corresponding to \c errno
- */
-void
 lg_errno(log_t log,
 	 const char *format,
 	 ...)
@@ -160,7 +134,30 @@ lg_errno(log_t log,
 	}
 }
 
-static void
+void
+lg_log(log_t log,
+       const char *format,
+       ...)
+{
+	VERIFYZ(log) {
+		va_list ap;
+		va_start(ap, format);
+
+		FILE* out = stderr;
+		if (log->file) {
+			out = log->file;
+			put_header(out, log->name);
+		}
+
+		vfprintf(out, format, ap);
+		fprintf(out, "\n");
+		fflush(out);
+
+		va_end(ap);
+	}
+}
+
+void
 open_log(log_t log,
 	 const char *file)
 {
@@ -199,16 +196,7 @@ open_log(log_t log,
 	}
 }
 
-static void
-put_time(char *buffer,
-	 size_t size)
-{
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	strftime(buffer, size, "%F %H:%M:%S", localtime(&tv.tv_sec));
-}
-
-static void
+void
 put_header(FILE *file,
 	   char *name)
 {
@@ -216,5 +204,14 @@ put_header(FILE *file,
 	put_time(tm_buf, sizeof(tm_buf));
 
 	fprintf(file, "%s: %s: ", name, tm_buf);
+}
+
+void
+put_time(char *buffer,
+	 size_t size)
+{
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	strftime(buffer, size, "%F %H:%M:%S", localtime(&tv.tv_sec));
 }
 

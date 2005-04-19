@@ -31,7 +31,7 @@
 
 #include "mg_device.h"
 
-USE_XASSERT;
+USE_XASSERT
 
 /**
  * @brief Device object structure
@@ -40,8 +40,7 @@ CLASS(mg_device, mg_device_t)
 {
 	int fd; /**< Device file descriptor */
 	char *name; /**< Device file name */
-	int major; /**< Device major number */
-	int minor; /**< Device minor number */
+	dev_t devno; /**< Device number */
 	mg_buffer_t buffer; /**< Frame buffer object handle */
 	unsigned int num_bufs; /**< Number of buffers */
 };
@@ -53,20 +52,17 @@ mg_device_create(char *name, log_t log)
 	NEWOBJ(mg_device);
 
 	mg_device->fd = -1;
-	mg_device->major = -1;
-	mg_device->minor = -1;
+	mg_device->devno = -1;
 
 	mg_device->name = xstrdup(name, __FILE__, __LINE__);
 
 	struct stat st;
-	if (0 != stat(name, &st)) {
+	if (0 != stat(name, &st))
 		lg_errno(log, "cannot identify '%s':", name);
-	} else if (!S_ISCHR(st.st_mode)) {
+	else if (!S_ISCHR(st.st_mode))
 		lg_log(log, "%s is no device", name);
-	} else {
-		mg_device->major = major(st.st_rdev);
-		mg_device->minor = minor(st.st_rdev);
-	}
+	else
+		mg_device->devno = st.st_rdev;
 
 	mg_device->buffer = mg_buffer_create();
 
@@ -89,6 +85,28 @@ mg_device_destroy(mg_device_t mg_device)
 	return 0;
 }
 
+mg_buffer_t
+mg_device_buffer(mg_device_t mg_device)
+{
+	mg_buffer_t p = 0;
+	VERIFY(mg_device) {
+		p = mg_device->buffer;
+	}
+
+	return p;
+}
+
+int
+mg_device_fd(mg_device_t mg_device)
+{
+	int fd = -1;
+	VERIFY(mg_device) {
+		fd = mg_device->fd;
+	}
+
+	return fd;
+}
+
 char *
 mg_device_name(mg_device_t mg_device)
 {
@@ -98,6 +116,17 @@ mg_device_name(mg_device_t mg_device)
 	}
 
 	return name;
+}
+
+dev_t
+mg_device_number(mg_device_t mg_device)
+{
+	dev_t devno = makedev(-1,-1);
+	VERIFY(mg_device) {
+		devno = mg_device->devno;
+	}
+
+	return devno;
 }
 
 int
@@ -117,50 +146,6 @@ mg_device_open(mg_device_t mg_device)
 	return mg_device->fd;
 }
 
-int
-mg_device_fd(mg_device_t mg_device)
-{
-	int fd = -1;
-	VERIFY(mg_device) {
-		fd = mg_device->fd;
-	}
-
-	return fd;
-}
-
-int
-mg_device_major(mg_device_t mg_device)
-{
-	int major = -1;
-	VERIFY(mg_device) {
-		major = mg_device->major;
-	}
-
-	return major;
-}
-
-int
-mg_device_minor(mg_device_t mg_device)
-{
-	int minor = -1;
-	VERIFY(mg_device) {
-		minor = mg_device->minor;
-	}
-
-	return minor;
-}
-
-mg_buffer_t
-mg_device_buffer(mg_device_t mg_device)
-{
-	mg_buffer_t p = 0;
-	VERIFY(mg_device) {
-		p = mg_device->buffer;
-	}
-
-	return p;
-}
-
 #ifdef DEBUG_DEVICE
 
 #include <stdlib.h>
@@ -170,8 +155,7 @@ mg_device_buffer(mg_device_t mg_device)
 
 void
 test_device(char *name,
-	    int major,
-	    int minor)
+	    dev_t devno)
 {
 	mg_device_t dev;
 	log_t log = lg_create("mg_device", "stderr");
@@ -180,8 +164,7 @@ test_device(char *name,
 	dev = mg_device_create(name, log);
 
 	XASSERT(mg_device_fd(dev) == -1);
-	XASSERT(mg_device_major(dev) == major);
-	XASSERT(mg_device_minor(dev) == minor);
+	XASSERT(mg_device_number(dev) == devno);
 
 	/* device still valid */
 	XASSERT(dev);
@@ -193,8 +176,7 @@ test_device(char *name,
 	xassert(dev) { }
 
 	printf("%s file descriptor = %d\n", name, fd);
-	XASSERT(mg_device_major(dev) == major);
-	XASSERT(mg_device_minor(dev) == minor);
+	XASSERT(mg_device_number(dev) == devno);
 
 	/* device still valid */
 	XASSERT(dev);
@@ -211,10 +193,10 @@ test_device(char *name,
 void
 mg_device()
 {
-	test_device("/dev/no_such_device", -1, -1);
-	test_device("/bin/ls", -1, -1);
-	test_device("/dev/null", 1, 3);
-	test_device("/dev/zero", 1, 5);
+	test_device("/dev/no_such_device", makedev(-1, -1));
+	test_device("/bin/ls", makedev(-1, -1));
+	test_device("/dev/null", makedev(1, 3));
+	test_device("/dev/zero", makedev(1, 5));
 }
 
 int

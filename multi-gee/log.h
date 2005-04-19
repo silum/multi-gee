@@ -59,18 +59,6 @@ log_t
 lg_destroy(log_t log);
 
 /**
- * @brief Write a log entry
- *
- * @param log  the log object
- * @param format  a \c printf like format log message
- * @param ...  arguments for the format string
- */
-void
-lg_log(log_t log,
-       const char *format,
-       ...);
-
-/**
  * @brief Write a log entry for the current \c errno
  *
  * @param log  the log object
@@ -81,6 +69,18 @@ void
 lg_errno(log_t log,
 	 const char *format,
 	 ...);
+
+/**
+ * @brief Write a log entry
+ *
+ * @param log  the log object
+ * @param format  a \c printf like format log message
+ * @param ...  arguments for the format string
+ */
+void
+lg_log(log_t log,
+       const char *format,
+       ...);
 
 __END_DECLS
 

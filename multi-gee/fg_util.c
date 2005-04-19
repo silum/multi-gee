@@ -36,7 +36,6 @@
 #include "mg_buffer.h"
 #include "mg_device.h"
 
-
 /**
  * @brief Initialise memory area to zeros
  */
@@ -46,18 +45,6 @@
  * @brief Number of buffers required for capturing
  */
 static const unsigned int REQ_BUFS = 3;
-
-/**
- * @brief Retry ioctl until it happens
- *
- * @param fd  file descriptor
- * @param req  ioctl request
- * @param arg  ioctl argument
- */
-static int
-xioctl(int fd,
-       int req,
-       void *arg);
 
 /**
  * @brief Initialise memory mapping
@@ -72,20 +59,6 @@ init_mmap(int fd,
 	  char *name,
 	  mg_buffer_t buffer,
 	  log_t log);
-
-/**
- * @brief Test device capabilities
- *
- * will not return if insufficient capabilities is detected
- *
- * @param fd  file descriptor
- * @param name  device name, for logging
- * @param log  to log possible errors to
- */
-static bool
-test_capability(int fd,
-		char *name,
-		log_t log);
 
 /**
  * @brief Select video input and video standard
@@ -121,68 +94,31 @@ static bool
 set_format(int fd,
 	   log_t log);
 
-bool
-fg_init_device(mg_device_t dev,
-	       log_t log)
-{
-	int fd = mg_device_fd(dev);
-	char *dev_name = mg_device_name(dev);
+/**
+ * @brief Test device capabilities
+ *
+ * will not return if insufficient capabilities is detected
+ *
+ * @param fd  file descriptor
+ * @param name  device name, for logging
+ * @param log  to log possible errors to
+ */
+static bool
+test_capability(int fd,
+		char *name,
+		log_t log);
 
-	if (!test_capability(fd, dev_name, log))
-		return false;
-
-	if (!select_input(fd, log))
-		return false;
-
-	set_crop(fd);
-
-	if (!set_format(fd, log))
-		return false;
-
-	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
-		return false;
-
-	return true;
-}
-
-bool
-fg_uninit_device(mg_device_t dev,
-		 log_t log)
-{
-	mg_buffer_t dev_buf = mg_device_buffer(dev);
-	unsigned int bufs = mg_buffer_number(dev_buf);
-
-	for (unsigned int i = 0; i < bufs; ++i) {
-		if (-1 == munmap(mg_buffer_start(dev_buf, i),
-				 mg_buffer_length(dev_buf, i))) {
-			lg_errno(log, "munmap");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool
-fg_enqueue(int fd,
-	   int i,
-	   log_t log)
-{
-	struct v4l2_buffer buf;
-
-	CLEAR(buf);
-
-	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = i;
-
-	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
-		lg_errno(log, "VIDIOC_QBUF");
-		return false;
-	}
-
-	return true;
-}
+/**
+ * @brief Retry ioctl until it happens
+ *
+ * @param fd  file descriptor
+ * @param req  ioctl request
+ * @param arg  ioctl argument
+ */
+static int
+xioctl(int fd,
+       int req,
+       void *arg);
 
 bool
 fg_dequeue(int fd,
@@ -211,6 +147,51 @@ fg_dequeue(int fd,
 	}
 
 	return buf;
+}
+
+bool
+fg_enqueue(int fd,
+	   int i,
+	   log_t log)
+{
+	struct v4l2_buffer buf;
+
+	CLEAR(buf);
+
+	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf.memory = V4L2_MEMORY_MMAP;
+	buf.index = i;
+
+	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+		lg_errno(log, "VIDIOC_QBUF");
+		return false;
+	}
+
+	return true;
+}
+
+bool
+fg_init_device(mg_device_t dev,
+	       log_t log)
+{
+	int fd = mg_device_fd(dev);
+	char *dev_name = mg_device_name(dev);
+
+	if (!test_capability(fd, dev_name, log))
+		return false;
+
+	if (!select_input(fd, log))
+		return false;
+
+	set_crop(fd);
+
+	if (!set_format(fd, log))
+		return false;
+
+	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
+		return false;
+
+	return true;
 }
 
 bool
@@ -251,19 +232,25 @@ fg_stop_capture(mg_device_t dev,
 	return true;
 }
 
-static int
-xioctl(int fd, int req, void *arg)
+bool
+fg_uninit_device(mg_device_t dev,
+		 log_t log)
 {
-	int ret;
+	mg_buffer_t dev_buf = mg_device_buffer(dev);
+	unsigned int bufs = mg_buffer_number(dev_buf);
 
-	do
-		ret = ioctl(fd, req, arg);
-	while (-1 == ret && EINTR == errno);
+	for (unsigned int i = 0; i < bufs; ++i) {
+		if (-1 == munmap(mg_buffer_start(dev_buf, i),
+				 mg_buffer_length(dev_buf, i))) {
+			lg_errno(log, "munmap");
+			return false;
+		}
+	}
 
-	return ret;
+	return true;
 }
 
-static bool
+bool
 init_mmap(int fd,
 	  char *dev_name,
 	  mg_buffer_t dev_buf,
@@ -328,7 +315,85 @@ init_mmap(int fd,
 	return true;
 }
 
-static bool
+bool
+select_input(int fd,
+	     log_t log)
+{
+	int index = 1;
+	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index)) {
+		lg_errno(log, "VIDIOC_S_INPUT");
+		return false;
+	}
+
+	v4l2_std_id std = V4L2_STD_PAL;
+	if (-1 == xioctl(fd, VIDIOC_S_STD, &std)) {
+		lg_errno(log, "VIDIOC_S_STD");
+		return false;
+	}
+
+	return true;
+}
+
+void
+set_crop(int fd)
+{
+	struct v4l2_cropcap cropcap;
+	cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+	if (-1 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
+		/* Errors ignored. */
+	}
+
+	struct v4l2_crop crop;
+	crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	crop.c = cropcap.defrect;	/* reset to default */
+
+	if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
+		switch (errno) {
+			case EINVAL:
+				/* Cropping not supported. */
+				break;
+			default:
+				/* Errors ignored. */
+				break;
+		}
+	}
+}
+
+bool
+set_format(int fd,
+	   log_t log)
+{
+	struct v4l2_format fmt;
+
+	CLEAR(fmt);
+
+	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	fmt.fmt.pix.width = 768;
+	fmt.fmt.pix.height = 576;
+	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
+	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+
+	if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
+		lg_errno(log, "VIDIOC_S_FMT");
+		return false;
+	}
+
+	/* Note VIDIOC_S_FMT may change width and height. */
+
+	/* Buggy driver paranoia. */
+	unsigned int min;
+	min = fmt.fmt.pix.width * 2;
+	if (fmt.fmt.pix.bytesperline < min)
+		fmt.fmt.pix.bytesperline = min;
+	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
+	if (fmt.fmt.pix.sizeimage < min)
+		fmt.fmt.pix.sizeimage = min;
+
+	return true;
+}
+
+bool
 test_capability(int fd,
 		char *dev_name,
 		log_t log)
@@ -361,81 +426,15 @@ test_capability(int fd,
 	return true;
 }
 
-static bool
-select_input(int fd,
-	     log_t log)
+int
+xioctl(int fd, int req, void *arg)
 {
-	int index = 1;
-	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index)) {
-		lg_errno(log, "VIDIOC_S_INPUT");
-		return false;
-	}
+	int ret;
 
-	v4l2_std_id std = V4L2_STD_PAL;
-	if (-1 == xioctl(fd, VIDIOC_S_STD, &std)) {
-		lg_errno(log, "VIDIOC_S_STD");
-		return false;
-	}
+	do
+		ret = ioctl(fd, req, arg);
+	while (-1 == ret && EINTR == errno);
 
-	return true;
-}
-
-static void
-set_crop(int fd)
-{
-	struct v4l2_cropcap cropcap;
-	cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-	if (-1 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
-		/* Errors ignored. */
-	}
-
-	struct v4l2_crop crop;
-	crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	crop.c = cropcap.defrect;	/* reset to default */
-
-	if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
-		switch (errno) {
-			case EINVAL:
-				/* Cropping not supported. */
-				break;
-			default:
-				/* Errors ignored. */
-				break;
-		}
-	}
-}
-
-static bool
-set_format(int fd,
-	   log_t log)
-{
-	struct v4l2_format fmt;
-
-	CLEAR(fmt);
-
-	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	fmt.fmt.pix.width = 768;
-	fmt.fmt.pix.height = 576;
-	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
-	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
-
-	if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
-		lg_errno(log, "VIDIOC_S_FMT");
-		return false;
-	}
-
-	/* Note VIDIOC_S_FMT may change width and height. */
-
-	/* Buggy driver paranoia. */
-	unsigned int min;
-	min = fmt.fmt.pix.width * 2;
-	if (fmt.fmt.pix.bytesperline < min)
-		fmt.fmt.pix.bytesperline = min;
-	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
-	if (fmt.fmt.pix.sizeimage < min)
-		fmt.fmt.pix.sizeimage = min;
-
-	return true;
+	return ret;
 }
 

@@ -67,19 +67,6 @@ mg_frame_t
 mg_frame_destroy(mg_frame_t frame);
 
 /**
- * @brief Buffer index accessor
- *
- * the image pointer is read from the v4l2 buffer.  if frame was
- * constructed without a valid v4l2 buffer it is -1.
- *
- * @param frame  object handle
- *
- * @return the index number, or -1 if not a valid frame
- */
-int
-mg_frame_index(mg_frame_t frame);
-
-/**
  * @brief Capture device accessor
  *
  * @param frame  object handle
@@ -100,18 +87,17 @@ void *
 mg_frame_image(mg_frame_t frame);
 
 /**
- * @brief Time stamp accessor
+ * @brief Buffer index accessor
  *
- * the time stamp is read from the v4l2 buffer.  if frame was
- * constructed without a valid v4l2 buffer it is the time when the frame
- * was created.
+ * the image pointer is read from the v4l2 buffer.  if frame was
+ * constructed without a valid v4l2 buffer it is -1.
  *
  * @param frame  object handle
  *
- * @return the time stamp
+ * @return the index number, or -1 if not a valid frame
  */
-struct timeval
-mg_frame_timestamp(mg_frame_t frame);
+int
+mg_frame_index(mg_frame_t frame);
 
 /**
  * @brief Sequence number accessor
@@ -127,6 +113,30 @@ uint32_t
 mg_frame_sequence(mg_frame_t frame);
 
 /**
+ * @brief Old frame indicator accessor
+ *
+ * @param frame  object handle
+ *
+ * @return the object handle
+ */
+mg_frame_t
+mg_frame_set_used(mg_frame_t frame);
+
+/**
+ * @brief Time stamp accessor
+ *
+ * the time stamp is read from the v4l2 buffer.  if frame was
+ * constructed without a valid v4l2 buffer it is the time when the frame
+ * was created.
+ *
+ * @param frame  object handle
+ *
+ * @return the time stamp
+ */
+struct timeval
+mg_frame_timestamp(mg_frame_t frame);
+
+/**
  * @brief Old frame indicator
  *
  * indicator to show whether the frame is considered to be
@@ -139,16 +149,6 @@ mg_frame_sequence(mg_frame_t frame);
  */
 bool
 mg_frame_used(mg_frame_t frame);
-
-/**
- * @brief Old frame indicator accessor
- *
- * @param frame  object handle
- *
- * @return the object handle
- */
-mg_frame_t
-mg_frame_set_used(mg_frame_t frame);
 
 __END_DECLS
 

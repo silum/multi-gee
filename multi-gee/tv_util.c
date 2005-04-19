@@ -22,29 +22,6 @@
 
 #include "tv_util.h"
 
-bool
-tv_eq(struct timeval tv_0,
-      struct timeval tv_1)
-{
-	return (tv_0.tv_sec == tv_1.tv_sec
-		&& tv_0.tv_usec == tv_1.tv_usec);
-}
-
-bool
-tv_lt(struct timeval tv_0,
-      struct timeval tv_1)
-{
-	if (tv_0.tv_sec == tv_1.tv_sec) {
-		if (tv_0.tv_usec < tv_1.tv_usec)
-			return true;
-		else
-			return false;
-	} else if (tv_0.tv_sec < tv_1.tv_sec)
-		return true;
-	else /* tv_1.tv_sec < tv_0.tv_sec */
-		return false;
-}
-
 struct timeval
 tv_abs_diff(struct timeval tv_0,
 	    struct timeval tv_1)
@@ -70,6 +47,29 @@ tv_abs_diff(struct timeval tv_0,
 	return result;
 }
 
+bool
+tv_eq(struct timeval tv_0,
+      struct timeval tv_1)
+{
+	return (tv_0.tv_sec == tv_1.tv_sec
+		&& tv_0.tv_usec == tv_1.tv_usec);
+}
+
+bool
+tv_lt(struct timeval tv_0,
+      struct timeval tv_1)
+{
+	if (tv_0.tv_sec == tv_1.tv_sec) {
+		if (tv_0.tv_usec < tv_1.tv_usec)
+			return true;
+		else
+			return false;
+	} else if (tv_0.tv_sec < tv_1.tv_sec)
+		return true;
+	else /* tv_1.tv_sec < tv_0.tv_sec */
+		return false;
+}
+
 #ifdef DEBUG_TV_UTIL
 
 #include <stdio.h>
@@ -77,7 +77,7 @@ tv_abs_diff(struct timeval tv_0,
 #include <xassert.h>
 #include <xmalloc.h>
 
-USE_XASSERT;
+USE_XASSERT
 
 void
 test_tv_util()

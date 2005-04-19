@@ -31,6 +31,34 @@ __BEGIN_DECLS
 struct v4l2_buffer;
 
 /**
+ * @brief Dequeue a buffer for user processing
+ *
+ * @param fd  file descriptor
+ * @param buffer  video4linux2 buffer to dequeue
+ * @param log  to log possible errors to
+ *
+ * @return \c true on success, \c false on failure to dequeue buffer
+ */
+bool
+fg_dequeue(int fd,
+	   struct v4l2_buffer *buffer,
+	   log_t log);
+
+/**
+ * @brief Enqueue a capture buffer for filling by the driver
+ *
+ * @param fd  file descriptor
+ * @param index   buffer index
+ * @param log  to log possible errors to
+ *
+ * @return \c true on success, \c false on failure to enqueue buffer
+ */
+bool
+fg_enqueue(int fd,
+	   int index,
+	   log_t log);
+
+/**
  * @brief Initialise frame capture device
  *
  * does the following
@@ -48,46 +76,6 @@ struct v4l2_buffer;
 bool
 fg_init_device(mg_device_t device,
 	       log_t log);
-
-/**
- * @brief Uninitialise frame capture device
- *
- * @param device  device handle to uninit
- * @param log  to log possible errors to
- *
- * @return \c true on success, \c false on failure to uninit device
- */
-bool
-fg_uninit_device(mg_device_t device,
-		 log_t log);
-
-/**
- * @brief Enqueue a capture buffer for filling by the driver
- *
- * @param fd  file descriptor
- * @param index   buffer index
- * @param log  to log possible errors to
- *
- * @return \c true on success, \c false on failure to enqueue buffer
- */
-bool
-fg_enqueue(int fd,
-	   int index,
-	   log_t log);
-
-/**
- * @brief Dequeue a buffer for user processing
- *
- * @param fd  file descriptor
- * @param buffer  video4linux2 buffer to dequeue
- * @param log  to log possible errors to
- *
- * @return \c true on success, \c false on failure to dequeue buffer
- */
-bool
-fg_dequeue(int fd,
-	   struct v4l2_buffer *buffer,
-	   log_t log);
 
 /**
  * @brief Start streaming capturing on device
@@ -112,6 +100,18 @@ fg_start_capture(mg_device_t device,
 bool
 fg_stop_capture(mg_device_t device,
 		log_t log);
+
+/**
+ * @brief Uninitialise frame capture device
+ *
+ * @param device  device handle to uninit
+ * @param log  to log possible errors to
+ *
+ * @return \c true on success, \c false on failure to uninit device
+ */
+bool
+fg_uninit_device(mg_device_t device,
+		 log_t log);
 
 __END_DECLS
 

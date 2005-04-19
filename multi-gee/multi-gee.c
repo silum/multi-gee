@@ -83,18 +83,16 @@ find_frame_device(sllist_t list,
 		  mg_device_t device);
 
 /**
- * @brief Find device in list with given major and minor number
+ * @brief Find device in list with given its device number
  *
  * @param list  device list object handle
- * @param major  device major number
- * @param minor  device minor number
+ * @param devno  device number
  *
  * @return device handle, or 0 if device not in list
  */
 static mg_device_t
-find_device_major_minor(sllist_t list,
-			int major,
-			int minor);
+find_device_number(sllist_t list,
+		   dev_t devno);
 
 /**
  * @brief Create a list of device frames
@@ -109,7 +107,8 @@ find_device_major_minor(sllist_t list,
  * @return a frame list only containing frames from devices in the
  * device list
  */
-static sllist_t
+static
+sllist_t
 add_frame(sllist_t frame,
 	  sllist_t device);
 
@@ -295,6 +294,30 @@ mg_capture_halt(multi_gee_t multi_gee)
 	}
 }
 
+int
+mg_deregister_device(multi_gee_t multi_gee,
+		     int id)
+{
+	int ret = -1;
+
+	VERIFY(multi_gee) {
+		mg_device_t device = find_device_fd(multi_gee->device, id);
+		if (device) {
+			multi_gee->refresh = true;
+			multi_gee->device = sll_remove_data(multi_gee->device, device);
+
+			/* ignore failures */
+			fg_stop_capture(device, multi_gee->log);
+			fg_uninit_device(device, multi_gee->log);
+
+			mg_device_destroy(device);
+			ret = id;
+		}
+	}
+
+	return ret;
+}
+
 multi_gee_t
 mg_register_callback(multi_gee_t multi_gee,
 		     void (*callback)(multi_gee_t, sllist_t))
@@ -321,16 +344,14 @@ mg_register_device(multi_gee_t multi_gee,
 		mg_device_t dev = mg_device_create(name, multi_gee->log);
 
 		/* can device be registered? */
-		if (mg_device_major(dev) == -1
-		    || mg_device_minor(dev) == -1) {
+		if (mg_device_number(dev) == makedev(-1,-1)) {
 			dev = mg_device_destroy(dev);
 			ret = -1;
 		} else {
 			/* is device already registered? */
 			mg_device_t dup =
-				find_device_major_minor(multi_gee->device,
-							mg_device_major(dev),
-							mg_device_minor(dev));
+				find_device_number(multi_gee->device,
+						   mg_device_number(dev));
 			if (dup) {
 				dev = mg_device_destroy(dev);
 				ret = mg_device_fd(dup);
@@ -364,75 +385,7 @@ mg_register_device(multi_gee_t multi_gee,
 	return ret;
 }
 
-int
-mg_deregister_device(multi_gee_t multi_gee,
-		     int id)
-{
-	int ret = -1;
-
-	VERIFY(multi_gee) {
-		mg_device_t device = find_device_fd(multi_gee->device, id);
-		if (device) {
-			multi_gee->refresh = true;
-			multi_gee->device = sll_remove_data(multi_gee->device, device);
-
-			/* ignore failures */
-			fg_stop_capture(device, multi_gee->log);
-			fg_uninit_device(device, multi_gee->log);
-
-			mg_device_destroy(device);
-			ret = id;
-		}
-	}
-
-	return ret;
-}
-
-static
-mg_device_t
-find_device_fd(sllist_t list,
-	       int fd)
-{
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t device = sll_data(d);
-		if (mg_device_fd(device) == fd)
-			return device;
-	}
-
-	return 0;
-}
-
-static
-mg_frame_t
-find_frame_device(sllist_t list,
-		  mg_device_t device)
-{
-	for (sllist_t f = list; f; f = sll_next(f)) {
-		mg_frame_t frame = sll_data(f);
-		if (mg_frame_device(frame) == device)
-			return frame;
-	}
-
-	return 0;
-}
-
-static
-mg_device_t
-find_device_major_minor(sllist_t list,
-			int major,
-			int minor)
-{
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t found = sll_data(d);
-		if (mg_device_major(found) == major
-		    && mg_device_minor(found) == minor)
-			return found;
-	}
-
-	return 0;
-}
-
-static sllist_t
+sllist_t
 add_frame(sllist_t frame,
 	  sllist_t device)
 {
@@ -458,7 +411,46 @@ add_frame(sllist_t frame,
 	return list;
 }
 
-static bool
+mg_device_t
+find_device_fd(sllist_t list,
+	       int fd)
+{
+	for (sllist_t d = list; d; d = sll_next(d)) {
+		mg_device_t device = sll_data(d);
+		if (mg_device_fd(device) == fd)
+			return device;
+	}
+
+	return 0;
+}
+
+mg_device_t
+find_device_number(sllist_t list,
+			dev_t devno)
+{
+	for (sllist_t d = list; d; d = sll_next(d)) {
+		mg_device_t found = sll_data(d);
+		if (mg_device_number(found) == devno)
+			return found;
+	}
+
+	return 0;
+}
+
+mg_frame_t
+find_frame_device(sllist_t list,
+		  mg_device_t device)
+{
+	for (sllist_t f = list; f; f = sll_next(f)) {
+		mg_frame_t frame = sll_data(f);
+		if (mg_frame_device(frame) == device)
+			return frame;
+	}
+
+	return 0;
+}
+
+bool
 swap_frame(multi_gee_t multi_gee,
 	   mg_device_t dev)
 {
@@ -495,7 +487,52 @@ swap_frame(multi_gee_t multi_gee,
 	return false;
 }
 
-static enum sync_status
+enum sync_status
+sync_select(multi_gee_t multi_gee,
+	    fd_set *fds)
+{
+	if (multi_gee->refresh) {
+		multi_gee->frame =
+			add_frame(multi_gee->frame, multi_gee->device);
+		multi_gee->refresh = false;
+	}
+
+	enum sync_status sync = SYNC_FAIL;
+	while (SYNC_FATAL != sync) {
+		FD_ZERO(fds);
+
+		int max_fd = -1;
+		for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
+			int fd = mg_device_fd(sll_data(d));
+			max_fd = (fd > max_fd) ? fd : max_fd;
+			FD_SET(fd, fds);
+		}
+		max_fd += 1;
+
+		struct timeval timeout = TV_NO_SYNC;
+		int ret = select(max_fd, fds, NULL, NULL, &timeout);
+
+		if (-1 == ret) {
+			if (EINTR == errno)
+				continue;
+
+			lg_log(multi_gee->log, "select");
+			sync = SYNC_FATAL;
+		}
+
+		if (0 == ret) {
+			/* select timeout */
+			lg_log(multi_gee->log, "wait too long for frame");
+			sync = SYNC_FATAL;
+		}
+
+		break;
+	}
+
+	return sync;
+}
+
+enum sync_status
 sync_test(multi_gee_t multi_gee)
 {
 	enum sync_status sync = SYNC_FAIL;
@@ -549,51 +586,6 @@ sync_test(multi_gee_t multi_gee)
 			}
 		}
 	}
-	return sync;
-}
-
-static enum sync_status
-sync_select(multi_gee_t multi_gee,
-	    fd_set *fds)
-{
-	if (multi_gee->refresh) {
-		multi_gee->frame =
-			add_frame(multi_gee->frame, multi_gee->device);
-		multi_gee->refresh = false;
-	}
-
-	enum sync_status sync = SYNC_FAIL;
-	while (SYNC_FATAL != sync) {
-		FD_ZERO(fds);
-
-		int max_fd = -1;
-		for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
-			int fd = mg_device_fd(sll_data(d));
-			max_fd = (fd > max_fd) ? fd : max_fd;
-			FD_SET(fd, fds);
-		}
-		max_fd += 1;
-
-		struct timeval timeout = TV_NO_SYNC;
-		int ret = select(max_fd, fds, NULL, NULL, &timeout);
-
-		if (-1 == ret) {
-			if (EINTR == errno)
-				continue;
-
-			lg_log(multi_gee->log, "select");
-			sync = SYNC_FATAL;
-		}
-
-		if (0 == ret) {
-			/* select timeout */
-			lg_log(multi_gee->log, "wait too long for frame");
-			sync = SYNC_FATAL;
-		}
-
-		break;
-	}
-
 	return sync;
 }
 

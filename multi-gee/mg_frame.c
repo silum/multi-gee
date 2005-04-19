@@ -30,8 +30,7 @@
 #include "mg_device.h"
 #include "multi-gee.h"
 
-
-USE_XASSERT;
+USE_XASSERT
 
 /**
  * @brief Frame object structure
@@ -79,17 +78,6 @@ mg_frame_destroy(mg_frame_t mg_frame)
 	return 0;
 }
 
-int
-mg_frame_index(mg_frame_t mg_frame)
-{
-	int index = -1;
-	VERIFY(mg_frame) {
-		index = mg_frame->index;
-	}
-
-	return index;
-}
-
 mg_device_t
 mg_frame_device(mg_frame_t mg_frame)
 {
@@ -115,16 +103,15 @@ mg_frame_image(mg_frame_t mg_frame)
 	return image;
 }
 
-struct timeval
-mg_frame_timestamp(mg_frame_t mg_frame)
+int
+mg_frame_index(mg_frame_t mg_frame)
 {
-	struct timeval timestamp = {0, 0};
-
+	int index = -1;
 	VERIFY(mg_frame) {
-		timestamp = mg_frame->timestamp;
+		index = mg_frame->index;
 	}
 
-	return timestamp;
+	return index;
 }
 
 uint32_t
@@ -139,17 +126,6 @@ mg_frame_sequence(mg_frame_t mg_frame)
 	return sequence;
 }
 
-bool
-mg_frame_used(mg_frame_t mg_frame)
-{
-	bool used = false;
-	VERIFY(mg_frame) {
-		used = mg_frame->used;
-	}
-
-	return used;
-}
-
 mg_frame_t
 mg_frame_set_used(mg_frame_t mg_frame)
 {
@@ -160,6 +136,29 @@ mg_frame_set_used(mg_frame_t mg_frame)
 	}
 
 	return frame;
+}
+
+struct timeval
+mg_frame_timestamp(mg_frame_t mg_frame)
+{
+	struct timeval timestamp = {0, 0};
+
+	VERIFY(mg_frame) {
+		timestamp = mg_frame->timestamp;
+	}
+
+	return timestamp;
+}
+
+bool
+mg_frame_used(mg_frame_t mg_frame)
+{
+	bool used = false;
+	VERIFY(mg_frame) {
+		used = mg_frame->used;
+	}
+
+	return used;
 }
 
 #ifdef DEBUG_FRAME

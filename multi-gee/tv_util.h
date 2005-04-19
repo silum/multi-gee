@@ -29,6 +29,18 @@
 __BEGIN_DECLS
 
 /**
+ * @brief Finds the absolute difference between two timeval structures
+ *
+ * @param tv_0  a timeval
+ * @param tv_1  another timeval
+ *
+ * @returns the absolute difference as a timeval
+ */
+struct timeval
+tv_abs_diff(struct timeval tv_0,
+	    struct timeval tv_1);
+
+/**
  * @brief Test equality between to timeval structures
  *
  * @param tv_0  a timeval
@@ -51,18 +63,6 @@ tv_eq(struct timeval tv_0,
 bool
 tv_lt(struct timeval tv_0,
       struct timeval tv_1);
-
-/**
- * @brief Finds the absolute difference between two timeval structures
- *
- * @param tv_0  a timeval
- * @param tv_1  another timeval
- *
- * @returns the absolute difference as a timeval
- */
-struct timeval
-tv_abs_diff(struct timeval tv_0,
-	    struct timeval tv_1);
 
 __END_DECLS
 

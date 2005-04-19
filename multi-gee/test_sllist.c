@@ -27,7 +27,7 @@
 
 #include "sllist.h"
 
-USE_XASSERT;
+USE_XASSERT
 
 void
 sllist()
@@ -80,7 +80,6 @@ sllist()
 		}
 	}
 }
-
 
 int
 main()

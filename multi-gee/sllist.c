@@ -25,7 +25,7 @@
 
 #include "sllist.h"
 
-USE_XASSERT;
+USE_XASSERT
 
 /** @brief Set flag to true if sll can be verified */
 #define VERIFY_SLL_FLAG(sll, flag) \
@@ -117,7 +117,76 @@ sll_destroy(sllist_t sllist)
 	return 0;
 }
 
-static sllist_t
+void *
+sll_data(sllist_t sllist)
+{
+	VERIFY(sllist) {
+		return sllist->data;
+	}
+
+	return 0;
+}
+
+sllist_t
+sll_empty(sllist_t sllist)
+{
+	VERIFYZ(sllist) {
+		while (sllist) {
+			sllist_t item = sllist;
+			sllist = sll_remove(sllist, item);
+			sll_destroy(item);
+		}
+	}
+
+	return 0;
+}
+
+sllist_t
+sll_insert_data(sllist_t sllist,
+		void *data)
+{
+	sllist_t list = 0;
+
+	VERIFYZ(sllist) {
+		list = sllist;
+	}
+
+	sllist_t sll = sll_create(data);
+	list = sll_insert(sll, list);
+
+	return list;
+}
+
+sllist_t
+sll_next(sllist_t sllist)
+{
+	VERIFY(sllist) {
+		return sllist->next;
+	}
+
+	return 0;
+}
+
+sllist_t
+sll_remove_data(sllist_t sllist,
+		void *data)
+{
+	sllist_t list = 0;
+	VERIFY(sllist) {
+		for (sllist_t p = sllist; p; p = p->next) {
+			if (p->data == data) {
+				sllist = sll_remove(sllist, p);
+				sll_destroy(p);
+				break;
+			}
+		}
+		list = sllist;
+	}
+
+	return list;
+}
+
+sllist_t
 sll_insert(sllist_t list_0,
 	   sllist_t list_1)
 {
@@ -148,7 +217,7 @@ sll_insert(sllist_t list_0,
 	return sllist;
 }
 
-static sllist_t
+sllist_t
 sll_remove(sllist_t list,
 	   sllist_t item)
 {
@@ -176,75 +245,6 @@ sll_remove(sllist_t list,
 	}
 
 	return sllist;
-}
-
-sllist_t
-sll_insert_data(sllist_t sllist,
-		void *data)
-{
-	sllist_t list = 0;
-
-	VERIFYZ(sllist) {
-		list = sllist;
-	}
-
-	sllist_t sll = sll_create(data);
-	list = sll_insert(sll, list);
-
-	return list;
-}
-
-sllist_t
-sll_remove_data(sllist_t sllist,
-		void *data)
-{
-	sllist_t list = 0;
-	VERIFY(sllist) {
-		for (sllist_t p = sllist; p; p = p->next) {
-			if (p->data == data) {
-				sllist = sll_remove(sllist, p);
-				sll_destroy(p);
-				break;
-			}
-		}
-		list = sllist;
-	}
-
-	return list;
-}
-
-void *
-sll_data(sllist_t sllist)
-{
-	VERIFY(sllist) {
-		return sllist->data;
-	}
-
-	return 0;
-}
-
-sllist_t
-sll_next(sllist_t sllist)
-{
-	VERIFY(sllist) {
-		return sllist->next;
-	}
-
-	return 0;
-}
-
-sllist_t
-sll_empty(sllist_t sllist)
-{
-	VERIFYZ(sllist) {
-		while (sllist) {
-			sllist_t item = sllist;
-			sllist = sll_remove(sllist, item);
-			sll_destroy(item);
-		}
-	}
-
-	return 0;
 }
 
 #ifdef DEBUG_SLLIST

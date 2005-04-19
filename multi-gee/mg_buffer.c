@@ -24,7 +24,7 @@
 
 #include "mg_buffer.h"
 
-USE_XASSERT;
+USE_XASSERT
 
 /**
  * @brief Buffer object structure
@@ -62,18 +62,6 @@ mg_buffer_destroy(mg_buffer_t mg_buffer)
 	return 0;
 }
 
-unsigned int
-mg_buffer_number(mg_buffer_t mg_buffer)
-{
-	int number = 0;
-
-	VERIFY(mg_buffer) {
-		number = mg_buffer->number;
-	}
-
-	return number;
-}
-
 mg_buffer_t
 mg_buffer_alloc(mg_buffer_t mg_buffer,
 		unsigned int n)
@@ -90,6 +78,32 @@ mg_buffer_alloc(mg_buffer_t mg_buffer,
 	}
 
 	return p;
+}
+
+size_t
+mg_buffer_length(mg_buffer_t mg_buffer,
+		 unsigned int n)
+{
+	size_t s = 0;
+
+	VERIFY(mg_buffer) {
+		if (mg_buffer->number > n)
+			s = mg_buffer->length[n];
+	}
+
+	return s;
+}
+
+unsigned int
+mg_buffer_number(mg_buffer_t mg_buffer)
+{
+	int number = 0;
+
+	VERIFY(mg_buffer) {
+		number = mg_buffer->number;
+	}
+
+	return number;
 }
 
 mg_buffer_t
@@ -125,21 +139,6 @@ mg_buffer_start(mg_buffer_t mg_buffer,
 	}
 
 	return p;
-}
-
-
-size_t
-mg_buffer_length(mg_buffer_t mg_buffer,
-		 unsigned int n)
-{
-	size_t s = 0;
-
-	VERIFY(mg_buffer) {
-		if (mg_buffer->number > n)
-			s = mg_buffer->length[n];
-	}
-
-	return s;
 }
 
 #ifdef DEBUG_BUFFER

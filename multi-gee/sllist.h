@@ -35,30 +35,6 @@ NEWHANDLE(sllist_t);
 /* list operations */
 
 /**
- * @brief Insert data into list, after current position
- *
- * @param list  object handle
- * @param data  pointer to data
- *
- * @return handle to modified list
- */
-sllist_t
-sll_insert_data(sllist_t list,
-		void *data);
-
-/**
- * @brief Remove the first occurrence of data in list
- *
- * @param list  object handle
- * @param data  pointer to data
- *
- * @return handle to modified list
- */
-sllist_t
-sll_remove_data(sllist_t list,
-		void *data);
-
-/**
  * @brief Retrieve data from list item
  *
  * @param item  object handle
@@ -67,16 +43,6 @@ sll_remove_data(sllist_t list,
  */
 void *
 sll_data(sllist_t item);
-
-/**
- * @brief Find next list item
- *
- * @param item  object handle
- *
- * @return pointer to next item
- */
-sllist_t
-sll_next(sllist_t item);
 
 /**
  * @brief Empty out list, destroying all items
@@ -89,6 +55,40 @@ sll_next(sllist_t item);
  */
 sllist_t
 sll_empty(sllist_t list);
+
+/**
+ * @brief Insert data into list, after current position
+ *
+ * @param list  object handle
+ * @param data  pointer to data
+ *
+ * @return handle to modified list
+ */
+sllist_t
+sll_insert_data(sllist_t list,
+		void *data);
+
+/**
+ * @brief Find next list item
+ *
+ * @param item  object handle
+ *
+ * @return pointer to next item
+ */
+sllist_t
+sll_next(sllist_t item);
+
+/**
+ * @brief Remove the first occurrence of data in list
+ *
+ * @param list  object handle
+ * @param data  pointer to data
+ *
+ * @return handle to modified list
+ */
+sllist_t
+sll_remove_data(sllist_t list,
+		void *data);
 
 __END_DECLS
 

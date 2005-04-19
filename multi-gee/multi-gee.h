@@ -139,6 +139,20 @@ void
 mg_capture_halt(multi_gee_t multi_gee);
 
 /**
+ * @brief Deregister capture device
+ *
+ * @param multi_gee  object handle
+ * @param device_id  device identifier
+ *
+ * @return status value:
+ *   -1 - failed to register device,
+ *   value >= 0 - device identifier of deregistered device
+ */
+int
+mg_deregister_device(multi_gee_t multi_gee,
+		     int device_id);
+
+/**
  * @brief Register callback function
  *
  * @param multi_gee  object handle
@@ -163,20 +177,6 @@ mg_register_callback(multi_gee_t multi_gee,
 int
 mg_register_device(multi_gee_t multi_gee,
 		   char *device_name);
-
-/**
- * @brief Deregister capture device
- *
- * @param multi_gee  object handle
- * @param device_id  device identifier
- *
- * @return status value:
- *   -1 - failed to register device,
- *   value >= 0 - device identifier of deregistered device
- */
-int
-mg_deregister_device(multi_gee_t multi_gee,
-		     int device_id);
 
 __END_DECLS;
 

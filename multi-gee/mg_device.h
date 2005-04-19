@@ -60,6 +60,26 @@ mg_device_t
 mg_device_destroy(mg_device_t device);
 
 /**
+ * @brief Device buffer container accessor
+ *
+ * @param device  object handle
+ *
+ * @return buffer object handle
+ */
+mg_buffer_t
+mg_device_buffer(mg_device_t device);
+
+/**
+ * @brief Device file descriptor accessor
+ *
+ * @param device  object handle
+ *
+ * @return device file descriptor or -1 if device not open
+ */
+int
+mg_device_fd(mg_device_t device);
+
+/**
  * @brief Device name accessor
  *
  * @param device  object handle
@@ -68,6 +88,17 @@ mg_device_destroy(mg_device_t device);
  */
 char *
 mg_device_name(mg_device_t device);
+
+/**
+ * @brief Device number accessor
+ *
+ * @param device  object handle
+ *
+ * @return device number or the result of \c makedev(-1,-1) if not a
+ * device
+ */
+dev_t
+mg_device_number(mg_device_t device);
 
 /**
  * @brief Open device
@@ -84,46 +115,6 @@ mg_device_name(mg_device_t device);
  */
 int
 mg_device_open(mg_device_t device);
-
-/**
- * @brief Device file descriptor accessor
- *
- * @param device  object handle
- *
- * @return device file descriptor or -1 if device not open
- */
-int
-mg_device_fd(mg_device_t device);
-
-/**
- * @brief Device major number accessor
- *
- * @param device  object handle
- *
- * @return device major number or -1 if not a device
- */
-int
-mg_device_major(mg_device_t device);
-
-/**
- * @brief Device minor number accessor
- *
- * @param device  object handle
- *
- * @return device minor number or -1 if not a device
- */
-int
-mg_device_minor(mg_device_t device);
-
-/**
- * @brief Device buffer container accessor
- *
- * @param device  object handle
- *
- * @return buffer object handle
- */
-mg_buffer_t
-mg_device_buffer(mg_device_t device);
 
 __END_DECLS
 
