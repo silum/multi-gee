@@ -35,8 +35,8 @@ NEWHANDLE(log_t);
 /**
  * @brief Create log object
  *
- * @param string  programme/system name, to appear in logfile
- * @param file    logfile name,
+ * @param string  programme/system name, to appear in log file
+ * @param file    log file name,
  *                - can be 0 for no log file,
  *                - "stdout" for standard output stream
  *                - "stderr" for standard error stream
@@ -62,7 +62,7 @@ lg_destroy(log_t log);
  * @brief Write a log entry
  *
  * @param log  the log object
- * @param format  a printf like format log message
+ * @param format  a \c printf like format log message
  * @param ...  arguments for the format string
  */
 void
@@ -71,10 +71,10 @@ lg_log(log_t log,
        ...);
 
 /**
- * @brief Write a log entry for the current errno
+ * @brief Write a log entry for the current \c errno
  *
  * @param log  the log object
- * @param format  a printf like format description of error
+ * @param format  a \c printf like format description of error
  * @param ...  arguments for the format string
  */
 void

@@ -50,7 +50,7 @@ NEWHANDLE(mg_frame_t);
  * @param device  capture device
  * @param buffer  video4linux2 capture buffer
  *
- * @return a newly created frane object handle
+ * @return a newly created frame object handle
  */
 mg_frame_t
 mg_frame_create(mg_device_t device,
@@ -129,9 +129,9 @@ mg_frame_sequence(mg_frame_t frame);
 /**
  * @brief Old frame indicator
  *
- * indicator to show whether the frame is considdered to be
+ * indicator to show whether the frame is considered to be
  * old/used.  if frame was constructed without a valid v4l2 buffer it is
- * considdered to be already used.
+ * considered to be already used.
  *
  * @param frame  object handle
  *

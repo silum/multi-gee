@@ -38,7 +38,7 @@ __BEGIN_DECLS;
  * \section phil_sec Philosophy
  *
  * This library makes use of a C style object implementation where the
- * members of the object is unknown, and not directly accessable, to the
+ * members of the object is unknown, and not directly accessible, to the
  * user of the library.  The magic is built on object handles, or
  * structure pointers if you will.  All the methods for an object rely
  * on receiving a handle to perform it's work on.  The philosophy of
@@ -51,22 +51,22 @@ __BEGIN_DECLS;
  *
  * Full frame rate video capture and processing needs a low latency
  * video capture solution.  Couple this with high reliability
- * contraints, where you cannot wait extended periods of time between
+ * constraints, where you cannot wait extended periods of time between
  * acquired images, and you have a rather stiff timing constraint on you
  * image capture software.
  *
  * The multi-gee image capture library was written with tight time
  * constraints in mind, as well as failing gracefully in the event that
- * images cannot be aquired within a reasonable time period.  All images
+ * images cannot be acquired within a reasonable time period.  All images
  * that are passed to the user are guaranteed to be in sync.  \em In \em
  * sync sync is defined as all the maximum difference of time stamps of
  * all frames being less than half of the frame rate, give or take 5 per
  * cent.  At PAL frame rate the frame rate is 25 frames a second, thus
- * consecutive frames are 40 milliseconds (ms) appart.  A set of frames
+ * consecutive frames are 40 milliseconds (ms) apart.  A set of frames
  * are therefore in sync if the time stamp spread is less than 22 ms.
  *
  * If captured frames are not in sync for more than 3 frames, plus 5 per
- * cent (126 ms) then the capture function fails with an appropridate
+ * cent (126 ms) then the capture function fails with an appropriate
  * return value.
  *
  * \section usage_sec Usage
@@ -85,13 +85,13 @@ NEWHANDLE(multi_gee_t);
 /**
  * @brief Create multi-gee object
  *
- * @param file_name  logfile name,
+ * @param file_name  log file name,
  *   - can be 0 for no log file,
  *   - "stdout" for standard output stream
  *   - "stderr" for standard error stream
  *   - a file name: logs will be appended to this file
  *
- * @return a newly created multi-gee object handle
+ * @return a newly created Multi-gee object handle
  */
 multi_gee_t
 mg_create(char *file_name);

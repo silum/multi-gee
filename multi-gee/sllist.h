@@ -47,7 +47,7 @@ sll_insert_data(sllist_t list,
 		void *data);
 
 /**
- * @brief Remove the first occurence of data in list
+ * @brief Remove the first occurrence of data in list
  *
  * @param list  object handle
  * @param data  pointer to data

@@ -60,7 +60,7 @@ xioctl(int fd,
        void *arg);
 
 /**
- * @brief Intialise memory mapping
+ * @brief Initialise memory mapping
  *
  * @param fd  file descriptor
  * @param name  device name

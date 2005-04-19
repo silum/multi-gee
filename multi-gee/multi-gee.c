@@ -42,7 +42,7 @@ USE_XASSERT
 /**
  * @brief Frames in sync criterion
  */
-static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of framerate */
+static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of frame rate */
 /**
  * @brief Failure to achieve sync criterion
  */
@@ -122,7 +122,7 @@ add_frame(sllist_t frame,
  * @param device  object handle
  *
  * @return \c true of the frame was successfully swapped, \c false if an
- * error occured
+ * error occurred
  */
 static bool
 swap_frame(multi_gee_t multi_gee,
@@ -152,7 +152,7 @@ sync_test(multi_gee_t multi_gee);
  * condition status is returned.
  *
  * @param multi_gee  device object
- * @param fds  fd_set to test for abvailability of a captured frame
+ * @param fds  fd_set to test for availability of a captured frame
  *
  * @return sync status
  */
@@ -257,7 +257,7 @@ mg_capture(multi_gee_t multi_gee,
 			else if (sync == SYNC_FATAL)
 				ret = RET_SYNC;
 			else {
-				/* ok, so we're not done yet */
+				/* OK, so we're not done yet */
 				done = false;
 
 				fd_set fds;
@@ -351,7 +351,7 @@ mg_register_device(multi_gee_t multi_gee,
 			}
 
 			if (-1 != ret) {
-				/* everything ok, add it to device list */
+				/* everything OK, add it to device list */
 				multi_gee->refresh = true;
 				multi_gee->device = sll_insert_data(multi_gee->device, dev);
 			} else {
@@ -502,8 +502,6 @@ sync_test(multi_gee_t multi_gee)
 
 	VERIFY(multi_gee) {
 
-		//	static struct timeval last_sync = {0, 0};
-
 		if (multi_gee->last_sync.tv_sec == 0
 		    && multi_gee->last_sync.tv_usec == 0)
 			gettimeofday(&multi_gee->last_sync, 0);
@@ -638,8 +636,6 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 	printf("\n");
 
-	//	usleep(38975); // 3 devices
-	// mg_capture_halt(mg);
 	return;
 
 	static int dev_id = -1;
@@ -666,7 +662,6 @@ multi_gee()
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 
-	// int ret = mg_capture(mg, -1);
 	int ret = mg_capture(mg, 1);
 	printf("capture ret = %d\n", ret);
 
