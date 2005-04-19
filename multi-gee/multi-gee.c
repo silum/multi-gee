@@ -344,7 +344,7 @@ mg_register_device(multi_gee_t multi_gee,
 		mg_device_t dev = mg_device_create(name, multi_gee->log);
 
 		/* can device be registered? */
-		if (mg_device_number(dev) == makedev(-1,-1)) {
+		if (mg_device_number(dev) == makedev(-1, -1)) {
 			dev = mg_device_destroy(dev);
 			ret = -1;
 		} else {
@@ -426,7 +426,7 @@ find_device_fd(sllist_t list,
 
 mg_device_t
 find_device_number(sllist_t list,
-			dev_t devno)
+		   dev_t devno)
 {
 	for (sllist_t d = list; d; d = sll_next(d)) {
 		mg_device_t found = sll_data(d);
