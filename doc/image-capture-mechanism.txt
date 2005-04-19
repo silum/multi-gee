@@ -1,7 +1,7 @@
 $Id$
 
-multi-gee Mechanism
--------------------
+multi-gee Mechanism Description
+-------------------------------
 
 Version: 0.1
 Author: Deneys S. Maartens
@@ -10,117 +10,117 @@ Author: Deneys S. Maartens
 Introduction
 ============
 
-In the course of this document, the inner workings of the multi-gee
-image capture library is dicussed, with particular focus on the
-mechanism of the library as opposed to function calls provided by the
-library.
+In the course of this document, the inner workings of the multi-gee image
+capture library is discussed, with particular focus on the mechanism of the
+library as opposed to function calls provided by the library.
 
-In this document the time unit of a 'frame' is used.  This is defined to
-be 1/25 s, or 40 ms, for the PAL and CCIR video standards. It is
-equivalent to the time it takes the video source, the camera, to
-transmit one image frame to the capture device.
+In this document the time unit of a 'frame' is used.  This is defined to be
+1/25 s, or 40 ms, for the PAL and CCIR video standards. It is equivalent to
+the time it takes the video source, the camera, to transmit one image frame to
+the capture device.
 
 
 Frame object
-------------
+============
 
-A mg_frame object maintains the information about a single image.  A
-pointer to the image data, the image time stamp, the sequence number and
-the capturing device is among the information retained.  A flag that
-indicates that the user has had access to the image is also kept.  If
-this "used" flag is not set, the image is 'fresh' and may be passed to
-the user, via the callback function, some time in the future.
+A mg_frame object maintains the information about a single image.  A pointer
+to the image data, the image time stamp, the sequence number and the capturing
+device are among the information retained.  A flag that indicates that the
+user has had access to the image is also kept.  If this "used" flag is not
+set, the image is 'fresh' and may be passed to the user, via the callback
+function, some time in the future.
 
 
 Device object
--------------
+=============
 
-Under UNIX, in general, the basic rule is "everything is a file".  Thus
-any access to any hardware device is normally through a file type
-interface.  Following this convetion, each video capture device has a
-file name associated with it.  This file name normally has a structure
-of:
+Under UNIX, in general, the basic rule is "everything is a file".  Thus any
+access to any hardware device is normally through a file type interface.
+Following this convention, each video capture device has a file name
+associated with it.  This file name normally has a structure of:
 
     /dev/video<N>
 
 where <N> is in the range from 0 up to one less than the number of video
-devices.  This file name is used to register the device.  When a device
-is registered an mg_device object is created which maintains some
-information on the device, such as a file name, a file descriptor, which
-is used during the file read and write operations, and the device
-number.  The device number is used internally inside the kernel to
-differntiate between different devices.  Also included is the buffer
-object handle and the number of buffers allocated to the device.
+devices.  This file name is used to register the device.  When a device is
+registered an mg_device object is created which maintains relevant information
+on the device, such as a file name, a file descriptor, which is used during
+the file read and write operations, and the device number.  The device number
+is used internally inside the kernel to differentiate between different
+devices.  Also included is the buffer object handle and the number of buffers
+allocated to the device.
 
 
 Buffer object
--------------
+=============
 
 The video4linux2 (v4l2) video capture device interface allows for the
-allocation of multiple buffers.  Image are captured to these buffers.
-When an image has been successfully captured to a buffer by the BTTV
-kernel module, the buffer is passed to user space, where the user can
-perform some processing on the image contianed in the buffer.  The
-kernel module does not have access to the buffer during this time, and
-can not currupt the data while the buffer is under user control.
+allocation of multiple buffers.  Images are captured to these buffers.  When
+an image has been successfully captured to a buffer by the BTTV kernel module,
+the buffer is passed to user space, where the user can perform some processing
+on the image contained in the buffer.  The kernel module does not have access
+to the buffer during this time, and can not corrupt the data while the buffer
+is under user control.
 
-A user defineable number of buffers may be allocated via the v4l2
-interface, for the kernel module to capture images to.  Information
-about the position of the buffers in memory, the size and the number of
-buffers is maintained by the mg_buffer object.
+A user definable number of buffers may be allocated via the v4l2 interface,
+for the kernel module to capture images to.  Information about the position of
+the buffers in memory, the size and the number of buffers is maintained by the
+mg_buffer object.
 
-In this implementation, three buffers are used.  This allows the user
-access to one buffer, while images are alternately being captured to the
-remaining two buffers.
+In this implementation, three buffers are used.  This allows the user access
+to one buffer, while images are alternately being captured to the remaining
+two buffers.
 
 
 Device registration/deregistration
-----------------------------------
+==================================
 
-A list of mg_frame objects are maintained, one for each of the
-registered mg_device objects.  When a device is registered, a dummy
-frame object is created and added to the frame list.  When the dummy
-frame object is created its "used" flag is set, so it would not be
-passed to the user.  If a frame becomes available from the particular
-device, the dummy frame is discared, and a new frame constructed and
-inserted into the list.
+A list of mg_frame objects are maintained, one for each of the registered
+mg_device objects.  When a device is registered, a dummy frame object is
+created and added to the frame list.  When the dummy frame object is created
+its "used" flag is set, so it would not be passed to the user.  If a frame
+becomes available from the particular device, the dummy frame is discarded,
+and a new frame constructed and inserted into the list.
 
-When a device is deregistered, its associated frame object is pruned
-from the list and discarded.
+When a device is deregistered, its associated frame object is pruned from the
+list and discarded.
 
-During the call to register the device, the device object is created.
-This process verifies that it is a character device, and that it can be
-opened.
+During the call to register the device, the device object is created.  This
+process verifies that it is a character device, and that it can be opened.
 
-A search is performed on the device list to make sure the device is not
-yet registered.  If it is not already registered, the device is opened,
-the frame grabber is initialised and it is requested to start capturing
-images.  If this step is successful, the device object is added to the
-device list.  It the device is already registred, the original device
-object is left untouched and the duplicate device object is discarded.
+A search is performed on the device list to verify that the device is not yet
+registered.  If it is not registered, the device is opened, the frame grabber
+is initialised and it is requested to start capturing images.  If this step is
+successful, the device object is added to the device list.  It the device is
+already registered, the original device object is left untouched and the
+duplicate device object is discarded.
 
 
 The capture loop
-----------------
+================
 
 To known when a frame is available from a capture device, the select()
 function is used.  A timeout of approximately 3 frames is used for the
 select() call.  If the select call times out, a fatal sync failure has
-occured.
+occurred.
 
 A further test is performed every time a frame becomes available.  It is
-considdered a fatal sync failure if time elapsed since the last call to
-the callback function, or since the start of the capture run if no call
-to the callback function has been done, exceeds 3 frames.
+considered a fatal sync failure if time elapsed since the last call to the
+callback function, or since the start of the capture run if no call to the
+callback function has been done, exceeds 3 frames.
 
-Whenever a frame is available from any of the image capture devices, the
-frame list is updated with the new frame.  If all frames in the list do
-not have their "used" flag set, and the maximum time difference between
-the frames do not exceed approximately 1/2 frame, the frames are
-considdered to be in sync.  When the frames are in sync, all of their
-"used" flags are set and the callback function is called with the list.
+Whenever a frame is available from any of the image capture devices, the frame
+list is updated with the new frame.  If all frames in the list do not have
+their "used" flag set, and the maximum time difference between the frames do
+not exceed approximately 1/2 frame, the frames are considered to be in sync.
+When the frames are in sync, all of their "used" flags are set and the
+callback function is called with the list.
 
+
+Change Log
+==========
 
 * Mon Apr 18 2005  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Initial version
 
+ vim:textwidth=78:

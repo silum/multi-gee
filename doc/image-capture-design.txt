@@ -1,6 +1,6 @@
 $Id$
 
-Multi-Gee Image Capture Library Design
+multi-gee Image Capture Library Design
 --------------------------------------
 
 Version: 0.1
@@ -10,44 +10,46 @@ Author: Deneys S. Maartens
 Introduction
 ============
 
-This discussion is a map of the thought process of the author in prepararation
-of the internal design of the library.  Where new 'object' types are
-introduced they are marked by a [*] symbol.  The discussion is interspersed
-with lists to sum up what was discussed in the preceeding text.
+This is a map of the thought process of the author in preparation of the
+internal design of the multi-gee image capture library.
+
+Where new object types or functions are introduced they are marked by a [*]
+symbol, and the discussion is interspersed with lists to sum up what was
+discussed in the preceding text.
 
 
-Multi-Gee object
+multi-gee object
 ================
 
-It is good practice to add a prefix to function names, as not to cause name
+It is good practise to add a prefix to function names, to avoid causing name
 clashes in the global namespace.  A prefix is normally 2 or 3 characters that
 are derived from the library or package name.  In this instance the prefix
-'mg' followed by a underscore '_' is deemed to be apt.
+'mg' followed by an underscore ('_') is deemed to be apt.
 
 The central purpose of the library is to capture video images [*], therefore
 the central function is the mg_capture() function.  This requires a capture
-device [*], or devices and a method to pass the captured images to the user's
+device [*] (or devices) and a method to pass the captured images to the user's
 control.  A method to pass the control back to the user temporarily is a
-callback [*] function.  This function is called by the library when a
-synchronised sequence of frames are available.  When this function returns,
-the next set of images can be captured.  A way to abort the capturing process
-in mid stride is needed [*], as well as a method to prevent the user from
-starting a second capture operation while one is already active [*].
+callback [*] function.  This function is called by the library when an
+appropriate set of frames are available.  When this function returns, the next
+set of images can be captured.  A way to abort the capturing process [*] in
+mid stride is needed, as well as a method to prevent the user from starting a
+second capture operation [*] while one is already active.
 
-From this we can see the need for:
+From the concepts introduced above we can see the need for:
 
 - storage for a number of images
 - a number of devices
 - a callback function
 - a method to abort the capture process
-- a indicator that the capture process is active
+- an indicator that the capture process is active
 
-A number of devices and a number of frames must be kept track of.  A simple
-way to do this is to pack them into a list [*].  The images are transient and
-are only needed for the call to the callback function, so it is not required
-to have persistent storage for them.  Each device has multiple capture
-buffers, where the device driver streams the video images to.  Some way to
-keep track of buffer information is required [*].
+Various devices and frames must be kept track of.  A simple way to do this is
+to pack them into a list [*].  The images are transient and are only needed
+for the call to the callback function, so it is not required to have
+persistent storage for them.  Each device has multiple capture buffers, where
+the device driver streams the video images to.  Some way to keep track of
+buffer information [*] is required.
 
 We need a primary object (multi_gee), which needs the following members:
 
@@ -65,13 +67,13 @@ required:
 - set the capture halt indicator (mg_capture_halt)
 - register a callback function (mg_register_callback)
 
-The object methodology also dictates the following methods:
+The object methodology dictates the following methods:
 
 - create a multi_gee object (mg_create)
 - destroy a multi_gee object (mg_destroy)
 
-We have also identified the following ancillary objects, during the
-discussion above:
+We have also identified the following ancillary objects, during the discussion
+above:
 
 - a device (mg_device)
 - a device buffer (mg_buffer)
@@ -82,18 +84,18 @@ discussion above:
 The device object
 =================
 
-A number of attributes of a file need to be stored:
+The number of attributes of a file that needs to be stored:
 
-- the filename
-- the file descriptor (after it has been opened)
-- the device major number
-- the device minor number
-- a device buffer list
+- file name
+- file descriptor (after it has been opened)
+- device major number
+- device minor number
+- device buffer list
 
-The file descriptor is a unique identifier for each file, therefore it
-can be used as the device identifier.
+The file descriptor is a unique identifier for each file, and is therefore
+used as the device identifier.
 
-A number of methods are required to operate the device:
+The number of methods are required to operate the device:
 
 - create device object
 - destroy device object
@@ -102,18 +104,23 @@ A number of methods are required to operate the device:
 - open the device (sets the file descriptor)
 - get the file descriptor
 
-The create method takes the filename of the device as argument.
+Note, the create method takes the file name of the device as argument.
+
+It was found that the combination of the device major an minor number is
+handled as a single unit inside the Linux kernel.  The implementation
+therefore uses a device number, from which the major and minor numbers can be
+derived.
 
 
 The frame object
 ================
 
-The frame object serves as storage for a single image frame.  The
-attributes of the frame are:
+The frame object serves as storage for a single image frame.  The attributes
+of the frame are:
 
 - the capturing device identifier
 - the image
-- a timestamp when the image was captured
+- a time stamp when the image was captured
 - a sequence number
 
 Methods required for this object are the following:
@@ -121,15 +128,15 @@ Methods required for this object are the following:
 - create a frame object
 - destroy a frame object
 - get the image
-- get the timestamp
+- get the time stamp
 - get the sequence number
 
-The create method for this object takes the image, timestamp and the
-sequence number.
+The create method for this object takes the image, time stamp and the sequence
+number.
 
-A requirement that became apparent during the developement is an
-indicator of whether the user has already been given the image to
-process [*].  This late attribute of the frame is the:
+A requirement that became apparent during development is an indicator of
+whether the user has already been given the image to process [*].  This late
+attribute of the frame is the:
 
 - used flag
 
@@ -139,9 +146,9 @@ The buffer
 
 A fixed number of buffers per device is used.  This means that a linked list
 would be overkill for this implementation.  An array of buffers would be more
-appropriate.  This means that an indicator of the number of buffers are
-needed.  A design where the mg_buffer object is a container for a buffer list
-is used.  This the buffer object has the following attributes:
+appropriate.  Consequently an indicator of the number of buffers are needed.
+A design where the mg_buffer object is a container for a buffer list is used.
+Thus the buffer object has the following attributes:
 
 - an array of memory pointers (the buffers)
 - an array of buffer sizes
@@ -152,14 +159,14 @@ The list
 ========
 
 Multiple objects can be chained together using a list.  The minimum
-requirement is for the list to be singly linked, as ordering, object
-insertion and object removal is not of prime concern.  The list requires
-the following members:
+requirement is for the list to be singly linked. Since ordering, object
+insertion and object removal is not of prime concern, the list requires the
+following members:
 
 - a pointer to the next list item
 - a pointer to data
 
-The only publicly available methods need be to:
+The only publicly available methods required are:
 
 - insert a data item into a list
 - remove a data item from the list
@@ -167,9 +174,9 @@ The only publicly available methods need be to:
 - get access to an item's data
 - empty the list
 
-The methods to create and destroy does not need to be public, as the
-method to create, or destroy, a list object can be called by the methods
-that insert, or remove, a data item into a list, or from the list.
+The create and destroy methods do not need to be public, as the method to
+create, or destroy, a list object can be called by the methods that insert, or
+remove, a data item into a list, or from the list.
 
 
 The log
@@ -177,14 +184,14 @@ The log
 
 Something that is not apparent from the text above, but which became apparent
 during the implementation, is that there are various places where error
-conditions may occur.  It might be usefull to be able to store a log of the
-error conditions for later analysis [*].
+conditions may occur.  It might be useful to be able to store a log of the
+error conditions [*] for later analysis.
 
 The log is an interface to an output stream, stdout or stderr, or to a file.
-The selected output method must be kept track, of as well as any special log
+The selected output method must be kept track of, as well as any special log
 line headers.
 
-This the attributes for the log object are as follows:
+The attributes for the log object are as follows:
 
 - file descriptor
 - boilerplate text to print on each line
@@ -197,3 +204,4 @@ Change Log
 - Added Change Log
 - Add section describing the used flag
 
+ vim:textwidth=78:
