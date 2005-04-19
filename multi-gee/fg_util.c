@@ -29,7 +29,7 @@
 #include <xmalloc.h>
 
 #include <stdlib.h> /* struct timeval, needed for videodev2.h */
-#include <asm/types.h>		/* needed for videodev2.h */
+#include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h>
 
 #include "log.h"

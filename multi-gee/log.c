@@ -20,7 +20,7 @@
  * @brief Logging object definition
  */
 
-#include <stdarg.h>    /* vfprintf */
+#include <stdarg.h> /* vfprintf */
 #include <string.h>
 #include <sys/time.h>
 #include <stdio.h>
