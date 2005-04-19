@@ -35,13 +35,13 @@ USE_XASSERT
 /**
  * @brief Open log file
  *
- * open named log file.  if name is \c stdout, or \c stderr the output is
- * directed onto the named stream.  if the file name pointer is NULL log
- * output goes to /dev/null
+ * open named log file.  if name is \c stdout, or \c stderr the output
+ * is directed onto the named stream.  if the file name pointer is \e
+ * NULL log output goes to \c /dev/null
  *
  * @param log  object handle
  * @param file  log file name, can be 0, "stdout", "stderr" or a file
- * name.  output is appended to the log file.  if the log file cannot be
+ * name.  Output is appended to the log file.  If the log file cannot be
  * opened output defaults to \c stderr, and the user is informed.
  */
 static void
