@@ -429,9 +429,9 @@ find_device_number(sllist_t list,
 		   dev_t devno)
 {
 	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t found = sll_data(d);
-		if (mg_device_number(found) == devno)
-			return found;
+		mg_device_t device = sll_data(d);
+		if (mg_device_number(device) == devno)
+			return device;
 	}
 
 	return 0;
