@@ -46,7 +46,7 @@ static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of frame rate */
 /**
  * @brief Failure to achieve sync criterion
  */
-static struct timeval TV_NO_SYNC = {0, 126000}; /* 3 frames + 5% */
+static struct timeval TV_NO_SYNC = {0, 168000}; /* 4 frames + 5% */
 
 /**
  * @brief Synchronisation status
@@ -239,6 +239,9 @@ mg_capture(multi_gee_t multi_gee,
 		} else {
 			multi_gee->busy = true;
 		}
+
+		/* update sync time to now */
+		gettimeofday(&multi_gee->last_sync, 0);
 
 		while (!done) {
 			/* assume we are done */
@@ -539,10 +542,6 @@ sync_test(multi_gee_t multi_gee)
 
 	VERIFY(multi_gee) {
 
-		if (multi_gee->last_sync.tv_sec == 0
-		    && multi_gee->last_sync.tv_usec == 0)
-			gettimeofday(&multi_gee->last_sync, 0);
-
 		struct timeval now;
 		gettimeofday(&now, 0);
 
@@ -560,15 +559,23 @@ sync_test(multi_gee_t multi_gee)
 			struct timeval tv_min = tv_max;
 
 			bool ready = true;
-			ready &= !mg_frame_used(frame);
+			bool old = true; /* delayed startup flag */
 
-			for (sllist_t f = sll_next(multi_gee->frame); f; f = sll_next(f)) {
+			/* repeat first frame */
+			for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
 				frame = sll_data(f);
-				ready &= !mg_frame_used(frame);
 
 				struct timeval tv = mg_frame_timestamp(frame);
-				if (tv_lt(tv, tv_min)) tv_min = tv;
-				if (tv_lt(tv_max, tv)) tv_max = tv;
+
+				if (tv_lt(tv, multi_gee->last_sync)) {
+					old = true;
+					mg_frame_set_used(frame);
+				} else {
+					if (tv_lt(tv, tv_min)) tv_min = tv;
+					if (tv_lt(tv_max, tv)) tv_max = tv;
+				}
+
+				ready &= !mg_frame_used(frame);
 			}
 
 			tv_diff = tv_abs_diff(tv_min, tv_max);
@@ -577,7 +584,7 @@ sync_test(multi_gee_t multi_gee)
 					mg_frame_set_used(sll_data(f));
 				multi_gee->last_sync = now;
 				sync = SYNC_OK;
-			} else if (tv_lt(TV_NO_SYNC, tv_diff)) {
+			} else if (!old && tv_lt(TV_NO_SYNC, tv_diff)) {
 				lg_log(multi_gee->log,
 				       "fatal loss of sync: %ld.%06ld\n",
 				       tv_diff.tv_sec,
@@ -654,18 +661,25 @@ multi_gee()
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 
-	int ret = mg_capture(mg, 1);
-	printf("capture ret = %d\n", ret);
+	for (int i = 0; i < 5; i++) {
 
-	// handle return value
-	switch (ret) {
-		case RET_UNDEF    : printf("should not happen\n"); break;
-		case RET_CALLBACK : printf("no callback registered\n"); break;
-		case RET_SYNC     : printf("sync lost\n"); break;
-		case RET_BUSY     : printf("multiple call to capture\n"); break;
-		case RET_DEVICE   : printf("no devices registered\n"); break;
-		case RET_HALT     : printf("capture_halt called\n"); break;
-		default           : printf("captured %d frames\n", ret); break;
+		printf("sleep a while\n");
+		sleep(1);
+
+		int ret = mg_capture(mg, 5);
+		printf("capture ret = %d\n", ret);
+
+		// handle return value
+		switch (ret) {
+			case RET_UNDEF    : printf("should not happen\n"); break;
+			case RET_CALLBACK : printf("no callback registered\n"); break;
+			case RET_SYNC     : printf("sync lost\n"); break;
+			case RET_BUSY     : printf("multiple call to capture\n"); break;
+			case RET_DEVICE   : printf("no devices registered\n"); break;
+			case RET_HALT     : printf("capture_halt called\n"); break;
+			default           : printf("captured %d frames\n", ret); break;
+		}
+
 	}
 
 	mg_destroy(mg);
@@ -678,8 +692,6 @@ main()
 		int ret = debug_test(multi_gee);
 		if (ret != EXIT_SUCCESS)
 			return ret;
-		/* might be needed to give the hardware time to recover */
-		/* usleep(100000); */
 	}
 	return EXIT_SUCCESS;
 }
