@@ -97,6 +97,28 @@ multi_gee_t
 mg_create(char *file_name);
 
 /**
+ * @brief Create specialised multi-gee object
+ *
+ * @param file_name  log file name,
+ *   - can be 0 for no log file,
+ *   - "stdout" for standard output stream
+ *   - "stderr" for standard error stream
+ *   - a file name: logs will be appended to this file
+ * @param tv_in_sync  in sync criterion
+ * @param tv_no_sync  sync failure criterion
+ * @param tv_sub  offset from capture start to accept frames
+ * @param num_bufs  number of captyre buffers
+ *
+ * @return a newly created Multi-gee object handle
+ */
+multi_gee_t
+mg_create_special(char *file_name,
+		  struct timeval tv_in_sync,
+		  struct timeval tv_no_sync,
+		  struct timeval tv_sub,
+		  unsigned int num_bufs);
+
+/**
  * @brief Destroy multi-gee object
  *
  * @param multi_gee  handle of object to be destroyed

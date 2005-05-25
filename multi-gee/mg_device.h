@@ -41,12 +41,14 @@ NEWHANDLE(mg_device_t);
  * a device, the major and minor is both set to -1.
  *
  * @param file  device file name
+ * @param num_bufs  number of capture buffers
  * @param log  object handle, to log error messages to during creation
  *
  * @return a newly created device object handle
  */
 mg_device_t
 mg_device_create(char *file,
+		 unsigned int num_bufs,
 		 log_t log);
 
 /**
@@ -99,6 +101,16 @@ mg_device_name(mg_device_t device);
  */
 dev_t
 mg_device_number(mg_device_t device);
+
+/**
+ * @brief Query the number of capture buffers
+ *
+ * @param device  object handle
+ *
+ * @return number of capture buffers, or 0 on failure
+ */
+unsigned int
+mg_device_num_bufs(mg_device_t device);
 
 /**
  * @brief Open device

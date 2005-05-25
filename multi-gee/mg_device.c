@@ -42,11 +42,13 @@ CLASS(mg_device, mg_device_t)
 	char *name; /**< Device file name */
 	dev_t devno; /**< Device number */
 	mg_buffer_t buffer; /**< Frame buffer object handle */
-	unsigned int num_bufs; /**< Number of buffers */
+	unsigned int num_bufs; /**< Number of capture buffers */
 };
 
 mg_device_t
-mg_device_create(char *name, log_t log)
+mg_device_create(char *name,
+		unsigned int num_bufs,
+		log_t log)
 {
 	mg_device_t mg_device;
 	NEWOBJ(mg_device);
@@ -63,6 +65,8 @@ mg_device_create(char *name, log_t log)
 		lg_log(log, "%s is no device", name);
 	else
 		mg_device->devno = st.st_rdev;
+
+	mg_device->num_bufs = num_bufs;
 
 	mg_device->buffer = mg_buffer_create();
 
@@ -118,6 +122,17 @@ mg_device_name(mg_device_t mg_device)
 	return name;
 }
 
+unsigned int
+mg_device_num_bufs(mg_device_t mg_device)
+{
+	unsigned int num_bufs = 0;
+	VERIFY(mg_device) {
+		num_bufs = mg_device->num_bufs;
+	}
+
+	return num_bufs;
+}
+
 dev_t
 mg_device_number(mg_device_t mg_device)
 {
@@ -161,7 +176,7 @@ test_device(char *name,
 	log_t log = lg_create("mg_device", "stderr");
 
 	/* create */
-	dev = mg_device_create(name, log);
+	dev = mg_device_create(name, 3, log);
 
 	XASSERT(mg_device_fd(dev) == -1);
 	XASSERT(mg_device_number(dev) == devno);

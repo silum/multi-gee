@@ -40,15 +40,6 @@
 USE_XASSERT
 
 /**
- * @brief Frames in sync criterion
- */
-static struct timeval TV_IN_SYNC = {0, 22000}; /* 55% of frame rate */
-/**
- * @brief Failure to achieve sync criterion
- */
-static struct timeval TV_NO_SYNC = {0, 168000}; /* 4 frames + 5% */
-
-/**
  * @brief Synchronisation status
  */
 enum sync_status
@@ -178,6 +169,12 @@ CLASS(multi_gee, multi_gee_t)
 	struct timeval last_sync; /**< Time stamp when last in sync */
 
 	log_t log; /**< Log object handle */
+
+	struct timeval TV_IN_SYNC; /**< Frames in sync criterion */
+	struct timeval TV_NO_SYNC; /**< Failure to achieve sync criterion */
+	struct timeval TV_SUB; /**< Capture start offset */
+
+	unsigned int num_bufs; /** Number of capture buffers */
 };
 
 multi_gee_t
@@ -195,13 +192,36 @@ mg_create(char* log_file)
 	multi_gee->frame = 0;
 	multi_gee->device = 0;
 
-	multi_gee->last_sync.tv_sec = 0;
-	multi_gee->last_sync.tv_usec = 0;
+	timerclear(&multi_gee->last_sync);
 
 	multi_gee->log = lg_create("multi-gee", log_file);
 
+	timerset(&multi_gee->TV_IN_SYNC, 0, 21000); /* 55% of frame rate */
+	timerset(&multi_gee->TV_NO_SYNC, 0, 168000); /* 4 frames + 5% */
+	timerset(&multi_gee->TV_SUB, 0, 84000); /* 2 frames + 5% */
+
+	multi_gee->num_bufs = 3;
+
 	lg_log(multi_gee->log, "startup");
 
+	return multi_gee;
+}
+
+multi_gee_t
+mg_create_special(char* log_file,
+		  struct timeval tv_in_sync,
+		  struct timeval tv_no_sync,
+		  struct timeval tv_sub,
+		  unsigned int num_bufs)
+{
+	multi_gee_t multi_gee = mg_create(log_file);
+
+	if (multi_gee) {
+		multi_gee->TV_IN_SYNC = tv_in_sync;
+		multi_gee->TV_NO_SYNC = tv_no_sync;
+		multi_gee->TV_SUB = tv_sub;
+		multi_gee->num_bufs = num_bufs;
+	}
 	return multi_gee;
 }
 
@@ -242,6 +262,9 @@ mg_capture(multi_gee_t multi_gee,
 
 		/* update sync time to now */
 		gettimeofday(&multi_gee->last_sync, 0);
+		timersub(&multi_gee->last_sync,
+			 &multi_gee->TV_SUB,
+			 &multi_gee->last_sync);
 
 		while (!done) {
 			/* assume we are done */
@@ -344,7 +367,9 @@ mg_register_device(multi_gee_t multi_gee,
 	int ret = -1;
 
 	VERIFY(multi_gee) {
-		mg_device_t dev = mg_device_create(name, multi_gee->log);
+		mg_device_t dev = mg_device_create(name,
+						   multi_gee->num_bufs,
+						   multi_gee->log);
 
 		/* can device be registered? */
 		if (mg_device_number(dev) == makedev(-1, -1)) {
@@ -512,7 +537,7 @@ sync_select(multi_gee_t multi_gee,
 		}
 		max_fd += 1;
 
-		struct timeval timeout = TV_NO_SYNC;
+		struct timeval timeout = multi_gee->TV_NO_SYNC;
 		int ret = select(max_fd, fds, NULL, NULL, &timeout);
 
 		if (-1 == ret) {
@@ -545,8 +570,9 @@ sync_test(multi_gee_t multi_gee)
 		struct timeval now;
 		gettimeofday(&now, 0);
 
-		struct timeval tv_diff = tv_abs_diff(multi_gee->last_sync, now);
-		if (tv_lt(TV_NO_SYNC, tv_diff)) {
+		struct timeval tv_diff;
+		timersub(&now, &multi_gee->last_sync, &tv_diff);
+		if (timercmp(&multi_gee->TV_NO_SYNC, &tv_diff, <)) {
 			lg_log(multi_gee->log,
 			       "too long since last sync: %ld.%06ld",
 			       tv_diff.tv_sec,
@@ -566,25 +592,28 @@ sync_test(multi_gee_t multi_gee)
 				frame = sll_data(f);
 
 				struct timeval tv = mg_frame_timestamp(frame);
-
-				if (tv_lt(tv, multi_gee->last_sync)) {
+				if (timercmp(&tv, &multi_gee->last_sync, <)) {
 					old = true;
 					mg_frame_set_used(frame);
 				} else {
-					if (tv_lt(tv, tv_min)) tv_min = tv;
-					if (tv_lt(tv_max, tv)) tv_max = tv;
+					if (timercmp(&tv_min, &tv, >))
+						tv_min = tv;
+					if (timercmp(&tv_max, &tv, <))
+						tv_max = tv;
 				}
 
 				ready &= !mg_frame_used(frame);
 			}
 
-			tv_diff = tv_abs_diff(tv_min, tv_max);
-			if (ready && tv_lt(tv_diff, TV_IN_SYNC)) {
+			timersub(&tv_max, &tv_min, &tv_diff);
+			if (ready
+			    && timercmp(&multi_gee->TV_IN_SYNC, &tv_diff, >)) {
 				for (sllist_t f = multi_gee->frame; f; f = sll_next(f))
 					mg_frame_set_used(sll_data(f));
 				multi_gee->last_sync = now;
 				sync = SYNC_OK;
-			} else if (!old && tv_lt(TV_NO_SYNC, tv_diff)) {
+			} else if (!old
+				   && timercmp(&multi_gee->TV_NO_SYNC, &tv_diff, <)) {
 				lg_log(multi_gee->log,
 				       "fatal loss of sync: %ld.%06ld\n",
 				       tv_diff.tv_sec,
@@ -614,7 +643,8 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	gettimeofday(&now, 0);
 	printf("now: %10ld.%06ld\n", now.tv_sec, now.tv_usec);
 
-	struct timeval diff = diff = tv_abs_diff(now, then);
+	struct timeval diff;
+	timersub(&now, &then, &diff);
 	printf("  then now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
 	then = now;
 
@@ -627,8 +657,7 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 
 		printf(" tv: %10ld.%06ld\n",  tv.tv_sec,  tv.tv_usec);
 
-
-		diff = tv_abs_diff(now, tv);
+		timersub(&now, &tv, &diff);
 		printf("  tv   now diff: %10ld.%06ld\n", diff.tv_sec, diff.tv_usec);
 		printf("  sequence: %d\n", mg_frame_sequence(frame));
 

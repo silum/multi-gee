@@ -209,7 +209,7 @@ mg_frame()
 {
 	log_t log = lg_create("mg_frame", "stderr");
 	struct timeval timestamp = {0 , 0};
-	mg_device_t mg_device = mg_device_create("/dev/null", log);
+	mg_device_t mg_device = mg_device_create("/dev/null", 3, log);
 	mg_buffer_t mg_buffer = mg_device_buffer(mg_device);
 	mg_buffer_alloc(mg_buffer, 1);
 

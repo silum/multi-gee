@@ -28,41 +28,13 @@
 
 __BEGIN_DECLS
 
-/**
- * @brief Finds the absolute difference between two timeval structures
- *
- * @param tv_0  a timeval
- * @param tv_1  another timeval
- *
- * @returns the absolute difference as a timeval
- */
-struct timeval
-tv_abs_diff(struct timeval tv_0,
-	    struct timeval tv_1);
-
-/**
- * @brief Test equality between to timeval structures
- *
- * @param tv_0  a timeval
- * @param tv_1  another timeval
- *
- * @returns \c true if tv_0 == tv_1, otherwise returns \c false
- */
-bool
-tv_eq(struct timeval tv_0,
-      struct timeval tv_1);
-
-/**
- * @brief Strict less than test between to timeval structures
- *
- * @param tv_0  a timeval
- * @param tv_1  another timeval
- *
- * @returns \c true if tv_0 < tv_1, otherwise returns \c false
- */
-bool
-tv_lt(struct timeval tv_0,
-      struct timeval tv_1);
+#define timerset(tvp, sec, usec) \
+	do { (tvp)->tv_sec = sec;  (tvp)->tv_usec = usec; } while (0)
+#define timerabs(tvp) \
+	do { \
+		if ((tvp)->tv_sec < 0) (tvp)->tv_sec = -(tvp)->tv_sec; \
+		if ((tvp)->tv_usec < 0) (tvp)->tv_usec = -(tvp)->tv_usec; \
+	} while (0)
 
 __END_DECLS
 

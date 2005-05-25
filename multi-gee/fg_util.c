@@ -42,22 +42,19 @@
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
 /**
- * @brief Number of buffers required for capturing
- */
-static const unsigned int REQ_BUFS = 3;
-
-/**
  * @brief Initialise memory mapping
  *
  * @param fd  file descriptor
  * @param name  device name
  * @param buffer  device buffer
  * @param log  to log possible errors to
+ * @param num_bufs  number of capture buffers
  */
 static bool
 init_mmap(int fd,
 	  char *name,
 	  mg_buffer_t buffer,
+	  unsigned int num_bufs,
 	  log_t log);
 
 /**
@@ -188,7 +185,11 @@ fg_init_device(mg_device_t dev,
 	if (!set_format(fd, log))
 		return false;
 
-	if (!init_mmap(fd, dev_name, mg_device_buffer(dev), log))
+	if (!init_mmap(fd,
+		       dev_name,
+		       mg_device_buffer(dev),
+		       mg_device_num_bufs(dev),
+		       log))
 		return false;
 
 	return true;
@@ -254,13 +255,14 @@ bool
 init_mmap(int fd,
 	  char *dev_name,
 	  mg_buffer_t dev_buf,
+	  unsigned int req_bufs,
 	  log_t log)
 {
 	struct v4l2_requestbuffers req;
 
 	CLEAR(req);
 
-	req.count = REQ_BUFS;
+	req.count = req_bufs;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 
@@ -275,7 +277,7 @@ init_mmap(int fd,
 		}
 	}
 
-	if (req.count < REQ_BUFS) {
+	if (req.count < req_bufs) {
 		lg_log(log, "Insufficient buffer memory on %s",
 		       dev_name);
 		return false;
