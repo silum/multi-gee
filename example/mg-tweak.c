@@ -26,9 +26,45 @@
 #include <xmalloc.h>
 
 void
+timernorm(struct timeval *tv)
+{
+	while (tv->tv_usec < 0) {
+		tv->tv_sec--;
+		tv->tv_usec += 1000000;
+	}
+
+	while (tv->tv_usec > 1000000) {
+		tv->tv_sec++;
+		tv->tv_usec -= 1000000;
+	}
+}
+
+void
 print_tv(char *str, struct timeval tv)
 {
 	printf("%s %10ld.%06ld", str, tv.tv_sec, tv.tv_usec);
+}
+
+struct timeval
+frame_time(float frames, float percent)
+{
+	struct timeval FRAME = {0, 40000};
+	struct timeval tv;
+	timerclear(&tv);
+
+	int f = frames;
+
+	for (int i = 0; i < f; i++)
+		timeradd(&tv, &FRAME, &tv);
+	struct timeval frac;
+	timerset(&frac, 0, FRAME.tv_usec * (frames - f));
+	timeradd(&tv, &frac, &tv);
+
+	tv.tv_sec *= 1.0 + percent;
+	tv.tv_usec *= 1.0 + percent;
+
+	timernorm(&tv);
+	return tv;
 }
 
 static void
@@ -77,49 +113,60 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 }
 
 void
-multi_gee(struct timeval tv_no_sync,
-	  struct timeval tv_in_sync,
-	  struct timeval tv_sub,
-	  int num_bufs)
+multi_gee(int buffers,
+	  int count,
+	  int devices,
+	  int frames,
+	  int sleeptime,
+	  struct timeval in_sync,
+	  struct timeval no_sync,
+	  struct timeval sub,
+	  bool verbose)
 {
 	multi_gee_t mg = mg_create_special("stderr",
-					   tv_no_sync,
-					   tv_in_sync,
-					   tv_sub,
-					   num_bufs);
+					   in_sync,
+					   no_sync,
+					   sub,
+					   buffers);
 
 	mg_register_callback(mg, process_images);
 
 	printf("dev id = %d\n", mg_register_device(mg, "/dev/video0"));
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video1"));
-	// printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
-	// printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
+	if (devices > 1)
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video1"));
+	if (devices > 2)
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
+	if (devices > 3)
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
+	if (devices > 4)
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video4"));
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < count; i++) {
 
-		printf("sleep a while\n");
-		sleep(1);
+		if (verbose)
+			printf("sleep a while\n");
+		usleep(sleeptime);
 
 		struct timeval tv_start;
 		gettimeofday(&tv_start, 0);
-		int ret = mg_capture(mg, 5);
+		int ret = mg_capture(mg, frames);
 		struct timeval tv_end;
 		gettimeofday(&tv_end, 0);
 		struct timeval tv_diff;
 		timersub(&tv_end, &tv_start, &tv_diff);
-		printf("capture ret = %d\n", ret);
+		if (verbose)
+			printf("capture ret = %d\n", ret);
 
-		if (ret == 5) {
+		if (ret == frames) {
 			print_tv(" **    start: ", tv_start); printf("\n");
 			print_tv(" **      end: ", tv_end  ); printf("\n");
 			print_tv(" **     diff: ", tv_diff ); printf("\n");
 
-			struct timeval tv_sub = {0, 200000};
+			struct timeval tv_sub = frame_time(frames, 0.0);
 			timersub(&tv_diff, &tv_sub, &tv_diff);
 
 			print_tv(" ** overhead: ", tv_diff ); printf("\n");
 		}
-
 
 		// handle return value
 		switch (ret) {
@@ -140,118 +187,192 @@ multi_gee(struct timeval tv_no_sync,
 void
 usage(char *progname)
 {
-	printf("Usage : %s <in_sync> <no_sync> <sub> <bufs>\n", basename(progname));
-	printf("\n");
-	printf(" where\n");
-	printf("  in_sync: max timestamp difference and still be in sync -- number of frames\n");
-	printf("  no_sync: min timestamp difference for fatal sync -- number of frames\n");
-	printf("      sub: start capture frame offset -- number of frames\n");
-	printf("     bufs: number of capture buffers (>1)\n");
+	printf("Usage : %s [-h] | [options]\n", basename(progname));
+	printf("\n"
+	       " where:\n"
+	       "   -h             : print this message\n"
+	       " options:\n"
+	       "   -b <buffers>   : number of capture buffers (int >1)\n"
+	       "   -c <count>     : number of capture repetitions (int)\n"
+	       "   -d <devices>   : number if devices to use (int 1..4)\n"
+	       "   -i <in_sync>   : max timestamp difference and still be in sync -- number of frames (float)\n"
+	       "   -n <frames>    : number of frames to capture (int)\n"
+	       "   -o <no_sync>   : min timestamp difference for fatal sync -- number of frames (float)\n"
+	       "   -p <percent>   : percentage error to add to frame times (int)\n"
+	       "   -s <sleeptime> : microseconds to sleep between captures (int)\n"
+	       "   -v             : verbose output\n"
+	       "   -x <sub>       : start capture frame offset -- number of frames (float)\n"
+	      );
 	exit(1);
 }
 
-void
-timernorm(struct timeval *tv)
-{
-	while (tv->tv_usec < 0) {
-		tv->tv_sec--;
-		tv->tv_usec += 1000000;
-	}
-
-	while (tv->tv_usec > 1000000) {
-		tv->tv_sec++;
-		tv->tv_usec -= 1000000;
-	}
-}
-
-struct timeval
-frame_time(float frames, float percent)
-{
-	struct timeval FRAME = {0, 40000};
-	struct timeval tv;
-	timerclear(&tv);
-
-	int f = frames;
-	// printf("frames = %f\n", frames);
-	// printf("     f = %d\n", f);
-
-	for (int i = 0; i < f; i++)
-		timeradd(&tv, &FRAME, &tv);
-	struct timeval frac;
-	timerset(&frac, 0, FRAME.tv_usec * (frames - f));
-	// print_tv("  frac = ", frac);
-	// printf("\n");
-	timeradd(&tv, &frac, &tv);
-
-	tv.tv_sec *= 1.0 + percent;
-	tv.tv_usec *= 1.0 + percent;
-
-	timernorm(&tv);
-	return tv;
-}
-
 double
-arg_to_f(char *argv[], int i)
+arg_to_f(char *progname, char *arg)
 {
 	char *end;
 	float f;
-	f = strtof(argv[i], &end);
+	f = strtof(arg, &end);
 
-	char *ep = argv[i];
+	char *ep = arg;
 	while (*ep++) { /* empty */ }
 	if (end != --ep) {
-		printf("%s: could not convert %s to float\n",
-		       basename(argv[0]), argv[i]);
-		usage(argv[0]);
+		printf("%s: could not convert `%s' to float\n",
+		       basename(progname), arg);
+		usage(arg);
 	}
 
 	return f;
 }
 
-double
-arg_to_l(char *argv[], int i)
+long
+arg_to_l(char *progname, char *arg)
 {
 	char *end;
 	long l;
-	l = strtol(argv[i], &end, 0);
+	l = strtol(arg, &end, 0);
 
-	char *ep = argv[i];
+	char *ep = arg;
 	while (*ep++) { /* empty */ }
 	if (end != --ep) {
-		printf("%s: could not convert %s to int\n",
-		       basename(argv[0]), argv[i]);
-		usage(argv[0]);
+		printf("%s: could not convert `%s' to int\n",
+		       basename(progname), arg);
+		usage(arg);
 	}
 
 	return l;
 }
+/*
+       #include <unistd.h>
+
+       int getopt(int argc,
+                  char * const argv[],
+                  const char *optstring);
+
+       extern char *optarg;
+              extern int optind, opterr, optopt;
+
+      getopt_long
+ */
 
 int
 main(int argc, char *argv[])
 {
-	if (argc != 5) {
+	bool verbose = false;
+	int buffers = 3;
+	int count = 5;
+	int frames = 5;
+	int devices = 3;
+	int sleeptime = 1000000;
+	double percent = 0.05;
+	struct timeval in_sync = frame_time(0.5, .05);
+	struct timeval no_sync = frame_time(25, .05);
+	struct timeval sub = frame_time(0, .05);
+
+
+	while (true) {
+		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:vx:");
+
+		if (c == -1)
+			break;
+
+		switch (c) {
+			case 'b':
+				buffers = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'c':
+				count = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'd':
+				devices = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'h':
+				usage(argv[0]);
+				break;
+
+			case 'i':
+				in_sync = frame_time(arg_to_f(argv[0], optarg), percent / 100.);
+				break;
+
+			case 'n':
+				frames = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'o':
+				no_sync = frame_time(arg_to_f(argv[0], optarg), percent / 100.);
+				break;
+
+			case 'p':
+				percent = arg_to_l(argv[0], optarg);
+				break;
+
+			case 's':
+				sleeptime = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'v':
+				verbose = !verbose;
+				break;
+
+			case 'x':
+				sub = frame_time(arg_to_f(argv[0], optarg), percent / 100.);
+				break;
+
+			case '?':
+				break;
+
+			default:
+				printf ("?? getopt returned character code 0%o ??\n", c);
+		}
+	}
+
+	if (optind < argc) {
+		printf ("non-option ARGV-elements: ");
+		while (optind < argc)
+			printf ("%s ", argv[optind++]);
+		printf ("\n");
+	}
+
+	if (buffers <= 1) {
+		printf("%s: need at least 2 buffers\n", basename(argv[0]));
+		usage(argv[0]);
+	}
+	if (devices < 1 || devices > 4) {
+		printf("%s: only 1--4 devices supported\n", basename(argv[0]));
 		usage(argv[0]);
 	}
 
-	struct timeval tv_in_sync = frame_time(arg_to_f(argv, 1), .05);
-	struct timeval tv_no_sync = frame_time(arg_to_f(argv, 2), .05);
-	struct timeval tv_sub = frame_time(arg_to_f(argv, 3), .05);
-	unsigned int num_bufs = arg_to_l(argv, 4);
-	if (num_bufs <= 1) usage(argv[0]);
-
-	for (int i = 0; i < 5; i++) {
-		print_tv("in_sync: ", tv_in_sync);
+	if (verbose) {
+		printf("  buffers: %d\n", buffers);
+		printf("    count: %d\n", count);
+		printf("   frames: %d\n", frames);
+		printf("  devices: %d\n", devices);
+		printf("sleeptime: %d\n", sleeptime);
+		print_tv("  in_sync: ", in_sync); printf("\n");
+		print_tv("  no_sync: ", no_sync); printf("\n");
+		print_tv("      sub: ", sub); printf("\n");
 		printf("\n");
-		print_tv("no_sync: ", tv_no_sync);
-		printf("\n");
-		print_tv("    sub: ", tv_sub);
-		printf("\n");
-		printf("number of buffers %d", num_bufs);
-		printf("\n");
-		multi_gee(tv_in_sync,
-			  tv_no_sync,
-			  tv_sub,
-			  num_bufs);
 	}
+
+	multi_gee(buffers,
+		  count,
+		  devices,
+		  frames,
+		  sleeptime,
+		  in_sync,
+		  no_sync,
+		  sub,
+		  verbose);
 	return EXIT_SUCCESS;
 }
+
+/*
+
+               c = getopt_long (argc, argv, "abc:d:012",
+                        long_options, &option_index);
+               if (c == -1)
+                   break;
+
+*/
