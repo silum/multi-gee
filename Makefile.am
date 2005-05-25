@@ -37,8 +37,10 @@ TESTS = \
 
 noinst_PROGRAMS = \
     $(TESTS) \
-    multi-gee/multi-gee \
-    example/multi-gee
+    example/check-rate \
+    example/mg-tweak \
+    example/multi-gee \
+    multi-gee/multi-gee
 
 include_HEADERS = \
     multi-gee/multi-gee.h
@@ -75,8 +77,9 @@ multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/mg_device.c \
     multi-gee/mg_frame.c \
     multi-gee/multi-gee.c \
-    multi-gee/sllist.c \
-    multi-gee/tv_util.c
+    multi-gee/sllist.c
+# \
+#    multi-gee/tv_util.c
 
 multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
 multi_gee_mg_buffer_LDFLAGS = -lcclass
@@ -122,8 +125,9 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/mg_device.c \
     multi-gee/mg_frame.c \
     multi-gee/multi-gee.c \
-    multi-gee/sllist.c \
-    multi-gee/tv_util.c
+    multi-gee/sllist.c
+# \
+#    multi-gee/tv_util.c
 
 example_check_rate_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_check_rate_LDADD = \
@@ -140,6 +144,13 @@ example_multi_gee_SOURCES = \
     example/multi-gee.c \
     example/pgm_util.c \
     example/process_util.c \
+    multi-gee/libmulti-gee.la
+
+example_mg_tweak_CPPFLAGS = -I$(top_srcdir)/multi-gee
+example_mg_tweak_LDADD = \
+    $(top_builddir)/multi-gee/libmulti-gee.la
+example_mg_tweak_SOURCES = \
+    example/mg-tweak.c \
     multi-gee/libmulti-gee.la
 
 AUX_DIR = @ac_aux_dir@
