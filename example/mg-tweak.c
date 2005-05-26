@@ -16,6 +16,7 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <libgen.h>
+#include <math.h>
 #include <multi-gee.h>
 #include <multi-gee/tv_util.h>
 #include <stdio.h>
@@ -25,24 +26,26 @@
 #include <xassert.h>
 #include <xmalloc.h>
 
-void
-timernorm(struct timeval *tv)
-{
-	while (tv->tv_usec < 0) {
-		tv->tv_sec--;
-		tv->tv_usec += 1000000;
-	}
-
-	while (tv->tv_usec > 1000000) {
-		tv->tv_sec++;
-		tv->tv_usec -= 1000000;
-	}
-}
-
+/**
+ * @brief Print struct timeval value
+ *
+ * struct timeval values always maintain the tv_usec member as positive.
+ * The actual value is tv_sec + tv_usec / 1000000.  Thus -0.1, for
+ * instance, is internally represented by {-1, 900000}.
+ *
+ * @param str  string to prefix to value -- may be ""
+ * @param tv  timeval to print
+ */
 void
 print_tv(char *str, struct timeval tv)
 {
-	printf("%s %10ld.%06ld", str, tv.tv_sec, tv.tv_usec);
+	if (tv.tv_sec == -1) {
+		printf("%s%10s.%06ld", str, "-0", 1000000 - tv.tv_usec);
+	} else if (tv.tv_sec < 0) {
+		printf("%s%10ld.%06ld", str, tv.tv_sec - 1, 1000000 - tv.tv_usec);
+	} else {
+		printf("%s%10ld.%06ld", str, tv.tv_sec, tv.tv_usec);
+	}
 }
 
 struct timeval
@@ -52,16 +55,19 @@ frame_time(float frames, float percent)
 	struct timeval tv;
 	timerclear(&tv);
 
-	int f = frames;
+	int f = abs(frames);
 
 	for (int i = 0; i < f; i++)
 		timeradd(&tv, &FRAME, &tv);
 	struct timeval frac;
-	timerset(&frac, 0, FRAME.tv_usec * (frames - f));
+	timerset(&frac, 0, FRAME.tv_usec * fabs(frames - truncf(frames)));
 	timeradd(&tv, &frac, &tv);
 
 	tv.tv_sec *= 1.0 + percent;
 	tv.tv_usec *= 1.0 + percent;
+
+	if (frames < 0)
+		timerset(&tv, -tv.tv_sec, -tv.tv_usec);
 
 	timernorm(&tv);
 	return tv;
@@ -178,7 +184,6 @@ multi_gee(int buffers,
 			case RET_HALT     : printf("capture_halt called\n"); break;
 			default           : printf("captured %d frames\n", ret); break;
 		}
-
 	}
 
 	mg_destroy(mg);
@@ -187,14 +192,14 @@ multi_gee(int buffers,
 void
 usage(char *progname)
 {
-	printf("Usage : %s [-h] | [options]\n", basename(progname));
+	printf("\nUsage : %s <-h> | <-?> | [options]\n", basename(progname));
 	printf("\n"
 	       " where:\n"
-	       "   -h             : print this message\n"
+	       "   -h or -?       : print this message\n"
 	       " options:\n"
 	       "   -b <buffers>   : number of capture buffers (int >1)\n"
 	       "   -c <count>     : number of capture repetitions (int)\n"
-	       "   -d <devices>   : number if devices to use (int 1..4)\n"
+	       "   -d <devices>   : number of devices to use (int 1..4)\n"
 	       "   -i <in_sync>   : max timestamp difference and still be in sync -- number of frames (float)\n"
 	       "   -n <frames>    : number of frames to capture (int)\n"
 	       "   -o <no_sync>   : min timestamp difference for fatal sync -- number of frames (float)\n"
@@ -263,14 +268,13 @@ main(int argc, char *argv[])
 	int frames = 5;
 	int devices = 3;
 	int sleeptime = 1000000;
-	double percent = 0.05;
+	int percent = 5;
 	struct timeval in_sync = frame_time(0.5, .05);
 	struct timeval no_sync = frame_time(25, .05);
 	struct timeval sub = frame_time(0, .05);
 
-
 	while (true) {
-		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:vx:");
+		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:vx:?");
 
 		if (c == -1)
 			break;
@@ -321,6 +325,7 @@ main(int argc, char *argv[])
 				break;
 
 			case '?':
+				usage(argv[0]);
 				break;
 
 			default:
