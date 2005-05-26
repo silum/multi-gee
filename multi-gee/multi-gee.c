@@ -291,8 +291,10 @@ mg_capture(multi_gee_t multi_gee,
 				for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
 					mg_device_t dev = sll_data(d);
 					if (FD_ISSET(mg_device_fd(dev), &fds)) {
-						if (!swap_frame(multi_gee, dev))
+						if (!swap_frame(multi_gee, dev)) {
+							sync = SYNC_FATAL;
 							break;
+						}
 
 						sync = sync_test(multi_gee);
 
