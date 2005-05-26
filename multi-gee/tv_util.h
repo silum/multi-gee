@@ -23,17 +23,27 @@
 #ifndef DSM_TV_UTIL_H
 #define DSM_TV_UTIL_H
 
-#include <stdbool.h> /* bool */
 #include <sys/time.h> /* struct timeval */
 
 __BEGIN_DECLS
 
 #define timerset(tvp, sec, usec) \
 	do { (tvp)->tv_sec = sec;  (tvp)->tv_usec = usec; } while (0)
+
 #define timerabs(tvp) \
 	do { \
 		if ((tvp)->tv_sec < 0) (tvp)->tv_sec = -(tvp)->tv_sec; \
 		if ((tvp)->tv_usec < 0) (tvp)->tv_usec = -(tvp)->tv_usec; \
+	} while (0)
+
+#define timernorm(tvp) \
+	do { \
+		struct timeval zero; \
+		timerclear(&zero); \
+		while ((tvp)->tv_usec < 0) \
+			timersub(tvp, &zero, tvp); \
+		while ((tvp)->tv_usec > 1000000) \
+			timeradd(tvp, &zero, tvp); \
 	} while (0)
 
 __END_DECLS
