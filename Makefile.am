@@ -124,8 +124,7 @@ example_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
 example_check_rate_SOURCES = \
-    example/check-rate.c \
-    multi-gee/libmulti-gee.la
+    example/check-rate.c
 
 example_multi_gee_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_multi_gee_LDADD = \
@@ -133,15 +132,14 @@ example_multi_gee_LDADD = \
 example_multi_gee_SOURCES = \
     example/multi-gee.c \
     example/pgm_util.c \
-    example/process_util.c \
-    multi-gee/libmulti-gee.la
+    example/process_util.c
 
 example_mg_tweak_CPPFLAGS = -I$(top_srcdir)/multi-gee
 example_mg_tweak_LDADD = \
-    $(top_builddir)/multi-gee/libmulti-gee.la
+    $(top_builddir)/multi-gee/libmulti-gee.la \
+    -lm
 example_mg_tweak_SOURCES = \
-    example/mg-tweak.c \
-    multi-gee/libmulti-gee.la
+    example/mg-tweak.c
 
 AUX_DIR = @ac_aux_dir@
 
