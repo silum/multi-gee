@@ -129,7 +129,7 @@ multi_gee(int buffers,
 	  struct timeval sub,
 	  bool verbose)
 {
-	multi_gee_t mg = mg_create_special("stderr",
+	multi_gee_t mg = mg_create_special("stdout",
 					   in_sync,
 					   no_sync,
 					   sub,
@@ -146,6 +146,8 @@ multi_gee(int buffers,
 		printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
 	if (devices > 4)
 		printf("dev id = %d\n", mg_register_device(mg, "/dev/video4"));
+	if (devices > 5)
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video5"));
 
 	for (int i = 0; i < count; i++) {
 
@@ -155,24 +157,25 @@ multi_gee(int buffers,
 
 		struct timeval tv_start;
 		gettimeofday(&tv_start, 0);
+
 		int ret = mg_capture(mg, frames);
+
 		struct timeval tv_end;
 		gettimeofday(&tv_end, 0);
 		struct timeval tv_diff;
 		timersub(&tv_end, &tv_start, &tv_diff);
+
 		if (verbose)
 			printf("capture ret = %d\n", ret);
 
-		if (ret == frames) {
-			print_tv(" **    start: ", tv_start); printf("\n");
-			print_tv(" **      end: ", tv_end  ); printf("\n");
-			print_tv(" **     diff: ", tv_diff ); printf("\n");
+		print_tv(" **    start: ", tv_start); printf("\n");
+		print_tv(" **      end: ", tv_end  ); printf("\n");
+		print_tv(" **     diff: ", tv_diff ); printf("\n");
 
-			struct timeval tv_sub = frame_time(frames, 0.0);
-			timersub(&tv_diff, &tv_sub, &tv_diff);
+		struct timeval tv_sub = frame_time(frames, 0.0);
+		timersub(&tv_diff, &tv_sub, &tv_diff);
 
-			print_tv(" ** overhead: ", tv_diff ); printf("\n");
-		}
+		print_tv(" ** overhead: ", tv_diff ); printf("\n");
 
 		// handle return value
 		switch (ret) {
@@ -344,8 +347,8 @@ main(int argc, char *argv[])
 		printf("%s: need at least 2 buffers\n", basename(argv[0]));
 		usage(argv[0]);
 	}
-	if (devices < 1 || devices > 4) {
-		printf("%s: only 1--4 devices supported\n", basename(argv[0]));
+	if (devices < 1 || devices > 6) {
+		printf("%s: only 1--6 devices supported\n", basename(argv[0]));
 		usage(argv[0]);
 	}
 
