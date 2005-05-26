@@ -118,6 +118,22 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 }
 
+bool
+register_device(multi_gee_t mg, unsigned int number)
+{
+	char dev[20];
+	sprintf(dev, "/dev/video%d", number);
+
+	int id = mg_register_device(mg, dev);
+
+	printf("dev id = %d\n", id);
+
+	if (id < 0)
+		return false;
+
+	return true;
+}
+
 void
 multi_gee(int buffers,
 	  int count,
@@ -137,17 +153,9 @@ multi_gee(int buffers,
 
 	mg_register_callback(mg, process_images);
 
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video0"));
-	if (devices > 1)
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video1"));
-	if (devices > 2)
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
-	if (devices > 3)
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
-	if (devices > 4)
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video4"));
-	if (devices > 5)
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video5"));
+	for (int i = 0; i < devices; i++)
+		if (!register_device(mg, i))
+			exit(EXIT_FAILURE);
 
 	for (int i = 0; i < count; i++) {
 
@@ -249,18 +257,6 @@ arg_to_l(char *progname, char *arg)
 
 	return l;
 }
-/*
-       #include <unistd.h>
-
-       int getopt(int argc,
-                  char * const argv[],
-                  const char *optstring);
-
-       extern char *optarg;
-              extern int optind, opterr, optopt;
-
-      getopt_long
- */
 
 int
 main(int argc, char *argv[])
