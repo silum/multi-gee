@@ -16,10 +16,9 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file fg_util.c
+ * @file
  * @brief Frame grabber interface utility definition
  */
-
 #include <errno.h> /* errno */
 #include <string.h> /* memset */
 
@@ -32,6 +31,7 @@
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h>
 
+#include "fg_util.h" /* declarations implemented */
 #include "log.h"
 #include "mg_buffer.h"
 #include "mg_device.h"

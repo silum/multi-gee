@@ -16,19 +16,18 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file log.c
+ * @file
  * @brief Logging object definition
  */
-
+#include <errno.h>
 #include <stdarg.h> /* vfprintf */
+#include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
-#include <stdio.h>
 #include <time.h>
-#include <errno.h>
 #include <xmalloc.h>
 
-#include "log.h"
+#include "log.h" /* declarations implemented */
 
 USE_XASSERT
 

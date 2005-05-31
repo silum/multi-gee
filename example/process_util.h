@@ -15,8 +15,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef DSM_PROCESS_UTIL_H
-#define DSM_PROCESS_UTIL_H 1
+#ifndef ITL_PROCESS_UTIL_H
+#define ITL_PROCESS_UTIL_H 1
 
 #include <multi-gee.h>
 
@@ -30,4 +30,4 @@ process(multi_gee_t multi_gee,
 
 __END_DECLS
 
-#endif /* DSM_PROCESS_UTIL_H */
+#endif /* ITL_PROCESS_UTIL_H */

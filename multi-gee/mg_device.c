@@ -16,10 +16,9 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_device.c
+ * @file
  * @brief Multi-gee device definition
  */
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -29,7 +28,7 @@
 #include <unistd.h>
 #include <xmalloc.h>
 
-#include "mg_device.h"
+#include "mg_device.h" /* class implemented */
 
 USE_XASSERT
 

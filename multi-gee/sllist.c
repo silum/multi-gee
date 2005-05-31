@@ -16,14 +16,13 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file sllist.c
+ * @file
  * @brief Singly linked-list definition
  */
-
 #include <xassert.h>
 #include <xmalloc.h>
 
-#include "sllist.h"
+#include "sllist.h" /*  class implemented  */
 
 USE_XASSERT
 

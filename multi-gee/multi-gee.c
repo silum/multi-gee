@@ -16,10 +16,9 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file multi-gee/multi-gee.c
+ * @file
  * @brief Multi-gee Frame Grabber Library definition
  */
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

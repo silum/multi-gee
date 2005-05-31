@@ -17,8 +17,8 @@
  */
 #include <stdio.h>
 
-#include "process_util.h"
 #include "pgm_util.h"
+#include "process_util.h"
 
 void
 process(multi_gee_t multi_gee, mg_frame_t frame)

@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file tv_util.h
+ * @file
  * @brief Timeval structure utility declaration
  */
-
-#ifndef DSM_TV_UTIL_H
-#define DSM_TV_UTIL_H
+#ifndef ITL_TV_UTIL_H
+#define ITL_TV_UTIL_H
 
 #include <sys/time.h> /* struct timeval */
 
@@ -48,4 +47,4 @@ __BEGIN_DECLS
 
 __END_DECLS
 
-#endif /* DSM_TV_UTIL_H */
+#endif /* ITL_TV_UTIL_H */

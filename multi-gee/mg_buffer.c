@@ -16,13 +16,12 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_buffer.c
+ * @file
  * @brief Multi-gee capture buffer definition
  */
-
 #include <xmalloc.h>
 
-#include "mg_buffer.h"
+#include "mg_buffer.h" /* class implemented */
 
 USE_XASSERT
 

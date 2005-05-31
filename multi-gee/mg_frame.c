@@ -16,17 +16,16 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_frame.c
+ * @file
  * @brief Multi-gee Frame definition
  */
-
 #include <sys/time.h> /* gettimeofday */
 #include <xmalloc.h>
 
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
 
-#include "mg_frame.h"
+#include "mg_frame.h" /* class implemented */
 #include "mg_device.h"
 #include "multi-gee.h"
 

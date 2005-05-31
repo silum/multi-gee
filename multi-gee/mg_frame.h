@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_frame.h
+ * @file
  * @brief Multi-gee Frame declaration
  */
-
-#ifndef DSM_MG_FRAME_H
-#define DSM_MG_FRAME_H
+#ifndef ITL_MG_FRAME_H
+#define ITL_MG_FRAME_H
 
 #include <stdint.h> /* uint32_t */
 #include <stdbool.h> /* bool */
@@ -152,4 +151,4 @@ mg_frame_used(mg_frame_t frame);
 
 __END_DECLS
 
-#endif /* DSM_MG_FRAME_H */
+#endif /* ITL_MG_FRAME_H */

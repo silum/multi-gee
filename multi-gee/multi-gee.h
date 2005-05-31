@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file multi-gee.h
+ * @file
  * @brief Multi-gee Frame Grabber Library declaration
  */
-
-#ifndef DSM_MULTI_GEE_H
-#define DSM_MULTI_GEE_H
+#ifndef ITL_MULTI_GEE_H
+#define ITL_MULTI_GEE_H
 
 #include <classdef.h>
 
@@ -202,4 +201,4 @@ mg_register_device(multi_gee_t multi_gee,
 
 __END_DECLS;
 
-#endif /* ndef DSM_MULTI_GEE_H */
+#endif /* ITL_MULTI_GEE_H */

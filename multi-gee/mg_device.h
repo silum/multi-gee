@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_device.h
+ * @file
  * @brief Multi-gee device declaration
  */
-
-#ifndef DSM_MG_DEVICE_H
-#define DSM_MG_DEVICE_H
+#ifndef ITL_MG_DEVICE_H
+#define ITL_MG_DEVICE_H
 
 #include <multi-gee/log.h>
 #include <multi-gee/mg_buffer.h>
@@ -130,4 +129,4 @@ mg_device_open(mg_device_t device);
 
 __END_DECLS
 
-#endif /* DSM_MG_DEVICE_H */
+#endif /* ITL_MG_DEVICE_H */

@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file sllist.h
+ * @file
  * @brief Singly linked-list declaration
  */
-
-#ifndef DSM_SLLIST_H
-#define DSM_SLLIST_H
+#ifndef ITL_SLLIST_H
+#define ITL_SLLIST_H
 
 #include <classdef.h>
 
@@ -92,4 +91,4 @@ sll_remove_data(sllist_t list,
 
 __END_DECLS
 
-#endif /* DSM_SLLIST_H */
+#endif /* ITL_SLLIST_H */

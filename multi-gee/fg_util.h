@@ -16,11 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file fg_util.h
+ * @file
  * @brief Frame grabber interface utility declaration
  */
-#ifndef DSM_FG_UTIL_H
-#define DSM_FG_UTIL_H
+#ifndef ITL_FG_UTIL_H
+#define ITL_FG_UTIL_H
 
 #include <stdbool.h>
 #include <multi-gee/mg_device.h>
@@ -115,4 +115,4 @@ fg_uninit_device(mg_device_t device,
 
 __END_DECLS
 
-#endif /* DSM_FG_UTIL_H */
+#endif /* ITL_FG_UTIL_H */

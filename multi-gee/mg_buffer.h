@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file mg_buffer.h
+ * @file
  * @brief Multi-gee capture buffer declaration
  */
-
-#ifndef DSM_MG_BUFFER_H
-#define DSM_MG_BUFFER_H
+#ifndef ITL_MG_BUFFER_H
+#define ITL_MG_BUFFER_H
 
 #include <classdef.h>
 
@@ -114,4 +113,4 @@ mg_buffer_set(mg_buffer_t buffer,
 
 __END_DECLS
 
-#endif /* DSM_MG_BUFFER_H */
+#endif /* ITL_MG_BUFFER_H */

@@ -21,7 +21,6 @@
 
 #include "process_util.h"
 
-
 /* user defined callback function */
 void process_images(multi_gee_t multi_gee,
 		    sllist_t frame_list)

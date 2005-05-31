@@ -16,12 +16,11 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /**
- * @file log.h
+ * @file
  * @brief Logging object declaration
  */
-
-#ifndef DSM_LOG_H
-#define DSM_LOG_H
+#ifndef ITL_LOG_H
+#define ITL_LOG_H
 
 #include <classdef.h>
 
@@ -84,4 +83,4 @@ lg_log(log_t log,
 
 __END_DECLS
 
-#endif /* DSM_LOG_H */
+#endif /* ITL_LOG_H */

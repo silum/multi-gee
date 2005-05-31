@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef DSM_PGM_UTIL_H
-#define DSM_PGM_UTIL_H 1
+#ifndef ITL_PGM_UTIL_H
+#define ITL_PGM_UTIL_H 1
 
-#include <sys/cdefs.h>
 #include <stdbool.h>
+#include <sys/cdefs.h>
 
 __BEGIN_DECLS
 
@@ -33,4 +33,4 @@ pgm_append(char *file,
 
 __END_DECLS
 
-#endif /* DSM_PGM_UTIL_H */
+#endif /* ITL_PGM_UTIL_H */
