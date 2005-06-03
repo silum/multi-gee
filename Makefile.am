@@ -21,6 +21,7 @@ DIST_SUBDIRS = \
     multi-gee
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
+# -DDEBUG_SELECT
 
 lib_LTLIBRARIES = multi-gee/libmulti-gee.la
 
@@ -58,17 +59,11 @@ noinst_HEADERS = \
     example/process_util.h \
     linux/videodev2.h
 
-.PHONY: doc
-doc:
-	doxygen doc/doxy/doxygen.conf > /dev/null
-
-maintainer-clean-local:
-	-rm -rf doc/html/ doc/latex/
-
+multi_gee_libmulti_gee_la_LIBADD = \
+    /usr/include/libcclass.la
 multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 multi_gee_libmulti_gee_la_LDFLAGS = \
-    -version-info @LIBVERSION@ \
-    -lcclass
+    -version-info @LIBVERSION@
 multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/fg_util.c \
     multi-gee/log.c \
@@ -119,14 +114,16 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/multi-gee.c \
     multi-gee/sllist.c
 
-example_check_rate_CPPFLAGS = -I$(top_srcdir)/multi-gee
+example_check_rate_CPPFLAGS = \
+    -I$(top_srcdir)/multi-gee
 example_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
 example_check_rate_SOURCES = \
     example/check-rate.c
 
-example_multi_gee_CPPFLAGS = -I$(top_srcdir)/multi-gee
+example_multi_gee_CPPFLAGS = \
+    -I$(top_srcdir)/multi-gee
 example_multi_gee_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la
 example_multi_gee_SOURCES = \
@@ -134,28 +131,40 @@ example_multi_gee_SOURCES = \
     example/pgm_util.c \
     example/process_util.c
 
-example_mg_tweak_CPPFLAGS = -I$(top_srcdir)/multi-gee
+example_mg_tweak_CPPFLAGS = \
+    -I$(top_srcdir)/multi-gee
 example_mg_tweak_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lm
 example_mg_tweak_SOURCES = \
     example/mg-tweak.c
 
-AUX_DIR = @ac_aux_dir@
+.PHONY: doc
+doc: doc/doxy/doxygen.conf
+	doxygen $< > /dev/null
+
+maintainer-clean-local:
+	-rm -rf doc/html/ doc/latex/
+
+.PHONY: distrpm
+distrpm: distcheck
+	rpmbuild -ta $(distdir).tar.gz
 
 EXTRA_DIST = \
-    $(AUX_DIR)/bootstrap \
-    $(AUX_DIR)/clobber
+    $(ac_aux_dir)/bootstrap \
+    $(ac_aux_dir)/clobber \
+    BUILD \
+    $(PACKAGE_NAME).spec
 
 AUX_DIST = \
-    $(AUX_DIR)/compile \
-    $(AUX_DIR)/config.guess \
-    $(AUX_DIR)/config.sub \
-    $(AUX_DIR)/depcomp \
-    $(AUX_DIR)/install-sh \
-    $(AUX_DIR)/ltmain.sh \
-    $(AUX_DIR)/missing \
-    $(AUX_DIR)/mkinstalldirs
+    $(ax_aux_dir)/compile \
+    $(ax_aux_dir)/config.guess \
+    $(ax_aux_dir)/config.sub \
+    $(ax_aux_dir)/depcomp \
+    $(ax_aux_dir)/install-sh \
+    $(ax_aux_dir)/ltmain.sh \
+    $(ax_aux_dir)/missing \
+    $(ax_aux_dir)/mkinstalldirs
 
 DISTCLEANFILES = \
     stamp-h \
