@@ -60,7 +60,7 @@ noinst_HEADERS = \
     linux/videodev2.h
 
 multi_gee_libmulti_gee_la_LIBADD = \
-    /usr/include/libcclass.la
+    /usr/lib/libcclass.la
 multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 multi_gee_libmulti_gee_la_LDFLAGS = \
     -version-info @LIBVERSION@
