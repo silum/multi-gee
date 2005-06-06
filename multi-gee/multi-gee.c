@@ -241,6 +241,30 @@ mg_destroy(multi_gee_t multi_gee)
 	return 0;
 }
 
+#if DEBUG_SELECT
+/**
+ * @brief Print struct timeval value
+ *
+ * struct timeval values always maintain the tv_usec member as positive.
+ * The actual value is tv_sec + tv_usec / 1000000.  Thus -0.1, for
+ * instance, is internally represented by {-1, 900000}.
+ *
+ * @param str  string to prefix to value -- may be ""
+ * @param tv  timeval to print
+ */
+static void
+print_tv(char *str, struct timeval tv)
+{
+	if (tv.tv_sec == -1) {
+		printf("%s%10s.%06ld", str, "-0", 1000000 - tv.tv_usec);
+	} else if (tv.tv_sec < 0) {
+		printf("%s%10ld.%06ld", str, tv.tv_sec - 1, 1000000 - tv.tv_usec);
+	} else {
+		printf("%s%10ld.%06ld", str, tv.tv_sec, tv.tv_usec);
+	}
+}
+#endif
+
 enum mg_RETURN
 mg_capture(multi_gee_t multi_gee,
 	   int n)
@@ -264,6 +288,10 @@ mg_capture(multi_gee_t multi_gee,
 		timersub(&multi_gee->last_sync,
 			 &multi_gee->TV_SUB,
 			 &multi_gee->last_sync);
+
+#if DEBUG_SELECT
+		print_tv("capture start:   ", multi_gee->last_sync); printf("\n");
+#endif
 
 		while (!done) {
 			/* assume we are done */
@@ -294,6 +322,24 @@ mg_capture(multi_gee_t multi_gee,
 							sync = SYNC_FATAL;
 							break;
 						}
+
+#if DEBUG_SELECT
+						struct timeval tv;
+						gettimeofday(&tv, 0);
+						printf("--select--\n");
+						print_tv("now:             ", tv); printf("\n");
+
+						mg_frame_t f = find_frame_device(multi_gee->frame, dev);
+						struct timeval f_tv = mg_frame_timestamp(f);
+						timersub(&f_tv, &tv, &tv);
+
+						print_tv("frame timestamp: ", f_tv); printf("\n");
+						print_tv("frame now diff:  ", tv); printf("\n");
+						printf(  "frame device:    %17s\n", mg_device_name(dev));
+						printf(  "frame index:     %17d\n", mg_frame_index(f));
+						printf(  "frame sequence:  %17d\n", mg_frame_sequence(f));
+						printf("--/select--\n");
+#endif
 
 						sync = sync_test(multi_gee);
 
