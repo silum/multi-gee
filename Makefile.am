@@ -157,14 +157,14 @@ EXTRA_DIST = \
     $(PACKAGE_NAME).spec
 
 AUX_DIST = \
-    $(ax_aux_dir)/compile \
-    $(ax_aux_dir)/config.guess \
-    $(ax_aux_dir)/config.sub \
-    $(ax_aux_dir)/depcomp \
-    $(ax_aux_dir)/install-sh \
-    $(ax_aux_dir)/ltmain.sh \
-    $(ax_aux_dir)/missing \
-    $(ax_aux_dir)/mkinstalldirs
+    $(ac_aux_dir)/compile \
+    $(ac_aux_dir)/config.guess \
+    $(ac_aux_dir)/config.sub \
+    $(ac_aux_dir)/depcomp \
+    $(ac_aux_dir)/install-sh \
+    $(ac_aux_dir)/ltmain.sh \
+    $(ac_aux_dir)/missing \
+    $(ac_aux_dir)/mkinstalldirs
 
 DISTCLEANFILES = \
     stamp-h \
