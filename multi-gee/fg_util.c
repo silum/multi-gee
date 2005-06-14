@@ -1,5 +1,6 @@
 /* $Id$
  * Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+ * Modified 2005-06-14 by Neil Muller <neil@tlabs.ac.za> (Minor tweak)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -321,7 +322,7 @@ bool
 select_input(int fd,
 	     log_t log)
 {
-	int index = 1;
+	int index = 0; /* Changed to television input 2005-06-14 - NM */
 	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index)) {
 		lg_errno(log, "VIDIOC_S_INPUT");
 		return false;
