@@ -210,7 +210,7 @@ usage(char *progname)
 	       " options:\n"
 	       "   -b <buffers>   : number of capture buffers (int >1)\n"
 	       "   -c <count>     : number of capture repetitions (int)\n"
-	       "   -d <devices>   : number of devices to use (int 1..4)\n"
+	       "   -d <devices>   : number of devices to use (int 1..6)\n"
 	       "   -i <in_sync>   : max timestamp difference and still be in sync -- number of frames (float)\n"
 	       "   -n <frames>    : number of frames to capture (int)\n"
 	       "   -o <no_sync>   : min timestamp difference for fatal sync -- number of frames (float)\n"
