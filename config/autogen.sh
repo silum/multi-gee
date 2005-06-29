@@ -1,6 +1,6 @@
 #! /bin/sh -ex
 # $Id$
-# Copyright (C) 2003, 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+# Copyright (C) 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,32 +18,24 @@
 #
 #
 # Use this script to generate the configure script required to configure
-# and build this package, and then configure the package with the
-# default options.
+# and build this package.
 #
 # This script needs to be called from the top level of the source tree,
 # where configure.ac can be found, for example:
 #
-#   ./config/bootstrap
+#   ./config/autogen.sh
 #
 # You need to have automake, autoconf and (possibly) libtool installed.
 
-# generate the configure script
-. `dirname $0`/autogen.sh
+# find config directory
+cfgaux=`dirname $0`
+test $cfgaux = . && cfgaux=`pwd`
+cfgaux=`basename $cfgaux`
 
-# if config.status does not exist
-if test ! -f config.status ; then
-    # run configure, if it is executable
-    if test -x configure ; then
-        ./configure
-    fi
-
-# otherwise
-else
-    # run config.status, if it is executable
-    if test -x config.status ; then
-        ./config.status
-    fi
-fi
+aclocal -I $cfgaux
+libtoolize --force
+autoheader
+automake --add-missing
+autoconf
 
 # -fin-
