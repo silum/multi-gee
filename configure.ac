@@ -1,4 +1,4 @@
-# configure.in -- Process this file with autoconf to produce a configure script.
+# configure.ac -- Process this file with autoconf to produce a configure script.
 # $Id$
 # Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
 #
@@ -16,37 +16,47 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-AC_PREREQ(2.57)
 AC_INIT([multi-gee], [0.94], [dsm@tlabs.ac.za])
+
 LIBVERSION="0:0:0"
-AC_SUBST(LIBVERSION)
+AC_SUBST([LIBVERSION])
 
-AC_REVISION($Rev$)
+AC_REVISION([$Rev$])
 
-AC_CONFIG_SRCDIR(multi-gee/multi-gee.h)
-AC_CONFIG_AUX_DIR(config)
-AC_SUBST(ac_aux_dir)
+AC_CONFIG_SRCDIR([Makefile.am])
+AC_CONFIG_AUX_DIR([config])
+AC_SUBST([ac_aux_dir])
 
-AM_INIT_AUTOMAKE([1.8 subdir-objects foreign])
+AM_INIT_AUTOMAKE([1.8 subdir-objects])
 
 # create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER([config.h])
 
-# Checks for programs.
+dnl --------------------------------------------------------------------
+dnl Checks for programs.
+
 AC_PROG_CC
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 
-# Checks for libraries.
+dnl --------------------------------------------------------------------
+dnl Checks for libraries.
 
-# Checks for header files.
+dnl --------------------------------------------------------------------
+dnl Checks for header files.
+
 AC_HEADER_STDC
 AC_CHECK_HEADERS([sys/cdefs.h stdbool.h],,
     AC_MSG_ERROR([required header file missing]))
 
-# Checks for typedefs, structures, and compiler characteristics.
+dnl --------------------------------------------------------------------
+dnl Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
+dnl --------------------------------------------------------------------
+dnl Checks for library functions.
+
+dnl --------------------------------------------------------------------
+dnl Create output files.
 
 AC_CONFIG_FILES([
     doc/doxy/doxygen.conf
