@@ -772,4 +772,4 @@ main()
 	return EXIT_SUCCESS;
 }
 
-#endif /* def DEBUG_MULTI_GEE */
+#endif /* DEBUG_MULTI_GEE */

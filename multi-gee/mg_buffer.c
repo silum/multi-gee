@@ -207,4 +207,4 @@ main()
 	return debug_test(mg_buffer);
 }
 
-#endif /* def DEBUG_BUFFER */
+#endif /* DEBUG_BUFFER */

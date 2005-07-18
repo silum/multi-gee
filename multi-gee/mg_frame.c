@@ -234,4 +234,4 @@ main()
 	return debug_test(mg_frame);
 }
 
-#endif /* def DEBUG_FRAME */
+#endif /* DEBUG_FRAME */

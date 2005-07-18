@@ -219,4 +219,4 @@ main()
 	return debug_test(mg_device);
 }
 
-#endif /* def DEBUG_DEVICE */
+#endif /* DEBUG_DEVICE */

@@ -439,4 +439,4 @@ main()
 	return debug_test(sllist);
 }
 
-#endif /* def DEBUG_SLLIST */
+#endif /* DEBUG_SLLIST */
