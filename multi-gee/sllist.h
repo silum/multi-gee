@@ -19,15 +19,17 @@
  * @file
  * @brief Singly linked-list declaration
  */
-#ifndef ITL_SLLIST_H
-#define ITL_SLLIST_H
+#ifndef ITL_MULTI_GEE_SLLIST_H
+#define ITL_MULTI_GEE_SLLIST_H
 
-#include <classdef.h>
+#include <cclass/classdef.h>
 
 __BEGIN_DECLS
 
 /**
  * @brief Singly linked list object handle
+ *
+ * Class like implementation of the singly linked list object.
  */
 NEWHANDLE(sllist_t);
 
@@ -91,4 +93,4 @@ sll_remove_data(sllist_t list,
 
 __END_DECLS
 
-#endif /* ITL_SLLIST_H */
+#endif /* ITL_MULTI_GEE_SLLIST_H */

@@ -18,7 +18,8 @@
 
 DIST_SUBDIRS = \
     example \
-    multi-gee
+    multi-gee \
+    tests
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 # -DDEBUG_SELECT
@@ -30,7 +31,7 @@ TESTS = \
     multi-gee/mg_device \
     multi-gee/mg_frame \
     multi-gee/sllist \
-    multi-gee/test_sllist
+    tests/sllist
 
 #bin_PROGRAMS = \
 #    example/check-rate
@@ -59,60 +60,6 @@ noinst_HEADERS = \
     example/process_util.h \
     linux/videodev2.h
 
-multi_gee_libmulti_gee_la_LIBADD = \
-    /usr/lib/libcclass.la
-multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
-multi_gee_libmulti_gee_la_LDFLAGS = \
-    -version-info @LIBVERSION@
-multi_gee_libmulti_gee_la_SOURCES = \
-    multi-gee/fg_util.c \
-    multi-gee/log.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c \
-    multi-gee/mg_frame.c \
-    multi-gee/multi-gee.c \
-    multi-gee/sllist.c
-
-multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
-multi_gee_mg_buffer_LDFLAGS = -lcclass
-multi_gee_mg_buffer_SOURCES = \
-    multi-gee/mg_buffer.c
-
-multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
-multi_gee_mg_device_LDFLAGS = -lcclass
-multi_gee_mg_device_SOURCES = \
-    multi-gee/log.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c
-
-multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
-multi_gee_mg_frame_LDFLAGS = -lcclass
-multi_gee_mg_frame_SOURCES = \
-    multi-gee/log.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c \
-    multi-gee/mg_frame.c
-
-multi_gee_sllist_CPPFLAGS = -DDEBUG_SLLIST
-multi_gee_sllist_LDFLAGS = -lcclass
-multi_gee_sllist_SOURCES = \
-    multi-gee/sllist.c
-
-multi_gee_test_sllist_LDFLAGS = -lcclass
-multi_gee_test_sllist_SOURCES = \
-    multi-gee/sllist.c \
-    multi-gee/test_sllist.c
-
-multi_gee_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
-multi_gee_multi_gee_LDFLAGS = -lcclass
-multi_gee_multi_gee_SOURCES = \
-    multi-gee/fg_util.c \
-    multi-gee/log.c \
-    multi-gee/mg_buffer.c \
-    multi-gee/mg_device.c \
-    multi-gee/mg_frame.c \
-    multi-gee/multi-gee.c \
-    multi-gee/sllist.c
 
 example_check_rate_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
@@ -138,6 +85,54 @@ example_mg_tweak_LDADD = \
     -lm
 example_mg_tweak_SOURCES = \
     example/mg-tweak.c
+multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
+multi_gee_libmulti_gee_la_LDFLAGS = \
+    -version-info $(LIBVERSION)
+multi_gee_libmulti_gee_la_SOURCES = \
+    multi-gee/fg_util.c \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/multi-gee.c \
+    multi-gee/sllist.c
+
+multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
+multi_gee_mg_buffer_SOURCES = \
+    multi-gee/mg_buffer.c
+
+multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
+multi_gee_mg_device_SOURCES = \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c
+
+multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
+multi_gee_mg_frame_SOURCES = \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c
+
+multi_gee_sllist_CPPFLAGS = -DDEBUG_SLLIST
+multi_gee_sllist_SOURCES = \
+    multi-gee/sllist.c
+
+multi_gee_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
+multi_gee_multi_gee_SOURCES = \
+    multi-gee/fg_util.c \
+    multi-gee/log.c \
+    multi-gee/mg_buffer.c \
+    multi-gee/mg_device.c \
+    multi-gee/mg_frame.c \
+    multi-gee/multi-gee.c \
+    multi-gee/sllist.c
+
+tests_sllist_LDADD = \
+    $(top_builddir)/multi-gee/libmulti-gee.la
+tests_sllist_SOURCES = \
+    multi-gee/sllist.c \
+    tests/sllist.c
 
 .PHONY: doc
 doc: doc/doxy/doxygen.conf

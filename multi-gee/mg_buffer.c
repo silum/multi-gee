@@ -19,7 +19,7 @@
  * @file
  * @brief Multi-gee capture buffer definition
  */
-#include <xmalloc.h>
+#include <cclass/xmalloc.h>
 
 #include "mg_buffer.h" /* class implemented */
 
@@ -145,7 +145,7 @@ mg_buffer_start(mg_buffer_t mg_buffer,
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <xassert.h>
+#include <cclass/xassert.h>
 
 void
 verify_buffer(mg_buffer_t buffer,

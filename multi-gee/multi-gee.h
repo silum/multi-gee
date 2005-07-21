@@ -22,7 +22,7 @@
 #ifndef ITL_MULTI_GEE_H
 #define ITL_MULTI_GEE_H
 
-#include <classdef.h>
+#include <cclass/classdef.h>
 
 #include <multi-gee/sllist.h>
 #include <multi-gee/mg_buffer.h>

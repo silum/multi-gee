@@ -19,10 +19,10 @@
  * @file
  * @brief Multi-gee capture buffer declaration
  */
-#ifndef ITL_MG_BUFFER_H
-#define ITL_MG_BUFFER_H
+#ifndef ITL_MULTI_GEE_MG_BUFFER_H
+#define ITL_MULTI_GEE_MG_BUFFER_H
 
-#include <classdef.h>
+#include <cclass/classdef.h>
 
 __BEGIN_DECLS
 
@@ -113,4 +113,4 @@ mg_buffer_set(mg_buffer_t buffer,
 
 __END_DECLS
 
-#endif /* ITL_MG_BUFFER_H */
+#endif /* ITL_MULTI_GEE_MG_BUFFER_H */

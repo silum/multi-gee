@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-AC_INIT([multi-gee], [0.94], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.95], [dsm@tlabs.ac.za])
 
 LIBVERSION="0:0:0"
 AC_SUBST([LIBVERSION])
@@ -42,6 +42,8 @@ AM_PROG_CC_C_O
 dnl --------------------------------------------------------------------
 dnl Checks for libraries.
 
+AM_LIB_CCLASS([], [AC_MSG_ERROR([libcclass required])])
+
 dnl --------------------------------------------------------------------
 dnl Checks for header files.
 
@@ -63,6 +65,8 @@ AC_CONFIG_FILES([
     example/Makefile
     Makefile
     multi-gee/Makefile
+    multi-gee.spec
+    tests/Makefile
 ])
 AC_OUTPUT
 

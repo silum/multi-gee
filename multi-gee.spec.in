@@ -1,0 +1,65 @@
+Name:           @PACKAGE_NAME@
+Version:        @PACKAGE_VERSION@
+Release:        1
+Summary:        Multi-gee frame capture library
+
+Group:          System/Libraries
+License:        GPL
+URL:            http://medsvr.tlabs.ac.za/wsvn/multi-gee
+Source0:        %{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+BuildRequires:  cclass-devel
+Requires:       cclass
+
+%description
+Low latency frame capture library for full frame rate video processing.
+
+%package devel
+Summary:        %{name} development package
+Group:          Development/Libraries
+Requires:       %{name} = %{version}, cclass-devel
+
+%description devel
+Development files for %{name}.
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+make doc
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+ldconfig
+
+%postun
+ldconfig
+
+%files
+%defattr(-,root,root,-)
+%doc AUTHORS BUILD ChangeLog COPYING INSTALL NEWS README
+%{_libdir}/lib%{name}.so*
+
+%files devel
+%defattr(-,root,root,-)
+%doc AUTHORS BUILD ChangeLog COPYING INSTALL NEWS README
+%doc doc/html
+%{_includedir}
+%{_libdir}/lib%{name}.a
+%{_libdir}/lib%{name}.la
+
+%changelog
+* Thu Jul 21 2005  Deneys S. Maartens  <dsm@tlabs.ac.za> 0.95-1
+- create spec file
+
+
+# -fin-

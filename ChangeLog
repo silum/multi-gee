@@ -1,9 +1,12 @@
  $Id$
 
+2005-07-21  Deneys S. Maartens  <dsm@tlabs.ac.za>
+    * multi-gee.spec: create RPM spec file
+
 2005-03-14  Deneys S. Maartens  <dsm@tlabs.ac.za>
 
     * Update documentation
-    * Bump versoin number
+    * Bump version number
 
 2005-01-24  Deneys S. Maartens  <dsm@tlabs.ac.za>
 

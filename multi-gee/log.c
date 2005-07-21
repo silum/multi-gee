@@ -19,13 +19,13 @@
  * @file
  * @brief Logging object definition
  */
+#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <stdarg.h> /* vfprintf */
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
-#include <xmalloc.h>
 
 #include "log.h" /* declarations implemented */
 

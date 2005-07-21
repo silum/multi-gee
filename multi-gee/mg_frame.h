@@ -19,8 +19,8 @@
  * @file
  * @brief Multi-gee Frame declaration
  */
-#ifndef ITL_MG_FRAME_H
-#define ITL_MG_FRAME_H
+#ifndef ITL_MULTI_GEE_MG_FRAME_H
+#define ITL_MULTI_GEE_MG_FRAME_H
 
 #include <stdint.h> /* uint32_t */
 #include <stdbool.h> /* bool */
@@ -151,4 +151,4 @@ mg_frame_used(mg_frame_t frame);
 
 __END_DECLS
 
-#endif /* ITL_MG_FRAME_H */
+#endif /* ITL_MULTI_GEE_MG_FRAME_H */

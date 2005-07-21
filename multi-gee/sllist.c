@@ -19,10 +19,10 @@
  * @file
  * @brief Singly linked-list definition
  */
-#include <xassert.h>
-#include <xmalloc.h>
+#include <cclass/xassert.h>
+#include <cclass/xmalloc.h>
 
-#include "sllist.h" /*  class implemented  */
+#include "sllist.h" /* class implemented */
 
 USE_XASSERT
 
@@ -94,7 +94,7 @@ CLASS(sllist, sllist_t)
 	sllist_t next; /**< Pointer to next list item */
 };
 
-static sllist_t
+sllist_t
 sll_create(void *data)
 {
 	sllist_t sllist;
@@ -106,7 +106,7 @@ sll_create(void *data)
 	return sllist;
 }
 
-static sllist_t
+sllist_t
 sll_destroy(sllist_t sllist)
 {
 	VERIFYZ(sllist) {
@@ -248,10 +248,10 @@ sll_remove(sllist_t list,
 
 #ifdef DEBUG_SLLIST
 
+#include <cclass/xassert.h>
+#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <xassert.h>
-#include <xmalloc.h>
 
 /*
  * test singly linked list

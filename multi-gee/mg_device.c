@@ -19,6 +19,7 @@
  * @file
  * @brief Multi-gee device definition
  */
+#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -26,7 +27,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <xmalloc.h>
 
 #include "mg_device.h" /* class implemented */
 
@@ -162,10 +162,9 @@ mg_device_open(mg_device_t mg_device)
 
 #ifdef DEBUG_DEVICE
 
+#include <cclass/xassert.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#include <xassert.h>
 
 void
 test_device(char *name,

@@ -19,8 +19,8 @@
  * @file
  * @brief Frame grabber interface utility declaration
  */
-#ifndef ITL_FG_UTIL_H
-#define ITL_FG_UTIL_H
+#ifndef ITL_MULTI_GEE_FG_UTIL_H
+#define ITL_MULTI_GEE_FG_UTIL_H
 
 #include <stdbool.h>
 #include <multi-gee/mg_device.h>
@@ -115,4 +115,4 @@ fg_uninit_device(mg_device_t device,
 
 __END_DECLS
 
-#endif /* ITL_FG_UTIL_H */
+#endif /* ITL_MULTI_GEE_FG_UTIL_H */

@@ -19,10 +19,10 @@
  * @file
  * @brief Logging object declaration
  */
-#ifndef ITL_LOG_H
-#define ITL_LOG_H
+#ifndef ITL_MULTI_GEE_LOG_H
+#define ITL_MULTI_GEE_LOG_H
 
-#include <classdef.h>
+#include <cclass/classdef.h>
 
 __BEGIN_DECLS
 
@@ -83,4 +83,4 @@ lg_log(log_t log,
 
 __END_DECLS
 
-#endif /* ITL_LOG_H */
+#endif /* ITL_MULTI_GEE_LOG_H */

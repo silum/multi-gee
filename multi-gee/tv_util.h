@@ -19,8 +19,8 @@
  * @file
  * @brief Timeval structure utility declaration
  */
-#ifndef ITL_TV_UTIL_H
-#define ITL_TV_UTIL_H
+#ifndef ITL_MULTI_GEE_TV_UTIL_H
+#define ITL_MULTI_GEE_TV_UTIL_H
 
 #include <sys/time.h> /* struct timeval */
 
@@ -47,4 +47,4 @@ __BEGIN_DECLS
 
 __END_DECLS
 
-#endif /* ITL_TV_UTIL_H */
+#endif /* ITL_MULTI_GEE_TV_UTIL_H */

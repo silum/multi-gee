@@ -19,8 +19,8 @@
  * @file
  * @brief Multi-gee device declaration
  */
-#ifndef ITL_MG_DEVICE_H
-#define ITL_MG_DEVICE_H
+#ifndef ITL_MULTI_GEE_MG_DEVICE_H
+#define ITL_MULTI_GEE_MG_DEVICE_H
 
 #include <multi-gee/log.h>
 #include <multi-gee/mg_buffer.h>
@@ -129,4 +129,4 @@ mg_device_open(mg_device_t device);
 
 __END_DECLS
 
-#endif /* ITL_MG_DEVICE_H */
+#endif /* ITL_MULTI_GEE_MG_DEVICE_H */

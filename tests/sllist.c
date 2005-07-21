@@ -19,12 +19,12 @@
  * @file
  * @brief Singly linked-list test program
  */
+#include <cclass/xassert.h>
+#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <xassert.h>
-#include <xmalloc.h>
 
-#include "sllist.h"
+#include <multi-gee/sllist.h>
 
 USE_XASSERT
 

@@ -20,13 +20,13 @@
  * @file
  * @brief Frame grabber interface utility definition
  */
+#include <cclass/xmalloc.h>
+
 #include <errno.h> /* errno */
 #include <string.h> /* memset */
 
 #include <sys/mman.h> /* mmap */
 #include <sys/ioctl.h> /* ioctl */
-
-#include <xmalloc.h>
 
 #include <stdlib.h> /* struct timeval, needed for videodev2.h */
 #include <asm/types.h> /* needed for videodev2.h */

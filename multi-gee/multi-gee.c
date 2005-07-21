@@ -19,10 +19,10 @@
  * @file
  * @brief Multi-gee Frame Grabber Library definition
  */
+#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <xmalloc.h>
 
 #include <stdint.h>
 #include <asm/types.h> /* needed for videodev2.h */
@@ -674,11 +674,11 @@ sync_test(multi_gee_t multi_gee)
 
 #ifdef DEBUG_MULTI_GEE
 
-#include <stdlib.h>
+#include <cclass/xassert.h>
+#include <cclass/xmalloc.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <xassert.h>
-#include <xmalloc.h>
 
 static void
 process_images(multi_gee_t mg, sllist_t frame_list)

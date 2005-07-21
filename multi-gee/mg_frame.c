@@ -19,8 +19,8 @@
  * @file
  * @brief Multi-gee Frame definition
  */
+#include <cclass/xmalloc.h>
 #include <sys/time.h> /* gettimeofday */
-#include <xmalloc.h>
 
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
@@ -162,11 +162,11 @@ mg_frame_used(mg_frame_t mg_frame)
 
 #ifdef DEBUG_FRAME
 
+#include <cclass/xassert.h>
+#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <xassert.h>
-#include <xmalloc.h>
 
 #include "multi-gee.h"
 
