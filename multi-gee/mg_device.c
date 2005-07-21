@@ -170,6 +170,13 @@ void
 test_device(char *name,
 	    dev_t devno)
 {
+	printf("%s(%s, {%d, %d})\n",
+	       __func__,
+	       name,
+	       major(devno),
+	       minor(devno));
+	fflush(0);
+
 	mg_device_t dev;
 	log_t log = lg_create("mg_device", "stderr");
 

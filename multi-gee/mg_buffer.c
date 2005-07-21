@@ -165,6 +165,11 @@ test_buffer(void *start_0,
 	    void *start_1,
 	    size_t length_1)
 {
+	printf("%s(%p, %d, %p, %d)\n",
+	       __func__,
+	       start_0, length_0,
+	       start_1, length_1);
+
 	/* create */
 	mg_buffer_t buffer = mg_buffer_create();
 	verify_buffer(buffer, 0, 0, 0, 0);

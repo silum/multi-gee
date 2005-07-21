@@ -16,32 +16,17 @@
 ## along with this program; if not, write to the Free Software Foundation,
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
+
 DIST_SUBDIRS = \
     examples \
     multi-gee \
     tests
 
-AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
-# -DDEBUG_SELECT
-
-lib_LTLIBRARIES = multi-gee/libmulti-gee.la
-
-TESTS = \
-    multi-gee/mg_buffer \
-    multi-gee/mg_device \
-    multi-gee/mg_frame \
-    multi-gee/sllist \
-    tests/sllist
-
-#bin_PROGRAMS = \
-#    examples/check-rate
-
-noinst_PROGRAMS = \
-    $(TESTS) \
-    examples/check-rate \
-    examples/mg-tweak \
-    examples/multi-gee \
-    multi-gee/multi-gee
+aclocaldir = \
+    $(datadir)/aclocal
+dist_aclocal_DATA = \
+    multi-gee.m4
 
 include_HEADERS = \
     multi-gee/multi-gee.h
@@ -60,11 +45,30 @@ noinst_HEADERS = \
     examples/process_util.h \
     linux/videodev2.h
 
+lib_LTLIBRARIES = \
+    multi-gee/libmulti-gee.la
+
+#bin_PROGRAMS = \
+#    examples/check-rate
+
+noinst_PROGRAMS = \
+    $(TESTS) \
+    examples/check-rate \
+    examples/mg-tweak \
+    examples/multi-gee \
+    multi-gee/multi-gee
+
+TESTS = \
+    multi-gee/mg_buffer \
+    multi-gee/mg_device \
+    multi-gee/mg_frame \
+    multi-gee/sllist \
+    tests/sllist
 
 examples_check_rate_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
 examples_check_rate_LDADD = \
-    $(top_builddir)/multi-gee/libmulti-gee.la \
+    multi-gee/libmulti-gee.la \
     -lncurses
 examples_check_rate_SOURCES = \
     examples/check-rate.c
@@ -72,7 +76,7 @@ examples_check_rate_SOURCES = \
 examples_multi_gee_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
 examples_multi_gee_LDADD = \
-    $(top_builddir)/multi-gee/libmulti-gee.la
+    multi-gee/libmulti-gee.la
 examples_multi_gee_SOURCES = \
     examples/multi-gee.c \
     examples/pgm_util.c \
@@ -81,11 +85,11 @@ examples_multi_gee_SOURCES = \
 examples_mg_tweak_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
 examples_mg_tweak_LDADD = \
-    $(top_builddir)/multi-gee/libmulti-gee.la \
+    multi-gee/libmulti-gee.la \
     -lm
 examples_mg_tweak_SOURCES = \
     examples/mg-tweak.c
-multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
+
 multi_gee_libmulti_gee_la_LDFLAGS = \
     -version-info $(LIBVERSION)
 multi_gee_libmulti_gee_la_SOURCES = \
@@ -97,28 +101,33 @@ multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/multi-gee.c \
     multi-gee/sllist.c
 
-multi_gee_mg_buffer_CPPFLAGS = -DDEBUG_BUFFER
+multi_gee_mg_buffer_CPPFLAGS = \
+    -DDEBUG_BUFFER
 multi_gee_mg_buffer_SOURCES = \
     multi-gee/mg_buffer.c
 
-multi_gee_mg_device_CPPFLAGS = -DDEBUG_DEVICE
+multi_gee_mg_device_CPPFLAGS = \
+    -DDEBUG_DEVICE
 multi_gee_mg_device_SOURCES = \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c
 
-multi_gee_mg_frame_CPPFLAGS = -DDEBUG_FRAME
+multi_gee_mg_frame_CPPFLAGS = \
+    -DDEBUG_FRAME
 multi_gee_mg_frame_SOURCES = \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
     multi-gee/mg_device.c \
     multi-gee/mg_frame.c
 
-multi_gee_sllist_CPPFLAGS = -DDEBUG_SLLIST
+multi_gee_sllist_CPPFLAGS = \
+    -DDEBUG_SLLIST
 multi_gee_sllist_SOURCES = \
     multi-gee/sllist.c
 
-multi_gee_multi_gee_CPPFLAGS = -DDEBUG_MULTI_GEE
+multi_gee_multi_gee_CPPFLAGS = \
+    -DDEBUG_MULTI_GEE
 multi_gee_multi_gee_SOURCES = \
     multi-gee/fg_util.c \
     multi-gee/log.c \
@@ -129,9 +138,8 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/sllist.c
 
 tests_sllist_LDADD = \
-    $(top_builddir)/multi-gee/libmulti-gee.la
+    multi-gee/libmulti-gee.la
 tests_sllist_SOURCES = \
-    multi-gee/sllist.c \
     tests/sllist.c
 
 .PHONY: doc

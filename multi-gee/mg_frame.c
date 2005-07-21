@@ -176,6 +176,13 @@ test_frame(mg_device_t device,
 	   struct timeval timestamp,
 	   uint32_t sequence)
 {
+	printf("%s(%p, %p, {%ld, %ld}, %d)\n",
+	       __func__,
+	       device,
+	       image,
+	       timestamp.tv_sec,
+	       timestamp.tv_usec,
+	       sequence);
 
 	struct v4l2_buffer buf;
 	memset(&buf, 0, sizeof(buf));
