@@ -17,7 +17,7 @@
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 DIST_SUBDIRS = \
-    example \
+    examples \
     multi-gee \
     tests
 
@@ -34,13 +34,13 @@ TESTS = \
     tests/sllist
 
 #bin_PROGRAMS = \
-#    example/check-rate
+#    examples/check-rate
 
 noinst_PROGRAMS = \
     $(TESTS) \
-    example/check-rate \
-    example/mg-tweak \
-    example/multi-gee \
+    examples/check-rate \
+    examples/mg-tweak \
+    examples/multi-gee \
     multi-gee/multi-gee
 
 include_HEADERS = \
@@ -56,35 +56,35 @@ nobase_include_HEADERS = \
     multi-gee/tv_util.h
 
 noinst_HEADERS = \
-    example/pgm_util.h \
-    example/process_util.h \
+    examples/pgm_util.h \
+    examples/process_util.h \
     linux/videodev2.h
 
 
-example_check_rate_CPPFLAGS = \
+examples_check_rate_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
-example_check_rate_LDADD = \
+examples_check_rate_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lncurses
-example_check_rate_SOURCES = \
-    example/check-rate.c
+examples_check_rate_SOURCES = \
+    examples/check-rate.c
 
-example_multi_gee_CPPFLAGS = \
+examples_multi_gee_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
-example_multi_gee_LDADD = \
+examples_multi_gee_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la
-example_multi_gee_SOURCES = \
-    example/multi-gee.c \
-    example/pgm_util.c \
-    example/process_util.c
+examples_multi_gee_SOURCES = \
+    examples/multi-gee.c \
+    examples/pgm_util.c \
+    examples/process_util.c
 
-example_mg_tweak_CPPFLAGS = \
+examples_mg_tweak_CPPFLAGS = \
     -I$(top_srcdir)/multi-gee
-example_mg_tweak_LDADD = \
+examples_mg_tweak_LDADD = \
     $(top_builddir)/multi-gee/libmulti-gee.la \
     -lm
-example_mg_tweak_SOURCES = \
-    example/mg-tweak.c
+examples_mg_tweak_SOURCES = \
+    examples/mg-tweak.c
 multi_gee_libmulti_gee_la_CPPFLAGS = $(AM_CPPFLAGS)
 multi_gee_libmulti_gee_la_LDFLAGS = \
     -version-info $(LIBVERSION)
