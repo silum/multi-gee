@@ -62,7 +62,7 @@ dnl Create output files.
 
 AC_CONFIG_FILES([
     doc/doxy/doxygen.conf
-    example/Makefile
+    examples/Makefile
     Makefile
     multi-gee/Makefile
     multi-gee.spec
