@@ -53,6 +53,7 @@ ldconfig
 %defattr(-,root,root,-)
 %doc AUTHORS BUILD ChangeLog COPYING INSTALL NEWS README
 %doc doc/html
+%{_datadir}/aclocal
 %{_includedir}
 %{_libdir}/lib%{name}.a
 %{_libdir}/lib%{name}.la
@@ -60,6 +61,5 @@ ldconfig
 %changelog
 * Thu Jul 21 2005  Deneys S. Maartens  <dsm@tlabs.ac.za> 0.95-1
 - create spec file
-
 
 # -fin-
