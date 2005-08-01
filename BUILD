@@ -1,6 +1,6 @@
 $Id$
 
-Copyright (C) 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+Copyright (C) 2003, 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
 
 BUILD Procedure
 ===============
@@ -13,7 +13,7 @@ script.
 To build the package from sources found in the CVS or Subversion
 repository, run the following commands from the command line:
 
-    $ ./config/bootstrap
+    $ ./config/autogen.sh
     $ ./configure
     $ make
 
@@ -25,4 +25,10 @@ Optionally, if the package provides this feature, build an RPM from the
 distribution tarball using rpmbuild:
 
     $ rpmbuild -ta <package>-<version>.tar.gz
+
+Alternatively, if the Makefile provides this target, use
+
+    $ make distrpm
+
+to create the RPMS.
 
