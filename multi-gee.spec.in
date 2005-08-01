@@ -1,3 +1,5 @@
+# $Id$
+
 Name:           @PACKAGE_NAME@
 Version:        @PACKAGE_VERSION@
 Release:        1
