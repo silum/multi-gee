@@ -68,7 +68,7 @@ if test "x$with_multi_gee" != "xno"; then
     fi
 
     # Check for headers.
-    AC_CHECK_HEADERS([multi-gee.h], [],
+    AC_CHECK_HEADERS([multi-gee/multi-gee.h], [],
         with_multi_gee="no"
     )
 
