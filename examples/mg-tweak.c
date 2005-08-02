@@ -19,7 +19,7 @@
 #include <cclass/xmalloc.h>
 #include <libgen.h>
 #include <math.h>
-#include <multi-gee.h>
+#include <multi-gee/multi-gee.h>
 #include <multi-gee/tv_util.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -16,10 +16,9 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <curses.h>
+#include <multi-gee/multi-gee.h>
 #include <signal.h>
 #include <stdlib.h>
-
-#include <multi-gee.h>
 
 static void finish(int sig);
 

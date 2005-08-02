@@ -18,7 +18,7 @@
 #ifndef ITL_PROCESS_UTIL_H
 #define ITL_PROCESS_UTIL_H 1
 
-#include <multi-gee.h>
+#include <multi-gee/multi-gee.h>
 
 __BEGIN_DECLS
 
