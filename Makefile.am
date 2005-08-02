@@ -28,15 +28,13 @@ aclocaldir = \
 dist_aclocal_DATA = \
     multi-gee.m4
 
-include_HEADERS = \
-    multi-gee/multi-gee.h
-
 nobase_include_HEADERS = \
     multi-gee/fg_util.h \
     multi-gee/log.h \
     multi-gee/mg_buffer.h \
     multi-gee/mg_device.h \
     multi-gee/mg_frame.h \
+    multi-gee/multi-gee.h \
     multi-gee/sllist.h \
     multi-gee/tv_util.h
 
@@ -65,16 +63,12 @@ TESTS = \
     multi-gee/sllist \
     tests/sllist
 
-examples_check_rate_CPPFLAGS = \
-    -I$(top_srcdir)/multi-gee
 examples_check_rate_LDADD = \
     multi-gee/libmulti-gee.la \
     -lncurses
 examples_check_rate_SOURCES = \
     examples/check-rate.c
 
-examples_multi_gee_CPPFLAGS = \
-    -I$(top_srcdir)/multi-gee
 examples_multi_gee_LDADD = \
     multi-gee/libmulti-gee.la
 examples_multi_gee_SOURCES = \
@@ -82,8 +76,6 @@ examples_multi_gee_SOURCES = \
     examples/pgm_util.c \
     examples/process_util.c
 
-examples_mg_tweak_CPPFLAGS = \
-    -I$(top_srcdir)/multi-gee
 examples_mg_tweak_LDADD = \
     multi-gee/libmulti-gee.la \
     -lm
