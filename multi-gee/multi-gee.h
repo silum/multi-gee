@@ -19,8 +19,8 @@
  * @file
  * @brief Multi-gee Frame Grabber Library declaration
  */
-#ifndef ITL_MULTI_GEE_H
-#define ITL_MULTI_GEE_H
+#ifndef ITL_MULTI_GEE_MULTI_GEE_H
+#define ITL_MULTI_GEE_MULTI_GEE_H
 
 #include <cclass/classdef.h>
 
@@ -29,7 +29,7 @@
 #include <multi-gee/mg_device.h>
 #include <multi-gee/mg_frame.h>
 
-__BEGIN_DECLS;
+__BEGIN_DECLS
 
 /**
  * @mainpage multi-gee Frame Capture Library
@@ -199,6 +199,6 @@ int
 mg_register_device(multi_gee_t multi_gee,
 		   char *device_name);
 
-__END_DECLS;
+__END_DECLS
 
-#endif /* ITL_MULTI_GEE_H */
+#endif /* ITL_MULTI_GEE_MULTI_GEE_H */
