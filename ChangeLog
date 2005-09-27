@@ -1,16 +1,22 @@
  $Id$
 
+2005-09-27  Deneys S. Maartens  <dsm@tlabs.ac.za>
+    * mg_device.c, mg_device.h: add userptr
+    * mg_frame.c, mg_frame.h: add shortcut to access device userptr
+    * various: normalise accessor function names to *_get_* and *_set_*
+    * doc/api.txt: update documentation
+    * configure.ac: bump version number
+
 2005-07-21  Deneys S. Maartens  <dsm@tlabs.ac.za>
     * multi-gee.spec: create RPM spec file
 
 2005-03-14  Deneys S. Maartens  <dsm@tlabs.ac.za>
 
-    * Update documentation
-    * Bump version number
+    * various: update documentation
+    * configure.ac: bump version number
 
 2005-01-24  Deneys S. Maartens  <dsm@tlabs.ac.za>
 
-    * Create ChangeLog
-    * Fix libversion related typo
-    * Bump version number
+    * ChangeLog: create
+    * configure.ac: Fix libversion related typo, bump version number
 

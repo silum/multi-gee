@@ -15,6 +15,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file
+ */
 #include <multi-gee/multi-gee.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -51,10 +54,10 @@ main()
 		mg_register_callback(mg, process_images);
 
 		/* register a device, or two */
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video0"));
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video1"));
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video2"));
-		printf("dev id = %d\n", mg_register_device(mg, "/dev/video3"));
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video0", 0));
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video1", 0));
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video2", 0));
+		printf("dev id = %d\n", mg_register_device(mg, "/dev/video3", 0));
 
 		/* capture 10 synced sets of images */
 		int ret = mg_capture(mg, 5);

@@ -172,8 +172,8 @@ bool
 fg_init_device(mg_device_t dev,
 	       log_t log)
 {
-	int fd = mg_device_fd(dev);
-	char *dev_name = mg_device_name(dev);
+	int fd = mg_device_get_fd(dev);
+	char *dev_name = mg_device_get_name(dev);
 
 	if (!test_capability(fd, dev_name, log))
 		return false;
@@ -188,8 +188,8 @@ fg_init_device(mg_device_t dev,
 
 	if (!init_mmap(fd,
 		       dev_name,
-		       mg_device_buffer(dev),
-		       mg_device_num_bufs(dev),
+		       mg_device_get_buffer(dev),
+		       mg_device_get_no_bufs(dev),
 		       log))
 		return false;
 
@@ -201,8 +201,8 @@ fg_start_capture(mg_device_t dev,
 		 log_t log)
 {
 	enum v4l2_buf_type type;
-	int fd = mg_device_fd(dev);
-	unsigned int bufs = mg_buffer_number(mg_device_buffer(dev));
+	int fd = mg_device_get_fd(dev);
+	unsigned int bufs = mg_buffer_get_number(mg_device_get_buffer(dev));
 
 	for (unsigned int i = 0; i < bufs; ++i)
 		fg_enqueue(fd, i, log);
@@ -222,7 +222,7 @@ fg_stop_capture(mg_device_t dev,
 		log_t log)
 {
 	enum v4l2_buf_type type;
-	int fd = mg_device_fd(dev);
+	int fd = mg_device_get_fd(dev);
 
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -238,12 +238,12 @@ bool
 fg_uninit_device(mg_device_t dev,
 		 log_t log)
 {
-	mg_buffer_t dev_buf = mg_device_buffer(dev);
-	unsigned int bufs = mg_buffer_number(dev_buf);
+	mg_buffer_t dev_buf = mg_device_get_buffer(dev);
+	unsigned int bufs = mg_buffer_get_number(dev_buf);
 
 	for (unsigned int i = 0; i < bufs; ++i) {
-		if (-1 == munmap(mg_buffer_start(dev_buf, i),
-				 mg_buffer_length(dev_buf, i))) {
+		if (-1 == munmap(mg_buffer_get_start(dev_buf, i),
+				 mg_buffer_get_length(dev_buf, i))) {
 			lg_errno(log, "munmap");
 			return false;
 		}

@@ -41,13 +41,15 @@ CLASS(mg_device, mg_device_t)
 	char *name; /**< Device file name */
 	dev_t devno; /**< Device number */
 	mg_buffer_t buffer; /**< Frame buffer object handle */
-	unsigned int num_bufs; /**< Number of capture buffers */
+	unsigned int no_bufs; /**< Number of capture buffers */
+	void *userptr; /**< User defined pointer */
 };
 
 mg_device_t
 mg_device_create(char *name,
-		unsigned int num_bufs,
-		log_t log)
+		 unsigned int no_bufs,
+		 log_t log,
+		 void *userptr)
 {
 	mg_device_t mg_device;
 	NEWOBJ(mg_device);
@@ -65,9 +67,11 @@ mg_device_create(char *name,
 	else
 		mg_device->devno = st.st_rdev;
 
-	mg_device->num_bufs = num_bufs;
+	mg_device->no_bufs = no_bufs;
 
 	mg_device->buffer = mg_buffer_create();
+
+	mg_device->userptr = userptr;
 
 	return mg_device;
 }
@@ -89,7 +93,7 @@ mg_device_destroy(mg_device_t mg_device)
 }
 
 mg_buffer_t
-mg_device_buffer(mg_device_t mg_device)
+mg_device_get_buffer(mg_device_t mg_device)
 {
 	mg_buffer_t p = 0;
 	VERIFY(mg_device) {
@@ -99,8 +103,19 @@ mg_device_buffer(mg_device_t mg_device)
 	return p;
 }
 
+dev_t
+mg_device_get_devno(mg_device_t mg_device)
+{
+	dev_t devno = makedev(-1,-1);
+	VERIFY(mg_device) {
+		devno = mg_device->devno;
+	}
+
+	return devno;
+}
+
 int
-mg_device_fd(mg_device_t mg_device)
+mg_device_get_fd(mg_device_t mg_device)
 {
 	int fd = -1;
 	VERIFY(mg_device) {
@@ -111,7 +126,7 @@ mg_device_fd(mg_device_t mg_device)
 }
 
 char *
-mg_device_name(mg_device_t mg_device)
+mg_device_get_name(mg_device_t mg_device)
 {
 	char * name = 0;
 	VERIFY(mg_device) {
@@ -122,25 +137,25 @@ mg_device_name(mg_device_t mg_device)
 }
 
 unsigned int
-mg_device_num_bufs(mg_device_t mg_device)
+mg_device_get_no_bufs(mg_device_t mg_device)
 {
-	unsigned int num_bufs = 0;
+	unsigned int no_bufs = 0;
 	VERIFY(mg_device) {
-		num_bufs = mg_device->num_bufs;
+		no_bufs = mg_device->no_bufs;
 	}
 
-	return num_bufs;
+	return no_bufs;
 }
 
-dev_t
-mg_device_number(mg_device_t mg_device)
+void *
+mg_device_get_userptr(mg_device_t mg_device)
 {
-	dev_t devno = makedev(-1,-1);
+	void *userptr = 0;
 	VERIFY(mg_device) {
-		devno = mg_device->devno;
+		userptr = mg_device->userptr;
 	}
 
-	return devno;
+	return userptr;
 }
 
 int
@@ -168,35 +183,43 @@ mg_device_open(mg_device_t mg_device)
 
 void
 test_device(char *name,
-	    dev_t devno)
+	    dev_t devno,
+	    void *userptr)
 {
-	printf("%s(%s, {%d, %d})\n",
+	printf("%s(%s, {%d, %d}, %p)\n",
 	       __func__,
 	       name,
 	       major(devno),
-	       minor(devno));
+	       minor(devno),
+	       userptr);
 	fflush(0);
 
 	mg_device_t dev;
 	log_t log = lg_create("mg_device", "stderr");
 
 	/* create */
-	dev = mg_device_create(name, 3, log);
+	dev = mg_device_create(name, 3, log, userptr);
 
-	XASSERT(mg_device_fd(dev) == -1);
-	XASSERT(mg_device_number(dev) == devno);
+	XASSERT(mg_device_get_fd(dev) == -1);
+	XASSERT(mg_device_get_devno(dev) == devno);
 
 	/* device still valid */
 	XASSERT(dev);
 
 	int fd = mg_device_open(dev);
-	XASSERT(fd == mg_device_fd(dev));
+	XASSERT(fd == mg_device_get_fd(dev));
 
 	/* device still valid */
-	xassert(dev) { }
+	XASSERT(dev);
 
 	printf("%s file descriptor = %d\n", name, fd);
-	XASSERT(mg_device_number(dev) == devno);
+	XASSERT(mg_device_get_devno(dev) == devno);
+
+	/* device still valid */
+	XASSERT(dev);
+
+	printf("user pointer = %p\n", userptr);
+	XASSERT(mg_device_get_userptr(dev) == userptr);
 
 	/* device still valid */
 	XASSERT(dev);
@@ -213,10 +236,10 @@ test_device(char *name,
 void
 mg_device()
 {
-	test_device("/dev/no_such_device", makedev(-1, -1));
-	test_device("/bin/ls", makedev(-1, -1));
-	test_device("/dev/null", makedev(1, 3));
-	test_device("/dev/zero", makedev(1, 5));
+	test_device("/dev/no_such_device", makedev(-1, -1), 0);
+	test_device("/bin/ls", makedev(-1, -1), (void *) -1);
+	test_device("/dev/null", makedev(1, 3), (void *) 1);
+	test_device("/dev/zero", makedev(1, 5), mg_device);
 }
 
 int

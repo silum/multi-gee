@@ -73,7 +73,7 @@ mg_frame_destroy(mg_frame_t frame);
  * @return the capture device object handle
  */
 mg_device_t
-mg_frame_device(mg_frame_t frame);
+mg_frame_get_device(mg_frame_t frame);
 
 /**
  * @brief Image data accessor
@@ -83,7 +83,7 @@ mg_frame_device(mg_frame_t frame);
  * @return a pointer to the image data, or 0 if no image data exists
  */
 void *
-mg_frame_image(mg_frame_t frame);
+mg_frame_get_image(mg_frame_t frame);
 
 /**
  * @brief Buffer index accessor
@@ -96,7 +96,7 @@ mg_frame_image(mg_frame_t frame);
  * @return the index number, or -1 if not a valid frame
  */
 int
-mg_frame_index(mg_frame_t frame);
+mg_frame_get_index(mg_frame_t frame);
 
 /**
  * @brief Sequence number accessor
@@ -109,17 +109,7 @@ mg_frame_index(mg_frame_t frame);
  * @return the sequence number
  */
 uint32_t
-mg_frame_sequence(mg_frame_t frame);
-
-/**
- * @brief Old frame indicator accessor
- *
- * @param frame  object handle
- *
- * @return the object handle
- */
-mg_frame_t
-mg_frame_set_used(mg_frame_t frame);
+mg_frame_get_sequence(mg_frame_t frame);
 
 /**
  * @brief Time stamp accessor
@@ -133,7 +123,7 @@ mg_frame_set_used(mg_frame_t frame);
  * @return the time stamp
  */
 struct timeval
-mg_frame_timestamp(mg_frame_t frame);
+mg_frame_get_timestamp(mg_frame_t frame);
 
 /**
  * @brief Old frame indicator
@@ -147,7 +137,27 @@ mg_frame_timestamp(mg_frame_t frame);
  * @return \c true if it has been used, else \c false
  */
 bool
-mg_frame_used(mg_frame_t frame);
+mg_frame_get_used(mg_frame_t frame);
+
+/**
+ * @brief User defined pointer accessor
+ *
+ * @param frame  object handle
+ *
+ * @return user defined pointer, or 0 on failure
+ */
+void *
+mg_frame_get_userptr(mg_frame_t frame);
+
+/**
+ * @brief Old frame indicator accessor
+ *
+ * @param frame  object handle
+ *
+ * @return the object handle
+ */
+mg_frame_t
+mg_frame_set_used(mg_frame_t frame);
 
 __END_DECLS
 

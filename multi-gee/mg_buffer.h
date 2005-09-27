@@ -70,8 +70,8 @@ mg_buffer_alloc(mg_buffer_t buffer,
  * @return length of buffer
  */
 size_t
-mg_buffer_length(mg_buffer_t buffer,
-		 unsigned int index);
+mg_buffer_get_length(mg_buffer_t buffer,
+		     unsigned int index);
 
 /**
  * @brief Number of buffers accessor
@@ -81,7 +81,7 @@ mg_buffer_length(mg_buffer_t buffer,
  * @return the number of buffers allocated
  */
 unsigned int
-mg_buffer_number(mg_buffer_t buffer);
+mg_buffer_get_number(mg_buffer_t buffer);
 
 /**
  * @brief Buffer start address accessor
@@ -92,8 +92,8 @@ mg_buffer_number(mg_buffer_t buffer);
  * @return buffer start pointer
  */
 void *
-mg_buffer_start(mg_buffer_t buffer,
-		unsigned int index);
+mg_buffer_get_start(mg_buffer_t buffer,
+		    unsigned int index);
 
 /**
  * @brief Set the start address and length of a buffer

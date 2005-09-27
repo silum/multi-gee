@@ -52,7 +52,7 @@ An example code segment illustrating the typical work routine:
     5
     6   // register devices
     7   for (int i = 0; i < N /* devices */; ++i)
-    8       dev_id[i] = mg_register_device(mg, "device file name i")
+    8       dev_id[i] = mg_register_device(mg, "device file name i", 0)
     9
     10   // capture synced sets of images
     11  mg_capture(mg, -1); // calls callback() with synced frames
@@ -115,9 +115,10 @@ interested in capturing.  The only function of note is to retrieve the device
 identifier, which is the identifier also returned by the mg_register_device()
 function:
 
-    - mg_device_fd() -- obtain device identifier
+    - mg_device_get_fd() -- obtain device identifier
 
-[dsm: Note, it is mg_device_fd() and not mg_device_id() as may be expected.]
+[dsm: Note, it is mg_device_get_fd() and not mg_device_get_id() as may be
+expected.]
 
 For each video image captured by a capture device, a frame object exists.
 This frame object contains the image data, the time stamp and the sequence
@@ -127,13 +128,14 @@ discarded and a new object is created which contains the new data.
 To retrieve the stored data from the mg_frame_t object the following functions
 can be called:
 
-    - mg_frame_device() -- returns mg_device_t object
-    - mg_frame_image() -- returns a pointer to the image data
-    - mg_frame_sequence() -- returns the sequence number
-    - mg_frame_timestamp() -- returns the time stamp
+    - mg_frame_get_device() -- returns mg_device_t object
+    - mg_frame_get_image() -- returns a pointer to the image data
+    - mg_frame_get_sequence() -- returns the sequence number
+    - mg_frame_get_timestamp() -- returns the time stamp
+    - mg_frame_get_userptr() -- returns user defined pointer from mg_device_t
 
-The mg_device_t object handle returned by the mg_frame_device() should be used
-as argument to the mg_device_fd() function.
+The mg_device_t object handle returned by the mg_frame_get_device() should be
+used as argument to the mg_device_get_fd() function.
 
 The callback function is passed a sllist_t object handle.  The sllist_t object
 is a singly linked list, where each item in the list is associated with an
@@ -233,35 +235,35 @@ and indicates the number of remaining registered devices, while a return value
 of -1 indicates failure.
 
 
-- int mg_device_fd(mg_device_t object_handle);
+- int mg_device_get_fd(mg_device_t object_handle);
 
 A call to mg_device_fd() retrieves the device identifier of the mg_device_t
 object.  The return value is the device identifier, or -1 if the device file
 has not been opened yet.
 
 
-- mg_device_t mg_frame_device(mg_frame_t object_handle);
+- mg_device_t mg_frame_get_device(mg_frame_t object_handle);
 
 The mg_frame_device() call returns the device object handle the frame was
 captured on.  If the mg_frame_t object handle is not valid the function call
 returns 0.
 
 
-- void * mg_frame_image(mg_frame_t object_handle);
+- void * mg_frame_get_image(mg_frame_t object_handle);
 
 The mg_frame_image() function returns a pointer to the image data of the
 captured image.  If the mg_frame_t object handle is not valid the function
 call returns 0.
 
 
-- uint32_t mg_frame_sequence(mg_frame_t object_handle);
+- uint32_t mg_frame_get_sequence(mg_frame_t object_handle);
 
 The sequence number is an unsigned 32-bit integer that denotes the image
 sequence number for the capturing device.  In broad terms it indicates the
 number images successfully captured by the image capture device.
 
 
-- struct timeval mg_frame_timestamp(mg_frame_t object_handle);
+- struct timeval mg_frame_get_timestamp(mg_frame_t object_handle);
 
 The instant the image is captured is recorded as the image timestamp.  The
 information recorded in the timeval structure is the number of seconds since
@@ -284,7 +286,8 @@ that the registration of the callback function has failed.
 
 
 - int mg_register_device(multi_gee_t multi_gee,
-                         const char * filename)
+                         const char *filename,
+                         void *userptr)
 
 The function is used to register an unregistered device.  This call can happen
 at any point in time, even after capturing has started.  The next call of the
@@ -302,6 +305,9 @@ device.
 
 Multiple calls to mg_register_device() specifying the same device will return
 the same device identifier for each call to the function.
+
+The userptr field is added for user convenience, and is not used by the device
+object.
 
 
 - void * sll_data(sllist_t object_handle);
@@ -342,35 +348,39 @@ parameters are:
 Change Log
 ==========
 
-* Mon Apr 18 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Tue Sep 27 2005  Deneys S. Maartens  <dsm@tlabs.ac.za>
+- Add userptr field to device
+- Change accessor function names to *_get_* and *_set_*
+
+* Mon Apr 18 2005  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Add info on mg_frame, mg_device and sllist
 - Alphabetically sort function reference section
 
-* Fri Mar 18 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Fri Mar 18 2005  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Reword the private structure library slightly
 
-* Mon Mar 14 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Mon Mar 14 2005  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Add example section for callback function
 - Document hard coded values
 
-* Mon Dec 20 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Mon Dec 20 2004  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Modify function prototypes to include an object handle
 - Change example to include creation and destruction of object handle
 
-* Tue Nov 23 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Tue Nov 23 2004  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Minor changes to text
 
-* Fri Nov 05 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Fri Nov 05 2004  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Add introduction section
 - Change wording in many paragraphs
 
-* Wed Nov 03 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Wed Nov 03 2004  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Expand some of the function descriptions
 - Add the callback function section
 - Expand the example usage section.  Add line numbers to the code
   segment
 
-* Mon Nov 01 2004 Deneys S. Maartens <dsm@tlabs.ac.za>
+* Mon Nov 01 2004  Deneys S. Maartens  <dsm@tlabs.ac.za>
 - Initial version of text file
 
  vim:textwidth=78:

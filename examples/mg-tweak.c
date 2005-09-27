@@ -15,6 +15,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+ * @file
+ */
 #include <cclass/xassert.h>
 #include <cclass/xmalloc.h>
 #include <libgen.h>
@@ -92,14 +95,14 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 
 	for (sllist_t f = frame_list; f; f = sll_next(f)) {
 		mg_frame_t frame = sll_data(f);
-		printf("dev: %s\n", mg_device_name(mg_frame_device(frame)));
-		struct timeval tv = mg_frame_timestamp(frame);
+		printf("dev: %s\n", mg_device_get_name(mg_frame_get_device(frame)));
+		struct timeval tv = mg_frame_get_timestamp(frame);
 
 		print_tv(" tv: ", tv); printf("\n");
 
 		timersub(&now, &tv, &diff);
 		print_tv("  tv   now diff: ", diff); printf("\n");
-		printf("  sequence: %d\n", mg_frame_sequence(frame));
+		printf("  sequence: %d\n", mg_frame_get_sequence(frame));
 
 	}
 	printf("\n");
@@ -110,7 +113,7 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	if (count % 1 == 0) {
 		static bool flag = true;
 		if (flag) {
-			dev_id = mg_register_device(mg, "/dev/video1");
+			dev_id = mg_register_device(mg, "/dev/video1", 0);
 		} else {
 			dev_id = mg_deregister_device(mg, dev_id);
 		}
@@ -124,7 +127,7 @@ register_device(multi_gee_t mg, unsigned int number)
 	char dev[20];
 	sprintf(dev, "/dev/video%d", number);
 
-	int id = mg_register_device(mg, dev);
+	int id = mg_register_device(mg, dev, 0);
 
 	printf("dev id = %d\n", id);
 
@@ -142,13 +145,11 @@ multi_gee(int buffers,
 	  int sleeptime,
 	  struct timeval in_sync,
 	  struct timeval no_sync,
-	  struct timeval sub,
 	  bool verbose)
 {
 	multi_gee_t mg = mg_create_special("stdout",
 					   in_sync,
 					   no_sync,
-					   sub,
 					   buffers);
 
 	mg_register_callback(mg, process_images);
@@ -367,16 +368,7 @@ main(int argc, char *argv[])
 		  sleeptime,
 		  in_sync,
 		  no_sync,
-		  sub,
 		  verbose);
 	return EXIT_SUCCESS;
 }
 
-/*
-
-               c = getopt_long (argc, argv, "abc:d:012",
-                        long_options, &option_index);
-               if (c == -1)
-                   break;
-
-*/

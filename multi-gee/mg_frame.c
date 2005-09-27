@@ -78,7 +78,7 @@ mg_frame_destroy(mg_frame_t mg_frame)
 }
 
 mg_device_t
-mg_frame_device(mg_frame_t mg_frame)
+mg_frame_get_device(mg_frame_t mg_frame)
 {
 	mg_device_t device = 0;
 
@@ -90,20 +90,20 @@ mg_frame_device(mg_frame_t mg_frame)
 }
 
 void *
-mg_frame_image(mg_frame_t mg_frame)
+mg_frame_get_image(mg_frame_t mg_frame)
 {
 	void *image = 0;
 
 	VERIFY(mg_frame) {
-		mg_buffer_t buf = mg_device_buffer(mg_frame->device);
-		image = mg_buffer_start(buf, mg_frame->index);
+		mg_buffer_t buf = mg_device_get_buffer(mg_frame->device);
+		image = mg_buffer_get_start(buf, mg_frame->index);
 	}
 
 	return image;
 }
 
 int
-mg_frame_index(mg_frame_t mg_frame)
+mg_frame_get_index(mg_frame_t mg_frame)
 {
 	int index = -1;
 	VERIFY(mg_frame) {
@@ -114,7 +114,7 @@ mg_frame_index(mg_frame_t mg_frame)
 }
 
 uint32_t
-mg_frame_sequence(mg_frame_t mg_frame)
+mg_frame_get_sequence(mg_frame_t mg_frame)
 {
 	int sequence = -1;
 
@@ -123,6 +123,40 @@ mg_frame_sequence(mg_frame_t mg_frame)
 	}
 
 	return sequence;
+}
+
+struct timeval
+mg_frame_get_timestamp(mg_frame_t mg_frame)
+{
+	struct timeval timestamp = {0, 0};
+
+	VERIFY(mg_frame) {
+		timestamp = mg_frame->timestamp;
+	}
+
+	return timestamp;
+}
+
+bool
+mg_frame_get_used(mg_frame_t mg_frame)
+{
+	bool used = false;
+	VERIFY(mg_frame) {
+		used = mg_frame->used;
+	}
+
+	return used;
+}
+
+void *
+mg_frame_get_userptr(mg_frame_t mg_frame)
+{
+	void *userptr = 0;
+	VERIFY(mg_frame) {
+		userptr = mg_device_get_userptr(mg_frame->device);
+	}
+
+	return userptr;
 }
 
 mg_frame_t
@@ -135,29 +169,6 @@ mg_frame_set_used(mg_frame_t mg_frame)
 	}
 
 	return frame;
-}
-
-struct timeval
-mg_frame_timestamp(mg_frame_t mg_frame)
-{
-	struct timeval timestamp = {0, 0};
-
-	VERIFY(mg_frame) {
-		timestamp = mg_frame->timestamp;
-	}
-
-	return timestamp;
-}
-
-bool
-mg_frame_used(mg_frame_t mg_frame)
-{
-	bool used = false;
-	VERIFY(mg_frame) {
-		used = mg_frame->used;
-	}
-
-	return used;
 }
 
 #ifdef DEBUG_FRAME
@@ -192,20 +203,23 @@ test_frame(mg_device_t device,
 
 	mg_frame_t frame = mg_frame_create(device, &buf);
 
-	XASSERT(mg_frame_device(frame) == device);
-	XASSERT(mg_frame_image(frame) == image);
+	XASSERT(mg_frame_get_device(frame) == device);
+	XASSERT(mg_frame_get_image(frame) == image);
 
-	struct timeval tv = mg_frame_timestamp(frame);
+	struct timeval tv = mg_frame_get_timestamp(frame);
 	XASSERT(tv.tv_sec == timestamp.tv_sec);
 	XASSERT(tv.tv_usec == timestamp.tv_usec);
 
-	XASSERT(mg_frame_sequence(frame) == sequence);
+	XASSERT(mg_frame_get_sequence(frame) == sequence);
 
-	XASSERT(mg_frame_used(frame) == false);
+	XASSERT(mg_frame_get_used(frame) == false);
 	frame = mg_frame_set_used(frame);
-	XASSERT(mg_frame_used(frame) == true);
+	XASSERT(mg_frame_get_used(frame) == true);
 	frame = mg_frame_set_used(frame);
-	XASSERT(mg_frame_used(frame) == true);
+	XASSERT(mg_frame_get_used(frame) == true);
+
+	XASSERT(mg_frame_get_userptr(frame) ==
+		mg_device_get_userptr(device));
 
 	mg_frame_destroy(frame);
 }
@@ -215,8 +229,9 @@ mg_frame()
 {
 	log_t log = lg_create("mg_frame", "stderr");
 	struct timeval timestamp = {0 , 0};
-	mg_device_t mg_device = mg_device_create("/dev/null", 3, log);
-	mg_buffer_t mg_buffer = mg_device_buffer(mg_device);
+	mg_device_t mg_device = mg_device_create("/dev/null", 3, log,
+						 (void *) 0xdeadbeef);
+	mg_buffer_t mg_buffer = mg_device_get_buffer(mg_device);
 	mg_buffer_alloc(mg_buffer, 1);
 
 	test_frame(mg_device, 0, timestamp, 0);

@@ -42,13 +42,15 @@ NEWHANDLE(mg_device_t);
  * @param file  device file name
  * @param num_bufs  number of capture buffers
  * @param log  object handle, to log error messages to during creation
+ * @param userptr  user defined pointer
  *
  * @return a newly created device object handle
  */
 mg_device_t
 mg_device_create(char *file,
 		 unsigned int num_bufs,
-		 log_t log);
+		 log_t log,
+		 void *userptr);
 
 /**
  * @brief Destroy device object
@@ -68,27 +70,7 @@ mg_device_destroy(mg_device_t device);
  * @return buffer object handle
  */
 mg_buffer_t
-mg_device_buffer(mg_device_t device);
-
-/**
- * @brief Device file descriptor accessor
- *
- * @param device  object handle
- *
- * @return device file descriptor or -1 if device not open
- */
-int
-mg_device_fd(mg_device_t device);
-
-/**
- * @brief Device name accessor
- *
- * @param device  object handle
- *
- * @return device file name
- */
-char *
-mg_device_name(mg_device_t device);
+mg_device_get_buffer(mg_device_t device);
 
 /**
  * @brief Device number accessor
@@ -99,7 +81,27 @@ mg_device_name(mg_device_t device);
  * device
  */
 dev_t
-mg_device_number(mg_device_t device);
+mg_device_get_devno(mg_device_t device);
+
+/**
+ * @brief Device file descriptor accessor
+ *
+ * @param device  object handle
+ *
+ * @return device file descriptor or -1 if device not open
+ */
+int
+mg_device_get_fd(mg_device_t device);
+
+/**
+ * @brief Device name accessor
+ *
+ * @param device  object handle
+ *
+ * @return device file name
+ */
+char *
+mg_device_get_name(mg_device_t device);
 
 /**
  * @brief Query the number of capture buffers
@@ -109,7 +111,17 @@ mg_device_number(mg_device_t device);
  * @return number of capture buffers, or 0 on failure
  */
 unsigned int
-mg_device_num_bufs(mg_device_t device);
+mg_device_get_no_bufs(mg_device_t device);
+
+/**
+ * @brief User defined pointer accessor
+ *
+ * @param device  object handle
+ *
+ * @return user defined pointer, or 0 on failure
+ */
+void *
+mg_device_get_userptr(mg_device_t device);
 
 /**
  * @brief Open device

@@ -26,15 +26,35 @@
 
 __BEGIN_DECLS
 
+/**
+ * @def timerset
+ * @brief Initialise a timeval
+ *
+ * @param tvp  timeval pointer
+ * @param sec  seconds
+ * @param usec  microseconds
+ */
 #define timerset(tvp, sec, usec) \
 	do { (tvp)->tv_sec = sec;  (tvp)->tv_usec = usec; } while (0)
 
+/**
+ * @def timerabs
+ * @brief Get the absolute value of a timeval
+ *
+ * @param tvp  timeval pointer
+ */
 #define timerabs(tvp) \
 	do { \
 		if ((tvp)->tv_sec < 0) (tvp)->tv_sec = -(tvp)->tv_sec; \
 		if ((tvp)->tv_usec < 0) (tvp)->tv_usec = -(tvp)->tv_usec; \
 	} while (0)
 
+/**
+ * @def timernorm
+ * @brief Normalise the contents of a timeval
+ *
+ * @param tvp  timeval pointer
+ */
 #define timernorm(tvp) \
 	do { \
 		struct timeval zero; \

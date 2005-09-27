@@ -15,6 +15,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/**
+  * @file
+  */
 #include <stdio.h>
 
 #include "pgm_util.h"
@@ -26,9 +29,9 @@ process(multi_gee_t multi_gee, mg_frame_t frame)
 	// silence unused parameter compiler warning
 	(void) multi_gee;
 
-	mg_device_t device = mg_frame_device(frame);
-	const char *name = mg_device_name(device);
-	struct timeval tv = mg_frame_timestamp(frame);
+	mg_device_t device = mg_frame_get_device(frame);
+	const char *name = mg_device_get_name(device);
+	struct timeval tv = mg_frame_get_timestamp(frame);
 
 	char comment[255];
 	snprintf(comment,
@@ -41,6 +44,6 @@ process(multi_gee_t multi_gee, mg_frame_t frame)
 	pgm_append(PGM_FILE,
 		   768, 576, 255,
 		   comment,
-		   mg_frame_image(frame));
+		   mg_frame_get_image(frame));
 }
 

@@ -80,7 +80,7 @@ mg_buffer_alloc(mg_buffer_t mg_buffer,
 }
 
 size_t
-mg_buffer_length(mg_buffer_t mg_buffer,
+mg_buffer_get_length(mg_buffer_t mg_buffer,
 		 unsigned int n)
 {
 	size_t s = 0;
@@ -94,7 +94,7 @@ mg_buffer_length(mg_buffer_t mg_buffer,
 }
 
 unsigned int
-mg_buffer_number(mg_buffer_t mg_buffer)
+mg_buffer_get_number(mg_buffer_t mg_buffer)
 {
 	int number = 0;
 
@@ -103,6 +103,20 @@ mg_buffer_number(mg_buffer_t mg_buffer)
 	}
 
 	return number;
+}
+
+void *
+mg_buffer_get_start(mg_buffer_t mg_buffer,
+		unsigned int n)
+{
+	void *p = 0;
+
+	VERIFY(mg_buffer) {
+		if (mg_buffer->number > n)
+			p = mg_buffer->start[n];
+	}
+
+	return p;
 }
 
 mg_buffer_t
@@ -126,20 +140,6 @@ mg_buffer_set(mg_buffer_t mg_buffer,
 	return p;
 }
 
-void *
-mg_buffer_start(mg_buffer_t mg_buffer,
-		unsigned int n)
-{
-	void *p = 0;
-
-	VERIFY(mg_buffer) {
-		if (mg_buffer->number > n)
-			p = mg_buffer->start[n];
-	}
-
-	return p;
-}
-
 #ifdef DEBUG_BUFFER
 
 #include <stdlib.h>
@@ -154,9 +154,9 @@ verify_buffer(mg_buffer_t buffer,
 	      void *start,
 	      size_t length)
 {
-	xassert(mg_buffer_number(buffer) == number) {}
-	xassert(mg_buffer_start(buffer, n) == start) {}
-	xassert(mg_buffer_length(buffer, n) == length) {}
+	xassert(mg_buffer_get_number(buffer) == number) {}
+	xassert(mg_buffer_get_start(buffer, n) == start) {}
+	xassert(mg_buffer_get_length(buffer, n) == length) {}
 }
 
 void

@@ -79,7 +79,7 @@ EXCLUDE_PATTERNS       = */example/* \
                          config.h \
                          videodev2.h \
                          test_*
-EXAMPLE_PATH           = @abs_top_srcdir@/example
+EXAMPLE_PATH           = @abs_top_srcdir@/examples
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = 

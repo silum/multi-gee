@@ -105,7 +105,6 @@ mg_create(char *file_name);
  *   - a file name: logs will be appended to this file
  * @param tv_in_sync  in sync criterion
  * @param tv_no_sync  sync failure criterion
- * @param tv_sub  offset from capture start to accept frames
  * @param num_bufs  number of captyre buffers
  *
  * @return a newly created Multi-gee object handle
@@ -114,7 +113,6 @@ multi_gee_t
 mg_create_special(char *file_name,
 		  struct timeval tv_in_sync,
 		  struct timeval tv_no_sync,
-		  struct timeval tv_sub,
 		  unsigned int num_bufs);
 
 /**
@@ -190,6 +188,7 @@ mg_register_callback(multi_gee_t multi_gee,
  *
  * @param multi_gee  object handle
  * @param device_name  device to register
+ * @param userptr  user defined pointer
  *
  * @return status value:
  *   -1 - failed to register device,
@@ -197,7 +196,8 @@ mg_register_callback(multi_gee_t multi_gee,
  */
 int
 mg_register_device(multi_gee_t multi_gee,
-		   char *device_name);
+		   char *device_name,
+		   void *userptr);
 
 __END_DECLS
 
