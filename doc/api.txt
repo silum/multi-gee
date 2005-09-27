@@ -116,6 +116,7 @@ identifier, which is the identifier also returned by the mg_register_device()
 function:
 
     - mg_device_get_fd() -- obtain device identifier
+    - mg_device_get_userptr() -- returns user defined pointer
 
 [dsm: Note, it is mg_device_get_fd() and not mg_device_get_id() as may be
 expected.]
@@ -132,7 +133,8 @@ can be called:
     - mg_frame_get_image() -- returns a pointer to the image data
     - mg_frame_get_sequence() -- returns the sequence number
     - mg_frame_get_timestamp() -- returns the time stamp
-    - mg_frame_get_userptr() -- returns user defined pointer from mg_device_t
+    - mg_frame_get_userptr() -- returns user defined pointer from device
+      object
 
 The mg_device_t object handle returned by the mg_frame_get_device() should be
 used as argument to the mg_device_get_fd() function.
@@ -235,35 +237,43 @@ and indicates the number of remaining registered devices, while a return value
 of -1 indicates failure.
 
 
-- int mg_device_get_fd(mg_device_t object_handle);
+- int mg_device_get_fd(mg_device_t mg_device);
 
-A call to mg_device_fd() retrieves the device identifier of the mg_device_t
-object.  The return value is the device identifier, or -1 if the device file
-has not been opened yet.
+A call to mg_device_get_fd() retrieves the device identifier of the
+mg_device_t object.  The return value is the device identifier, or -1 if the
+device file has not been opened yet.
 
 
-- mg_device_t mg_frame_get_device(mg_frame_t object_handle);
+- void * mg_device_get_userptr(mg_device_t mg_device);
+- void * mg_frame_get_userptr(mg_device_t mg_device);
 
-The mg_frame_device() call returns the device object handle the frame was
+The mg_device_get_userptr() call returns the user defined userptr.  The
+mg_frame_get_userptr() call returns the userptr from the underlying device
+attached to the frame object.
+
+
+- mg_device_t mg_frame_get_device(mg_frame_t mg_frame);
+
+The mg_frame_get_device() call returns the device object handle the frame was
 captured on.  If the mg_frame_t object handle is not valid the function call
 returns 0.
 
 
-- void * mg_frame_get_image(mg_frame_t object_handle);
+- void * mg_frame_get_image(mg_frame_t mg_frame);
 
-The mg_frame_image() function returns a pointer to the image data of the
+The mg_frame_get_image() function returns a pointer to the image data of the
 captured image.  If the mg_frame_t object handle is not valid the function
 call returns 0.
 
 
-- uint32_t mg_frame_get_sequence(mg_frame_t object_handle);
+- uint32_t mg_frame_get_sequence(mg_frame_t mg_frame);
 
 The sequence number is an unsigned 32-bit integer that denotes the image
 sequence number for the capturing device.  In broad terms it indicates the
 number images successfully captured by the image capture device.
 
 
-- struct timeval mg_frame_get_timestamp(mg_frame_t object_handle);
+- struct timeval mg_frame_get_timestamp(mg_frame_t mg_frame);
 
 The instant the image is captured is recorded as the image timestamp.  The
 information recorded in the timeval structure is the number of seconds since
@@ -310,12 +320,12 @@ The userptr field is added for user convenience, and is not used by the device
 object.
 
 
-- void * sll_data(sllist_t object_handle);
+- void * sll_data(sllist_t sllist);
 
 The sll_data() function is used to obtain a pointer to the list item data.
 
 
-- sllist_t sll_next(sllist_t object_handle);
+- sllist_t sll_next(sllist_t sllist);
 
 To find the next item in the list, the sll_next() function is used.  A
 sll_next() call on the the last item in the list will return 0.
