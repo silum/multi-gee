@@ -760,7 +760,7 @@ int
 main()
 {
 	for (int i = 0; i < 5; i++) {
-		int ret = debug_test(multi_gee);
+		int ret = xassert_test(multi_gee);
 		if (ret != EXIT_SUCCESS)
 			return ret;
 	}

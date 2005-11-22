@@ -52,8 +52,8 @@ mg_buffer_t
 mg_buffer_destroy(mg_buffer_t mg_buffer)
 {
 	VERIFYZ(mg_buffer) {
-		xfree(mg_buffer->start);
-		xfree(mg_buffer->length);
+		xdelete(mg_buffer->start);
+		xdelete(mg_buffer->length);
 
 		FREEOBJ(mg_buffer);
 	}
@@ -209,7 +209,7 @@ mg_buffer()
 int
 main()
 {
-	return debug_test(mg_buffer);
+	exit(xassert_test(mg_buffer));
 }
 
 #endif /* DEBUG_BUFFER */

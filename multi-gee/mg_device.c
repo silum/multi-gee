@@ -83,7 +83,7 @@ mg_device_destroy(mg_device_t mg_device)
 		if (mg_device->fd != -1)
 			close(mg_device->fd);
 
-		xfree(mg_device->name);
+		xdelete(mg_device->name);
 		mg_buffer_destroy(mg_device->buffer);
 
 		FREEOBJ(mg_device);
@@ -245,7 +245,7 @@ mg_device()
 int
 main()
 {
-	return debug_test(mg_device);
+	exit(xassert_test(mg_device));
 }
 
 #endif /* DEBUG_DEVICE */

@@ -17,6 +17,7 @@
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
+ACLOCAL_AMFLAGS = -I $(am_aux_dir)
 
 DIST_SUBDIRS = \
     examples \

@@ -253,7 +253,7 @@ mg_frame()
 int
 main()
 {
-	return debug_test(mg_frame);
+	exit(xassert_test(mg_frame));
 }
 
 #endif /* DEBUG_FRAME */

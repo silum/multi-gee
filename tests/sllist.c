@@ -87,6 +87,6 @@ sllist()
 int
 main()
 {
-	return debug_test(sllist);
+	exit(xassert_test(sllist));
 }
 

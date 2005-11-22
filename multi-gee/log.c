@@ -100,7 +100,7 @@ log_t
 lg_destroy(log_t log)
 {
 	VERIFYZ(log) {
-		xfree(log->name);
+		xdelete(log->name);
 		if (log->close)
 			fclose(log->file);
 
