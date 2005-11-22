@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-AC_INIT([multi-gee], [0.96], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.97], [dsm@tlabs.ac.za])
 
 LIBVERSION="0:0:0"
 AC_SUBST([LIBVERSION])
