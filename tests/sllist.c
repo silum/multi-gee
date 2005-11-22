@@ -89,4 +89,3 @@ main()
 {
 	exit(xassert_test(sllist));
 }
-

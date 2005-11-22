@@ -46,4 +46,3 @@ process(multi_gee_t multi_gee, mg_frame_t frame)
 		   comment,
 		   mg_frame_get_image(frame));
 }
-

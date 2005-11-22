@@ -213,4 +213,3 @@ put_time(char *buffer,
 	gettimeofday(&tv, 0);
 	strftime(buffer, size, "%F %H:%M:%S", localtime(&tv.tv_sec));
 }
-

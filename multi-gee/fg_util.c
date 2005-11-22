@@ -440,4 +440,3 @@ xioctl(int fd, int req, void *arg)
 
 	return ret;
 }
-
