@@ -727,7 +727,7 @@ register_device(multi_gee_t mg,
 	char file[] = "/dev/video_";
 	snprintf(file + 10, 2, "%d", i);
 	printf("register %s\n", file);
-	return mg_register_device(mg, file);
+	return mg_register_device(mg, file, 0);
 }
 
 void
