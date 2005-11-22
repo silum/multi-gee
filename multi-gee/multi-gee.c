@@ -720,6 +720,16 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 }
 
+int
+register_device(multi_gee_t mg,
+		int i)
+{
+	char file[] = "/dev/video_";
+	snprintf(file + 10, 2, "%d", i);
+	printf("register %s\n", file);
+	return mg_register_device(mg, file);
+}
+
 void
 multi_gee()
 {
@@ -727,10 +737,11 @@ multi_gee()
 
 	mg_register_callback(mg, process_images);
 
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video0", 0));
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video1", 0));
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video2", 0));
-	printf("dev id = %d\n", mg_register_device(mg, "/dev/video3", 0));
+	int id[4];
+	for (int i = 0; i < 4; i++) {
+		id[i] = register_device(mg, i);
+		printf("dev id = %d\n", id[i]);
+	}
 
 	for (int i = 0; i < 5; i++) {
 
@@ -750,7 +761,6 @@ multi_gee()
 			case RET_HALT     : printf("capture_halt called\n"); break;
 			default           : printf("captured %d frames\n", ret); break;
 		}
-
 	}
 
 	mg_destroy(mg);
