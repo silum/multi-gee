@@ -50,8 +50,10 @@ lib_LTLIBRARIES = \
 #bin_PROGRAMS = \
 #    examples/check-rate
 
+check_PROGRAMS = \
+    $(TESTS)
+
 noinst_PROGRAMS = \
-    $(TESTS) \
     examples/check-rate \
     examples/mg-tweak \
     examples/multi-gee \
