@@ -218,6 +218,7 @@ usage(char *progname)
 	       "   -o <no_sync>   : min timestamp difference for fatal sync -- number of frames (float)\n"
 	       "   -p <percent>   : percentage error to add to frame times (int)\n"
 	       "   -s <sleeptime> : microseconds to sleep between captures (int)\n"
+	       "   -S <startdev>  : first device to register (int)\n"
 	       "   -v             : verbose output\n"
 	       "   -x <sub>       : start capture frame offset -- number of frames (float)\n"
 	      );
@@ -361,6 +362,8 @@ main(int argc, char *argv[])
 		printf("   frames: %d\n", frames);
 		printf("  devices: %d\n", devices);
 		printf("sleeptime: %d\n", sleeptime);
+		printf(" startdev: %d\n", startdev);
+		printf("  percent: %d\n", percent);
 		print_tv("  in_sync: ", in_sync); printf("\n");
 		print_tv("  no_sync: ", no_sync); printf("\n");
 		print_tv("      sub: ", sub); printf("\n");
