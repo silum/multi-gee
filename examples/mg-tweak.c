@@ -145,7 +145,8 @@ multi_gee(int buffers,
 	  int sleeptime,
 	  struct timeval in_sync,
 	  struct timeval no_sync,
-	  bool verbose)
+	  bool verbose,
+	  int startdev)
 {
 	multi_gee_t mg = mg_create_special("stdout",
 					   in_sync,
@@ -154,7 +155,7 @@ multi_gee(int buffers,
 
 	mg_register_callback(mg, process_images);
 
-	for (int i = 0; i < devices; i++)
+	for (int i = startdev; i < startdev + devices; i++)
 		if (!register_device(mg, i))
 			exit(EXIT_FAILURE);
 
@@ -269,12 +270,13 @@ main(int argc, char *argv[])
 	int devices = 3;
 	int sleeptime = 1000000;
 	int percent = 5;
+	int startdev = 0;
 	struct timeval in_sync = frame_time(0.5, .05);
 	struct timeval no_sync = frame_time(25, .05);
 	struct timeval sub = frame_time(0, .05);
 
 	while (true) {
-		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:vx:?");
+		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:S:vx:?");
 
 		if (c == -1)
 			break;
@@ -314,6 +316,10 @@ main(int argc, char *argv[])
 
 			case 's':
 				sleeptime = arg_to_l(argv[0], optarg);
+				break;
+
+			case 'S':
+				startdev = arg_to_l(argv[0], optarg);
 				break;
 
 			case 'v':
@@ -368,6 +374,7 @@ main(int argc, char *argv[])
 		  sleeptime,
 		  in_sync,
 		  no_sync,
-		  verbose);
+		  verbose,
+		  startdev);
 	return EXIT_SUCCESS;
 }
