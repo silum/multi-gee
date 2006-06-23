@@ -43,6 +43,9 @@ nobase_include_HEADERS = \
     multi-gee/sllist.h \
     multi-gee/tv_util.h
 
+nodist_noinst_HEADERS = \
+    examples/y.tab.h
+
 noinst_HEADERS = \
     examples/device.h \
     examples/pgm_util.h \
@@ -59,10 +62,9 @@ check_PROGRAMS = \
     $(TESTS)
 
 noinst_PROGRAMS = \
-    examples/check-rate \
-    examples/sync-check \
     examples/mg-tweak \
     examples/multi-gee \
+    examples/sync-check \
     multi-gee/multi-gee
 
 TESTS = \
