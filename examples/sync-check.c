@@ -63,12 +63,16 @@ open_stdin(const char* filename)
 {
 	FILE* file = 0;
 
-	if (strcmp(filename, "-") == 0)
-		return stdin;
+	if (strcmp(filename, "-") == 0) {
+		file = stdin;
+	} else {
+		file = freopen(filename, "r", stdin);
+	}
 
-	file = freopen(filename, "r", stdin);
 	if (!file) {
 		err(EXIT_FAILURE, "%s: %s\n", filename, strerror(errno));
+	} else {
+		setbuf(file, 0);
 	}
 
 	return file;
@@ -106,7 +110,15 @@ render_device(device_t device)
 	for (int i = 0; i < offset; i++) {
 		printf(" ");
 	}
-	printf("o");
+	const char * id = dev_id(device);
+	if (id) {
+		size_t len = strlen(id);
+		if (len > 0) {
+			printf("%c", *(id + len - 1));
+		}
+	} else {
+		printf("o");
+	}
 	for (int i = offset; i < 8; i++) {
 		printf(" ");
 	}
@@ -124,7 +136,8 @@ render_device(device_t device)
 void
 render_endl()
 {
-	printf("\n");
+	static int i = 0;
+	printf(" - %d\n", i++);
 	fflush(0);
 }
 
