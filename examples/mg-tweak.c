@@ -79,6 +79,8 @@ frame_time(float frames, float percent)
 static void
 process_images(multi_gee_t mg, sllist_t frame_list)
 {
+	(void) mg; // prevent unused variable warning
+
 	static struct timeval then = {0, 0};
 	static int count = 0;
 
@@ -107,19 +109,6 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 	printf("\n");
 	fflush(0);
-
-	return;
-
-	static int dev_id = -1;
-	if (count % 1 == 0) {
-		static bool flag = true;
-		if (flag) {
-			dev_id = mg_register_device(mg, "/dev/video1", 0);
-		} else {
-			dev_id = mg_deregister_device(mg, dev_id);
-		}
-		flag = !flag;
-	}
 }
 
 bool
@@ -143,11 +132,12 @@ multi_gee(int buffers,
 	  int count,
 	  int devices,
 	  int frames,
-	  int sleeptime,
 	  struct timeval in_sync,
+	  int masterdev,
 	  struct timeval no_sync,
-	  bool verbose,
-	  int startdev)
+	  int sleeptime,
+	  int startdev,
+	  bool verbose)
 {
 	multi_gee_t mg = mg_create_special("stdout",
 					   in_sync,
@@ -156,9 +146,22 @@ multi_gee(int buffers,
 
 	mg_register_callback(mg, process_images);
 
-	for (int i = startdev; i < startdev + devices; i++)
-		if (!register_device(mg, i))
+	if (masterdev >= 0) {
+		if (!register_device(mg, masterdev)) {
 			exit(EXIT_FAILURE);
+		}
+		devices--;
+	}
+
+	for (int i = startdev; i < startdev + devices; i++) {
+		if (i == masterdev) {
+			devices++;
+			continue;
+		}
+		if (!register_device(mg, i)) {
+			exit(EXIT_FAILURE);
+		}
+	}
 
 	for (int i = 0; i < count; i++) {
 
@@ -215,13 +218,13 @@ usage(char *progname)
 	       "   -c <count>     : number of capture repetitions (int)\n"
 	       "   -d <devices>   : number of devices to use (int 1..6)\n"
 	       "   -i <in_sync>   : max timestamp difference and still be in sync -- number of frames (float)\n"
+	       "   -m <masterdev> : number of master device (int)\n"
 	       "   -n <frames>    : number of frames to capture (int)\n"
 	       "   -o <no_sync>   : min timestamp difference for fatal sync -- number of frames (float)\n"
 	       "   -p <percent>   : percentage error to add to frame times (int)\n"
 	       "   -s <sleeptime> : microseconds to sleep between captures (int)\n"
 	       "   -S <startdev>  : first device to register (int)\n"
 	       "   -v             : verbose output\n"
-	       "   -x <sub>       : start capture frame offset -- number of frames (float)\n"
 	      );
 	exit(1);
 }
@@ -268,17 +271,17 @@ main(int argc, char *argv[])
 	bool verbose = false;
 	int buffers = 3;
 	int count = 5;
-	int frames = 5;
 	int devices = 3;
-	int sleeptime = 1000000;
+	int frames = 5;
+	int masterdev = -1;
 	int percent = 5;
+	int sleeptime = 1000000;
 	int startdev = 0;
 	struct timeval in_sync = frame_time(0.5, .05);
 	struct timeval no_sync = frame_time(25, .05);
-	struct timeval sub = frame_time(0, .05);
 
 	while (true) {
-		char c = getopt(argc, argv, "b:c:d:hi:n:o:p:s:S:vx:?");
+		char c = getopt(argc, argv, "b:c:d:hi:m:n:o:p:s:S:v?");
 
 		if (c == -1)
 			break;
@@ -304,6 +307,10 @@ main(int argc, char *argv[])
 				in_sync = frame_time(arg_to_f(argv[0], optarg), percent / 100.);
 				break;
 
+			case 'm':
+				masterdev = arg_to_l(argv[0], optarg);
+				break;
+
 			case 'n':
 				frames = arg_to_l(argv[0], optarg);
 				break;
@@ -326,10 +333,6 @@ main(int argc, char *argv[])
 
 			case 'v':
 				verbose = !verbose;
-				break;
-
-			case 'x':
-				sub = frame_time(arg_to_f(argv[0], optarg), percent / 100.);
 				break;
 
 			case '?':
@@ -360,14 +363,14 @@ main(int argc, char *argv[])
 	if (verbose) {
 		printf("  buffers: %d\n", buffers);
 		printf("    count: %d\n", count);
-		printf("   frames: %d\n", frames);
 		printf("  devices: %d\n", devices);
+		printf("   frames: %d\n", frames);
+		print_tv("  in_sync: ", in_sync); printf("\n");
+		printf("masterdev: %d\n", masterdev);
+		print_tv("  no_sync: ", no_sync); printf("\n");
+		printf("  percent: %d\n", percent);
 		printf("sleeptime: %d\n", sleeptime);
 		printf(" startdev: %d\n", startdev);
-		printf("  percent: %d\n", percent);
-		print_tv("  in_sync: ", in_sync); printf("\n");
-		print_tv("  no_sync: ", no_sync); printf("\n");
-		print_tv("      sub: ", sub); printf("\n");
 		printf("\n");
 	}
 
@@ -375,10 +378,11 @@ main(int argc, char *argv[])
 		  count,
 		  devices,
 		  frames,
-		  sleeptime,
 		  in_sync,
+		  masterdev,
 		  no_sync,
-		  verbose,
-		  startdev);
+		  sleeptime,
+		  startdev,
+		  verbose);
 	return EXIT_SUCCESS;
 }
