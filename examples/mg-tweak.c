@@ -106,6 +106,7 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 
 	}
 	printf("\n");
+	fflush(0);
 
 	return;
 

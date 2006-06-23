@@ -125,5 +125,6 @@ void
 render_endl()
 {
 	printf("\n");
+	fflush(0);
 }
 

@@ -29,6 +29,10 @@ aclocaldir = \
 dist_aclocal_DATA = \
     multi-gee.m4
 
+dist_noinst_DATA = \
+    examples/sync-grammar.y \
+    examples/sync-scanner.l
+
 nobase_include_HEADERS = \
     multi-gee/fg_util.h \
     multi-gee/log.h \
@@ -40,6 +44,7 @@ nobase_include_HEADERS = \
     multi-gee/tv_util.h
 
 noinst_HEADERS = \
+    examples/device.h \
     examples/pgm_util.h \
     examples/process_util.h \
     linux/videodev2.h
@@ -55,6 +60,7 @@ check_PROGRAMS = \
 
 noinst_PROGRAMS = \
     examples/check-rate \
+    examples/sync-check \
     examples/mg-tweak \
     examples/multi-gee \
     multi-gee/multi-gee
@@ -67,10 +73,28 @@ TESTS = \
     tests/sllist
 
 examples_check_rate_LDADD = \
-    multi-gee/libmulti-gee.la \
+    multi-gee/libmulti-gee.la
+examples_check_rate_LDFLAGS = \
     -lncurses
 examples_check_rate_SOURCES = \
     examples/check-rate.c
+
+examples_sync_check_CFLAGS = \
+    $(AM_CFLAGS) \
+    $(GLIB_CFLAGS)
+examples_sync_check_CPPFLAGS = \
+    $(GLIB_CPPFLAGS)
+examples_sync_check_LDADD = \
+    multi-gee/libmulti-gee.la
+examples_sync_check_LDFLAGS = \
+    $(GLIB_LIBS) \
+    -lm
+examples_sync_check_SOURCES = \
+    examples/device.c \
+    examples/lex.yy.c \
+    examples/sync-check.c \
+    examples/y.tab.c
+
 
 examples_multi_gee_LDADD = \
     multi-gee/libmulti-gee.la
@@ -137,6 +161,14 @@ tests_sllist_LDADD = \
 tests_sllist_SOURCES = \
     tests/sllist.c
 
+examples/y.tab.h examples/y.tab.c: $(srcdir)/examples/sync-grammar.y
+	$(YACC) -d $(srcdir)/examples/sync-grammar.y
+	mv -f y.tab.h y.tab.c examples/
+
+examples/lex.yy.c: $(srcdir)/examples/sync-scanner.l
+	$(LEX) $(srcdir)/examples/sync-scanner.l
+	mv -f lex.yy.c examples/
+
 .PHONY: doc
 doc: doc/doxy/doxygen.conf
 	doxygen $< > /dev/null
@@ -148,13 +180,6 @@ maintainer-clean-local:
 distrpm: distcheck
 	rpmbuild -ta $(distdir).tar.gz
 
-EXTRA_DIST = \
-    $(ac_aux_dir)/autogen.sh \
-    $(ac_aux_dir)/bootstrap \
-    $(ac_aux_dir)/clobber \
-    BUILD \
-    $(PACKAGE_NAME).spec
-
 AUX_DIST = \
     $(ac_aux_dir)/compile \
     $(ac_aux_dir)/config.guess \
@@ -165,9 +190,24 @@ AUX_DIST = \
     $(ac_aux_dir)/missing \
     $(ac_aux_dir)/mkinstalldirs
 
+CLEANFILES = \
+    examples/sync-scanner.c \
+    examples/sync-grammar.c \
+    examples/sync-grammar.h \
+    examples/lex.yy.c \
+    examples/y.tab.c \
+    examples/y.tab.h
+
 DISTCLEANFILES = \
     stamp-h \
     stamp-h[0-9]*
+
+EXTRA_DIST = \
+    $(ac_aux_dir)/autogen.sh \
+    $(ac_aux_dir)/bootstrap \
+    $(ac_aux_dir)/clobber \
+    BUILD \
+    $(PACKAGE_NAME).spec
 
 MAINTAINERCLEANFILES = \
     aclocal.m4 \

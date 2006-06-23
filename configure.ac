@@ -37,12 +37,21 @@ dnl Checks for programs.
 
 AC_PROG_CC
 AC_PROG_LIBTOOL
+AC_PROG_LEX
+if test "$LEX" = ":" ; then
+    AC_MSG_ERROR([flex/lex required])
+fi
+AC_PROG_YACC
+if test "$YACC" != "bison -y"; then
+    AC_MSG_ERROR([bison required])
+fi
 AM_PROG_CC_C_O
 
 dnl --------------------------------------------------------------------
 dnl Checks for libraries.
 
 AM_LIB_CCLASS([], [AC_MSG_ERROR([libcclass required])])
+AM_PATH_GLIB_2_0([], [], [AC_MSG_ERROR(glib 2.0 required)])
 
 dnl --------------------------------------------------------------------
 dnl Checks for header files.
