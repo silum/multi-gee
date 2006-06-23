@@ -43,9 +43,6 @@ nobase_include_HEADERS = \
     multi-gee/sllist.h \
     multi-gee/tv_util.h
 
-nodist_noinst_HEADERS = \
-    examples/y.tab.h
-
 noinst_HEADERS = \
     examples/device.h \
     examples/pgm_util.h \
@@ -167,7 +164,7 @@ examples/y.tab.h examples/y.tab.c: $(srcdir)/examples/sync-grammar.y
 	$(YACC) -d $(srcdir)/examples/sync-grammar.y
 	mv -f y.tab.h y.tab.c examples/
 
-examples/lex.yy.c: $(srcdir)/examples/sync-scanner.l
+examples/lex.yy.c: $(srcdir)/examples/sync-scanner.l examples/y.tab.h
 	$(LEX) $(srcdir)/examples/sync-scanner.l
 	mv -f lex.yy.c examples/
 
