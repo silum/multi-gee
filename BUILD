@@ -28,7 +28,7 @@ distribution tarball using rpmbuild:
 
 Alternatively, if the Makefile provides this target, use
 
-    $ make distrpm
+    $ make dist-rpm
 
 to create the RPMS.
 

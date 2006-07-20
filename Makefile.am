@@ -175,8 +175,8 @@ doc: doc/doxy/doxygen.conf
 maintainer-clean-local:
 	-rm -rf doc/html/ doc/latex/
 
-.PHONY: distrpm
-distrpm: distcheck
+.PHONY: dist-rpm
+dist-rpm: distcheck
 	rpmbuild -ta $(distdir).tar.gz
 
 AUX_DIST = \
