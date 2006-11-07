@@ -18,8 +18,6 @@
 /**
  * @file
  */
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
 #include <libgen.h>
 #include <math.h>
 #include <multi-gee/multi-gee.h>

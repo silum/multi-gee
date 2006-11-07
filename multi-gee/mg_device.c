@@ -19,7 +19,6 @@
  * @file
  * @brief Multi-gee device definition
  */
-#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -57,7 +56,7 @@ mg_device_create(char *name,
 	mg_device->fd = -1;
 	mg_device->devno = -1;
 
-	mg_device->name = xstrdup(name, __FILE__, __LINE__);
+	STRDUP(mg_device->name, name);
 
 	struct stat st;
 	if (0 != stat(name, &st))
@@ -83,7 +82,7 @@ mg_device_destroy(mg_device_t mg_device)
 		if (mg_device->fd != -1)
 			close(mg_device->fd);
 
-		xdelete(mg_device->name);
+		FREEOBJ(mg_device->name);
 		mg_buffer_destroy(mg_device->buffer);
 
 		FREEOBJ(mg_device);

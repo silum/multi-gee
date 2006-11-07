@@ -19,7 +19,6 @@
  * @file
  * @brief Multi-gee Frame definition
  */
-#include <cclass/xmalloc.h>
 #include <sys/time.h> /* gettimeofday */
 
 #include <asm/types.h> /* needed for videodev2.h */

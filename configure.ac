@@ -26,6 +26,7 @@ AC_REVISION([$Rev$])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_AUX_DIR([config])
 AC_SUBST([ac_aux_dir])
+AC_SUBST([am_aux_dir])
 
 AM_INIT_AUTOMAKE([1.8 subdir-objects])
 

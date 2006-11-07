@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <glib.h>
 
-#include "device.h"
+#include "examples/device.h"
 
 /* function prototypes */
 

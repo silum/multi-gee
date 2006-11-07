@@ -17,6 +17,7 @@
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
+AM_CPPFLAGS = $(CCLASS_CPPFLAGS)
 ACLOCAL_AMFLAGS = -I $(am_aux_dir)
 
 DIST_SUBDIRS = \
@@ -82,6 +83,7 @@ examples_sync_check_CFLAGS = \
     $(AM_CFLAGS) \
     $(GLIB_CFLAGS)
 examples_sync_check_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     $(GLIB_CPPFLAGS)
 examples_sync_check_LDADD = \
     multi-gee/libmulti-gee.la
@@ -110,6 +112,8 @@ examples_mg_tweak_SOURCES = \
 
 multi_gee_libmulti_gee_la_LDFLAGS = \
     -version-info $(LIBVERSION)
+multi_gee_libmulti_gee_la_LIBADD = \
+    $(CCLASS_LIBS)
 multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/fg_util.c \
     multi-gee/log.c \
@@ -120,11 +124,13 @@ multi_gee_libmulti_gee_la_SOURCES = \
     multi-gee/sllist.c
 
 multi_gee_mg_buffer_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     -DDEBUG_BUFFER
 multi_gee_mg_buffer_SOURCES = \
     multi-gee/mg_buffer.c
 
 multi_gee_mg_device_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     -DDEBUG_DEVICE
 multi_gee_mg_device_SOURCES = \
     multi-gee/log.c \
@@ -132,6 +138,7 @@ multi_gee_mg_device_SOURCES = \
     multi-gee/mg_device.c
 
 multi_gee_mg_frame_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     -DDEBUG_FRAME
 multi_gee_mg_frame_SOURCES = \
     multi-gee/log.c \
@@ -140,12 +147,16 @@ multi_gee_mg_frame_SOURCES = \
     multi-gee/mg_frame.c
 
 multi_gee_sllist_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     -DDEBUG_SLLIST
 multi_gee_sllist_SOURCES = \
     multi-gee/sllist.c
 
 multi_gee_multi_gee_CPPFLAGS = \
+    $(AM_CPPFLAGS) \
     -DDEBUG_MULTI_GEE
+multi_gee_multi_gee_LDADD = \
+    $(CCLASS_LIBS)
 multi_gee_multi_gee_SOURCES = \
     multi-gee/fg_util.c \
     multi-gee/log.c \

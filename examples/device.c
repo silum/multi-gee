@@ -18,9 +18,6 @@
 /**
   * @file
   */
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
-
 #include "device.h" /* class implemented */
 
 USE_XASSERT
@@ -30,7 +27,7 @@ USE_XASSERT
  */
 CLASS(device, device_t)
 {
-	const char *id;
+	char *id;
 	struct timeval tv;
 	struct timeval diff;
 	int seq;
@@ -57,7 +54,7 @@ device_t
 dev_destroy(device_t device)
 {
 	VERIFYZ(device) {
-		xdelete((void *) device->id);
+		FREEOBJ(device->id);
 		FREEOBJ(device);
 	}
 	return 0;

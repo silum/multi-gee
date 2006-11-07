@@ -19,9 +19,6 @@
  * @file
  * @brief Singly linked-list definition
  */
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
-
 #include "sllist.h" /* class implemented */
 
 USE_XASSERT

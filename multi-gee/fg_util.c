@@ -20,8 +20,6 @@
  * @file
  * @brief Frame grabber interface utility definition
  */
-#include <cclass/xmalloc.h>
-
 #include <errno.h> /* errno */
 #include <string.h> /* memset */
 

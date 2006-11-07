@@ -19,7 +19,6 @@
  * @file
  * @brief Multi-gee Frame Grabber Library definition
  */
-#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -531,7 +530,7 @@ swap_frame(multi_gee_t multi_gee,
 		return false;
 
 	mg_buffer_t dev_buf = mg_device_get_buffer(dev);
-	xassert(buf.index < mg_buffer_get_number(dev_buf)) {
+	XASSERT(buf.index < mg_buffer_get_number(dev_buf)) {
 		for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
 			mg_frame_t frame = sll_data(f);
 			if (dev == mg_frame_get_device(frame)) {
@@ -669,8 +668,6 @@ sync_test(multi_gee_t multi_gee)
 
 #ifdef DEBUG_MULTI_GEE
 
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -770,7 +767,7 @@ int
 main()
 {
 	for (int i = 0; i < 5; i++) {
-		int ret = xassert_test(multi_gee);
+		int ret = cclass_assert_test(multi_gee);
 		if (ret != EXIT_SUCCESS)
 			return ret;
 	}

@@ -19,8 +19,6 @@
  * @file
  * @brief Multi-gee capture buffer definition
  */
-#include <cclass/xmalloc.h>
-
 #include "mg_buffer.h" /* class implemented */
 
 USE_XASSERT
@@ -52,8 +50,8 @@ mg_buffer_t
 mg_buffer_destroy(mg_buffer_t mg_buffer)
 {
 	VERIFYZ(mg_buffer) {
-		xdelete(mg_buffer->start);
-		xdelete(mg_buffer->length);
+		FREEOBJ(mg_buffer->start);
+		FREEOBJ(mg_buffer->length);
 
 		FREEOBJ(mg_buffer);
 	}
@@ -69,8 +67,8 @@ mg_buffer_alloc(mg_buffer_t mg_buffer,
 
 	VERIFY(mg_buffer) {
 		if (!mg_buffer->number) {
-			mg_buffer->start = xmalloc(n * sizeof(mg_buffer->start));
-			mg_buffer->length = xmalloc(n * sizeof(mg_buffer->length));
+			mg_buffer->start = MALLOC(n * sizeof(mg_buffer->start));
+			mg_buffer->length = MALLOC(n * sizeof(mg_buffer->length));
 			mg_buffer->number = n;
 		}
 		p = mg_buffer;

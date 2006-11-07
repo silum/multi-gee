@@ -22,10 +22,8 @@
 #include <string.h>
 
 #include <cclass/classdef.h>
-#include <cclass/xmalloc.h>
-#include <cclass/xassert.h>
 
-#include "device.h"
+#include "examples/device.h"
 
 #define YY_NO_UNPUT
 #include "y.tab.h"
@@ -96,7 +94,7 @@ tv                      { count(); return TV; }
 
 [ \t\v\n\f]             { count(); }
 
-<<EOF>>                 { /* silence unused _do_xassert error */ XASSERT(1) ; return END_OF_FILE; }
+<<EOF>>                 { XASSERT(1){ /* silence unused _do_xassert error */ }; return END_OF_FILE; }
 
 %%
 

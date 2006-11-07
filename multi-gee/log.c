@@ -19,7 +19,6 @@
  * @file
  * @brief Logging object definition
  */
-#include <cclass/xmalloc.h>
 #include <errno.h>
 #include <stdarg.h> /* vfprintf */
 #include <stdio.h>
@@ -87,7 +86,7 @@ lg_create(const char *name,
 
 	NEWOBJ(log);
 
-	log->name = xstrdup(name, __FILE__, __LINE__);
+	STRDUP(log->name, name);
 	log->file = 0;
 	log->close = true;
 
@@ -100,9 +99,10 @@ log_t
 lg_destroy(log_t log)
 {
 	VERIFYZ(log) {
-		xdelete(log->name);
-		if (log->close)
+		FREEOBJ(log->name);
+		if (log->close) {
 			fclose(log->file);
+		}
 
 		FREEOBJ(log);
 	}
