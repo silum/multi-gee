@@ -137,7 +137,7 @@ fg_dequeue(int fd,
 				/* fall through */
 
 			default:
-				lg_errno(log, "VIDIOC_DQBUF");
+				lg_errno(log, "VIDIOC_DQBUF on fd %d", fd);
 				return false;
 		}
 	}
@@ -159,7 +159,7 @@ fg_enqueue(int fd,
 	buf.index = i;
 
 	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
-		lg_errno(log, "VIDIOC_QBUF");
+		lg_errno(log, "VIDIOC_QBUF on fd %d", fd);
 		return false;
 	}
 
@@ -208,7 +208,7 @@ fg_start_capture(mg_device_t dev,
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
-		lg_errno(log, "VIDIOC_STREAMON");
+		lg_errno(log, "VIDIOC_STREAMON on fd %d", fd);
 		return false;
 	}
 
@@ -225,7 +225,7 @@ fg_stop_capture(mg_device_t dev,
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
-		lg_errno(log, "VIDIOC_STREAMOFF");
+		lg_errno(log, "VIDIOC_STREAMOFF on fd %d", fd);
 		return false;
 	}
 
@@ -271,7 +271,7 @@ init_mmap(int fd,
 			       "mapping", dev_name);
 			return false;
 		} else {
-			lg_errno(log, "VIDIOC_REQBUFS");
+			lg_errno(log, "VIDIOC_REQBUFS on fd %d", fd);
 			return false;
 		}
 	}
@@ -294,7 +294,7 @@ init_mmap(int fd,
 		buf.index = i;
 
 		if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
-			lg_errno(log, "VIDIOC_QUERYBUF");
+			lg_errno(log, "VIDIOC_QUERYBUF on fd %d", fd);
 			return false;
 		}
 
@@ -322,13 +322,13 @@ select_input(int fd,
 {
 	int index = 0; /* Changed to television input 2005-06-14 - NM */
 	if (-1 == xioctl(fd, VIDIOC_S_INPUT, &index)) {
-		lg_errno(log, "VIDIOC_S_INPUT");
+		lg_errno(log, "VIDIOC_S_INPUT on fd %d", fd);
 		return false;
 	}
 
 	v4l2_std_id std = V4L2_STD_PAL;
 	if (-1 == xioctl(fd, VIDIOC_S_STD, &std)) {
-		lg_errno(log, "VIDIOC_S_STD");
+		lg_errno(log, "VIDIOC_S_STD on fd %d", fd);
 		return false;
 	}
 
@@ -376,7 +376,7 @@ set_format(int fd,
 	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
 	if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
-		lg_errno(log, "VIDIOC_S_FMT");
+		lg_errno(log, "VIDIOC_S_FMT on fd %d", fd);
 		return false;
 	}
 
@@ -406,7 +406,7 @@ test_capability(int fd,
 				dev_name);
 			return false;
 		} else {
-			lg_errno(log, "VIDIOC_QUERYCAP");
+			lg_errno(log, "VIDIOC_QUERYCAP on fd %d", fd);
 			return false;
 		}
 	}
