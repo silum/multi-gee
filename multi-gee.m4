@@ -30,13 +30,13 @@ AC_DEFUN([AM_LIB_MULTI_GEE], [
       with_multi_gee=
     fi
 
-    # Prefix directory takes precendence over lib and include.
+    # Prefix does not take precendence over include and lib.
     if test "x$with_multi_gee" != "x" ; then
-      if test "x$with_multi_gee_include" != "x"; then
+      if test "x$with_multi_gee_include" = "x"; then
         with_multi_gee_include="$with_multi_gee/include"
       fi
 
-      if test "x$with_multi_gee_lib" != "x"; then
+      if test "x$with_multi_gee_lib" = "x"; then
         with_multi_gee_lib="$with_multi_gee/lib"
       fi
     fi
