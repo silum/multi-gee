@@ -176,7 +176,6 @@ mg_device_open(mg_device_t mg_device)
 
 #ifdef DEBUG_DEVICE
 
-#include <cclass/xassert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -199,35 +198,55 @@ test_device(char *name,
 	/* create */
 	dev = mg_device_create(name, 3, log, userptr);
 
-	XASSERT(mg_device_get_fd(dev) == -1);
-	XASSERT(mg_device_get_devno(dev) == devno);
+	XASSERT(mg_device_get_fd(dev) == -1) {
+		/* empty */
+	}
+	XASSERT(mg_device_get_devno(dev) == devno) {
+		/* empty */
+	}
 
 	/* device still valid */
-	XASSERT(dev);
+	XASSERT(dev) {
+		/* empty */
+	}
 
 	int fd = mg_device_open(dev);
-	XASSERT(fd == mg_device_get_fd(dev));
+	XASSERT(fd == mg_device_get_fd(dev)) {
+		/* empty */
+	}
 
 	/* device still valid */
-	XASSERT(dev);
+	XASSERT(dev) {
+		/* empty */
+	}
 
 	printf("%s file descriptor = %d\n", name, fd);
-	XASSERT(mg_device_get_devno(dev) == devno);
+	XASSERT(mg_device_get_devno(dev) == devno) {
+		/* empty */
+	}
 
 	/* device still valid */
-	XASSERT(dev);
+	XASSERT(dev) {
+		/* empty */
+	}
 
 	printf("user pointer = %p\n", userptr);
-	XASSERT(mg_device_get_userptr(dev) == userptr);
+	XASSERT(mg_device_get_userptr(dev) == userptr) {
+		/* empty */
+	}
 
 	/* device still valid */
-	XASSERT(dev);
+	XASSERT(dev) {
+		/* empty */
+	}
 
 	/* destroy */
 	dev = mg_device_destroy(dev);
 
 	/* device still valid */
-	XASSERT(dev == 0);
+	XASSERT(dev == 0) {
+		/* empty */
+	}
 
 	log = lg_destroy(log);
 }
@@ -244,7 +263,7 @@ mg_device()
 int
 main()
 {
-	exit(xassert_test(mg_device));
+	exit(cclass_assert_test(mg_device));
 }
 
 #endif /* DEBUG_DEVICE */

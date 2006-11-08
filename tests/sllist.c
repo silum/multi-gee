@@ -19,8 +19,6 @@
  * @file
  * @brief Singly linked-list test program
  */
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -51,9 +49,13 @@ sllist()
 		for (int i = 0; i <= testnum; ++i) {
 			sll = sll_remove_data(sll, (void*)i);
 			if (i != testnum) {
-				XASSERT(sll);
+				XASSERT(sll) {
+					/* empty */
+				}
 			} else {
-				XASSERT(sll == 0);
+				XASSERT(sll == 0) {
+					/* empty */
+				}
 			}
 		}
 	}
@@ -76,9 +78,13 @@ sllist()
 		for (int i = testnum; i >= 0; --i) {
 			sll = sll_remove_data(sll, (void*)i);
 			if (i) {
-				XASSERT(sll);
+				XASSERT(sll) {
+					/* empty */
+				}
 			} else {
-				XASSERT(sll == 0);
+				XASSERT(sll == 0) {
+					/* empty */
+				}
 			}
 		}
 	}
@@ -87,5 +93,5 @@ sllist()
 int
 main()
 {
-	exit(xassert_test(sllist));
+	exit(cclass_assert_test(sllist));
 }

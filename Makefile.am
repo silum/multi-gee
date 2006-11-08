@@ -126,12 +126,16 @@ multi_gee_libmulti_gee_la_SOURCES = \
 multi_gee_mg_buffer_CPPFLAGS = \
     $(AM_CPPFLAGS) \
     -DDEBUG_BUFFER
+multi_gee_mg_buffer_LDADD = \
+    $(CCLASS_LIBS)
 multi_gee_mg_buffer_SOURCES = \
     multi-gee/mg_buffer.c
 
 multi_gee_mg_device_CPPFLAGS = \
     $(AM_CPPFLAGS) \
     -DDEBUG_DEVICE
+multi_gee_mg_device_LDADD = \
+    $(CCLASS_LIBS)
 multi_gee_mg_device_SOURCES = \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
@@ -140,6 +144,8 @@ multi_gee_mg_device_SOURCES = \
 multi_gee_mg_frame_CPPFLAGS = \
     $(AM_CPPFLAGS) \
     -DDEBUG_FRAME
+multi_gee_mg_frame_LDADD = \
+    $(CCLASS_LIBS)
 multi_gee_mg_frame_SOURCES = \
     multi-gee/log.c \
     multi-gee/mg_buffer.c \
@@ -149,6 +155,8 @@ multi_gee_mg_frame_SOURCES = \
 multi_gee_sllist_CPPFLAGS = \
     $(AM_CPPFLAGS) \
     -DDEBUG_SLLIST
+multi_gee_sllist_LDADD = \
+    $(CCLASS_LIBS)
 multi_gee_sllist_SOURCES = \
     multi-gee/sllist.c
 

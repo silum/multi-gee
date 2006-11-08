@@ -245,8 +245,6 @@ sll_remove(sllist_t list,
 
 #ifdef DEBUG_SLLIST
 
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -262,20 +260,26 @@ sllist()
 	/* 0.0 */
 	printf("insert NULL into NULL list\n");
 	sllist_t sll = sll_insert(0, 0);
-	XASSERT(sll == 0);
+	XASSERT(sll == 0) {
+		/* empty */
+	}
 
 	/* 0.1 */
 	printf("insert item into NULL list\n");
 	sllist_t item_1 = sll_create((void*)1);
 	sll = sll_insert(0, item_1);
 	XASSERT(sll == item_1
-		&& !sll_next(sll));
+		&& !sll_next(sll)) {
+		/* empty */
+	}
 
 	/* 0.3 */
 	printf("insert NULL into 1 item list\n");
 	sll = sll_insert(item_1, 0);
 	XASSERT(sll == item_1
-		&& !sll_next(sll));
+		&& !sll_next(sll)) {
+		/* empty */
+	}
 
 	/* 0.5 */
 	printf("insert item into 1 item list\n");
@@ -283,7 +287,9 @@ sllist()
 	sll = sll_insert(sll, item_2);
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_2
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* 0.7 */
 	printf("insert item into 2 item list\n");
@@ -292,7 +298,9 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 0.2 */
 	printf("insert list into NULL item\n");
@@ -300,7 +308,9 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 0.4 */
 	printf("insert NULL item into list\n");
@@ -308,14 +318,18 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 1.7-a */
 	printf("remove first item from 3 item list\n");
 	sll = sll_remove(sll, item_1);
 	XASSERT(sll == item_3
 		&& sll_next(sll) == item_2
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* 0.6 */
 	printf("insert 2 item list into 1 item list\n");
@@ -323,27 +337,35 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 1.7-c */
 	printf("remove last item from 3 item list\n");
 	sll = sll_remove(sll, item_2);
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* 1.7-c */
 	printf("remove last item from 2 item list\n");
 	sll = sll_remove(sll, item_3);
 	XASSERT(sll == item_1
-		&& !sll_next(sll));
+		&& !sll_next(sll)) {
+		/* empty */
+	}
 
 	/* 0.5 */
 	printf("insert item into 1 item list\n");
 	sll = sll_insert(sll, item_2);
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_2
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* 0.7 */
 	printf("insert item into 2 item list\n");
@@ -351,7 +373,9 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 1.4 */
 	printf("remove NULL item from 3 item list\n");
@@ -359,42 +383,55 @@ sllist()
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_2
-		&& !sll_next(sll_next(sll_next(sll))));
+		&& !sll_next(sll_next(sll_next(sll)))) {
+		/* empty */
+	}
 
 	/* 1.7-b */
 	printf("remove middle item from 3 item list\n");
 	sll = sll_remove(sll, item_3);
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_2
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* 1.7-c */
 	printf("remove last item from 2 item list\n");
 	sll = sll_remove(sll, item_2);
 	XASSERT(sll == item_1
-		&& !sll_next(sll));
+		&& !sll_next(sll)) {
+		/* empty */
+	}
 
 	/* 1.3 */
 	printf("remove NULL item from 1 item list\n");
 	sll = sll_remove(sll, 0);
 	XASSERT(sll == item_1
-		&& !sll_next(sll));
+		&& !sll_next(sll)) {
+		/* empty */
+	}
 
 	/* 1.5 */
 	printf("remove last item from 1 item list\n");
 	sll = sll_remove(sll, item_1);
-	XASSERT(!sll);
+	XASSERT(!sll) {
+		/* empty */
+	}
 
 	/* 1.1 */
 	printf("remove NULL item from empty list\n");
 	sll = sll_remove(sll, 0);
-	XASSERT(!sll);
+	XASSERT(!sll) {
+		/* empty */
+	}
 
 	/* 1.0 */
 	printf("remove item from empty list\n");
 	sll = sll_remove(sll, item_1);
-	XASSERT(!sll);
-
+	XASSERT(!sll) {
+		/* empty */
+	}
 
 	/* prep for 0.8 */
 	printf("create 2 element list\n");
@@ -402,7 +439,9 @@ sllist()
 	sll = sll_insert(sll, item_2);
 	XASSERT(sll == item_1
 		&& sll_next(sll) == item_2
-		&& !sll_next(sll_next(sll)));
+		&& !sll_next(sll_next(sll))) {
+		/* empty */
+	}
 
 	/* prep for 0.8 */
 	printf("create another 2 element list\n");
@@ -411,7 +450,9 @@ sllist()
 	sll_1 = sll_insert(sll_1, item_4);
 	XASSERT(sll_1 == item_3
 		&& sll_next(sll_1) == item_4
-		&& !sll_next(sll_next(sll_1)));
+		&& !sll_next(sll_next(sll_1))) {
+		/* empty */
+	}
 
 	/* 0.8 */
 	printf("insert a list into a list\n");
@@ -420,8 +461,9 @@ sllist()
 		&& sll_next(sll) == item_3
 		&& sll_next(sll_next(sll)) == item_4
 		&& sll_next(sll_next(sll_next(sll))) == item_2
-		&& !sll_next(sll_next(sll_next(sll_next(sll)))));
-
+		&& !sll_next(sll_next(sll_next(sll_next(sll))))) {
+		/* empty */
+	}
 
 	/* destroy items */
 	sll_destroy(item_1);
@@ -433,7 +475,7 @@ sllist()
 int
 main()
 {
-	exit(xassert_test(sllist));
+	exit(cclass_assert_test(sllist));
 }
 
 #endif /* DEBUG_SLLIST */

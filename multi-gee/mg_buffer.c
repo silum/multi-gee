@@ -143,8 +143,6 @@ mg_buffer_set(mg_buffer_t mg_buffer,
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <cclass/xassert.h>
-
 void
 verify_buffer(mg_buffer_t buffer,
 	      unsigned int n,
@@ -152,9 +150,15 @@ verify_buffer(mg_buffer_t buffer,
 	      void *start,
 	      size_t length)
 {
-	xassert(mg_buffer_get_number(buffer) == number) {}
-	xassert(mg_buffer_get_start(buffer, n) == start) {}
-	xassert(mg_buffer_get_length(buffer, n) == length) {}
+	XASSERT(mg_buffer_get_number(buffer) == number) {
+		/* empty */
+	}
+	XASSERT(mg_buffer_get_start(buffer, n) == start) {
+		/* empty */
+	}
+	XASSERT(mg_buffer_get_length(buffer, n) == length) {
+		/* empty */
+	}
 }
 
 void
@@ -192,7 +196,9 @@ test_buffer(void *start_0,
 
 	/* destroy */
 	buffer = mg_buffer_destroy(buffer);
-	xassert(buffer == 0) {}
+	XASSERT(buffer == 0) {
+		/* empty */
+	}
 }
 
 void
@@ -207,7 +213,7 @@ mg_buffer()
 int
 main()
 {
-	exit(xassert_test(mg_buffer));
+	exit(cclass_assert_test(mg_buffer));
 }
 
 #endif /* DEBUG_BUFFER */

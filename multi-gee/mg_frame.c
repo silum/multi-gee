@@ -172,8 +172,6 @@ mg_frame_set_used(mg_frame_t mg_frame)
 
 #ifdef DEBUG_FRAME
 
-#include <cclass/xassert.h>
-#include <cclass/xmalloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -202,23 +200,41 @@ test_frame(mg_device_t device,
 
 	mg_frame_t frame = mg_frame_create(device, &buf);
 
-	XASSERT(mg_frame_get_device(frame) == device);
-	XASSERT(mg_frame_get_image(frame) == image);
+	XASSERT(mg_frame_get_device(frame) == device) {
+		/* empty */
+	}
+	XASSERT(mg_frame_get_image(frame) == image) {
+		/* empty */
+	}
 
 	struct timeval tv = mg_frame_get_timestamp(frame);
-	XASSERT(tv.tv_sec == timestamp.tv_sec);
-	XASSERT(tv.tv_usec == timestamp.tv_usec);
+	XASSERT(tv.tv_sec == timestamp.tv_sec) {
+		/* empty */
+	}
+	XASSERT(tv.tv_usec == timestamp.tv_usec) {
+		/* empty */
+	}
 
-	XASSERT(mg_frame_get_sequence(frame) == sequence);
+	XASSERT(mg_frame_get_sequence(frame) == sequence) {
+		/* empty */
+	}
 
-	XASSERT(mg_frame_get_used(frame) == false);
+	XASSERT(mg_frame_get_used(frame) == false) {
+		/* empty */
+	}
 	frame = mg_frame_set_used(frame);
-	XASSERT(mg_frame_get_used(frame) == true);
+	XASSERT(mg_frame_get_used(frame) == true) {
+		/* empty */
+	}
 	frame = mg_frame_set_used(frame);
-	XASSERT(mg_frame_get_used(frame) == true);
+	XASSERT(mg_frame_get_used(frame) == true) {
+		/* empty */
+	}
 
 	XASSERT(mg_frame_get_userptr(frame) ==
-		mg_device_get_userptr(device));
+		mg_device_get_userptr(device)) {
+		/* empty */
+	}
 
 	mg_frame_destroy(frame);
 }
@@ -252,7 +268,7 @@ mg_frame()
 int
 main()
 {
-	exit(xassert_test(mg_frame));
+	exit(cclass_assert_test(mg_frame));
 }
 
 #endif /* DEBUG_FRAME */
