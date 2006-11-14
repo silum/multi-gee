@@ -26,11 +26,6 @@
 #
 # You need to have automake, autoconf and (possibly) libtool installed.
 
-# find config directory
-cfgaux=`dirname $0`
-test $cfgaux = . && cfgaux=`pwd`
-cfgaux=`basename $cfgaux`
-
 autoreconf \
     --force \
     --install \
