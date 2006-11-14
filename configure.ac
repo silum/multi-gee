@@ -1,6 +1,5 @@
-# configure.ac -- Process this file with autoconf to produce a configure script.
 # $Id$
-# Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+# Copyright (C) 2004, 2005, 2006  Deneys S. Maartens  <dsm@tlabs.ac.za>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +15,15 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+# Process this file with autoconf to produce a configure script.
+
 AC_INIT([multi-gee], [0.98], [dsm@tlabs.ac.za])
 
+dnl CURRENT:REVISION:AGE
+dnl - library source changed -> inc REVISION
+dnl - interfaces added/removed/changed -> inc CURRENT, REVISION = 0
+dnl - interfaces added -> inc AGE
+dnl - interfaces removed -> AGE = 0
 LIBVERSION="0:0:0"
 AC_SUBST([LIBVERSION])
 
@@ -26,7 +32,6 @@ AC_REVISION([$Rev$])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_AUX_DIR([config])
 AC_SUBST([ac_aux_dir])
-AC_SUBST([am_aux_dir])
 
 AM_INIT_AUTOMAKE([1.8 subdir-objects])
 

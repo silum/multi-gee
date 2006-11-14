@@ -1,9 +1,23 @@
-dnl $Id$
-dnl Copyright (C) 2006 Deneys S. Maartens <dsm@tlabs.ac.za>
+## $Id$
+## Copyright (C) 2006  Deneys S. Maartens  <dsm@tlabs.ac.za>
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software Foundation,
+## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 dnl AM_LIB_MULTI_GEE([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 dnl Test for MULTI_GEE, and define MULTI_GEE_CPPFLAGS and MULTI_GEE_LIBS
-dnl
+
 AC_DEFUN([AM_LIB_MULTI_GEE], [
   AC_ARG_WITH([multi-gee],
     [AC_HELP_STRING([--with-multi-gee@<:@=PATH@:>@],
@@ -30,7 +44,7 @@ AC_DEFUN([AM_LIB_MULTI_GEE], [
       with_multi_gee=
     fi
 
-    # Prefix does not take precendence over include and lib.
+    # Prefix does not take precedence over include and lib.
     if test "x$with_multi_gee" != "x" ; then
       if test "x$with_multi_gee_include" = "x"; then
         with_multi_gee_include="$with_multi_gee/include"
@@ -75,15 +89,16 @@ AC_DEFUN([AM_LIB_MULTI_GEE], [
     CPPFLAGS="$ac_save_CPPFLAGS"
   fi
 
-  AC_SUBST(MULTI_GEE_CPPFLAGS)
-  AC_SUBST(MULTI_GEE_LIBS)
-
   if test "x$with_multi_gee" != "xno"; then
     ifelse([$1], [], [:], [$1])
   else
-    AC_MSG_NOTICE([disabling multi-gee support])
+    MULTI_GEE_CPPFLAGS=""
+    MULTI_GEE_LIBS=""
     ifelse([$2], [], [:], [$2])
   fi
+
+  AC_SUBST(MULTI_GEE_CPPFLAGS)
+  AC_SUBST(MULTI_GEE_LIBS)
 ])
 
 dnl -fin-

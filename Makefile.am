@@ -1,6 +1,5 @@
-## Makefile.am -- Process this file with automake to produce Makefile.in
 ## $Id$
-## Copyright (C) 2004, 2005 Deneys S. Maartens <dsm@tlabs.ac.za>
+## Copyright (C) 2004, 2005, 2006  Deneys S. Maartens  <dsm@tlabs.ac.za>
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,9 +15,10 @@
 ## along with this program; if not, write to the Free Software Foundation,
 ## Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+## Process this file with automake to produce Makefile.in.
+
 AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
 AM_CPPFLAGS = $(CCLASS_CPPFLAGS)
-ACLOCAL_AMFLAGS = -I $(am_aux_dir)
 
 DIST_SUBDIRS = \
     examples \
