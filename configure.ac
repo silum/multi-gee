@@ -17,7 +17,7 @@
 
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([multi-gee], [0.98], [dsm@tlabs.ac.za])
+AC_INIT([multi-gee], [0.99], [dsm@tlabs.ac.za])
 
 dnl CURRENT:REVISION:AGE
 dnl - library source changed -> inc REVISION

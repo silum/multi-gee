@@ -63,7 +63,8 @@ noinst_PROGRAMS = \
     examples/mg-tweak \
     examples/multi-gee \
     examples/sync-check \
-    multi-gee/multi-gee
+    multi-gee/multi-gee \
+    multi-gee/multi-gee-select
 
 TESTS = \
     multi-gee/mg_buffer \
@@ -162,8 +163,7 @@ multi_gee_sllist_SOURCES = \
 
 multi_gee_multi_gee_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_MULTI_GEE \
-    -DDEBUG_SELECT
+    -DDEBUG_MULTI_GEE
 multi_gee_multi_gee_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_multi_gee_SOURCES = \
@@ -174,6 +174,14 @@ multi_gee_multi_gee_SOURCES = \
     multi-gee/mg_frame.c \
     multi-gee/multi-gee.c \
     multi-gee/sllist.c
+
+multi_gee_multi_gee_select_CPPFLAGS = \
+    $(multi_gee_multi_gee_CPPFLAGS) \
+    -DDEBUG_SELECT
+multi_gee_multi_gee_select_LDADD = \
+    $(multi_gee_multi_gee_LDADD)
+multi_gee_multi_gee_select_SOURCES = \
+    $(multi_gee_multi_gee_SOURCES)
 
 tests_sllist_LDADD = \
     multi-gee/libmulti-gee.la
