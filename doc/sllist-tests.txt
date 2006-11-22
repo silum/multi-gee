@@ -36,6 +36,6 @@ remove:
     1.7 (list, item)     -> { list } ^ item
  x      a ({ item_a, .., item_b, item }, item) -> { item_a, .., item_b }
  x      b ({ item_a, .., item_b, item, item_c, .., item_d }, item) -> { item_a, .., item_b, item_c, .., item_d }
- x      c ({ item, item_a, .., item_b}, item) -> { item_a, .., item_b }
+ x      c ({ item, item_a, .., item_b }, item) -> { item_a, .., item_b }
 
     1.8 (list_a, list_b) -> reduces to 1.7, due to definition of list
