@@ -19,6 +19,7 @@
  * @file
  * @brief Multi-gee device definition
  */
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -79,8 +80,11 @@ mg_device_t
 mg_device_destroy(mg_device_t mg_device)
 {
 	VERIFYZ(mg_device) {
-		if (mg_device->fd != -1)
-			close(mg_device->fd);
+		if (-1 != mg_device->fd) {
+			if (close(mg_device->fd)) {
+				warn("close(%d)", mg_device->fd);
+			}
+		}
 
 		FREEOBJ(mg_device->name);
 		mg_buffer_destroy(mg_device->buffer);
