@@ -290,17 +290,17 @@ mg_capture(multi_gee_t multi_gee,
 			done = true;
 
 			/* find a reason to be done */
-			if (!multi_gee->callback)
+			if (!multi_gee->callback) {
 				ret = RET_CALLBACK;
-			else if (multi_gee->halt)
+			} else if (multi_gee->halt) {
 				ret = RET_HALT;
-			else if (!multi_gee->device)
+			} else if (!multi_gee->device) {
 				ret = RET_DEVICE;
-			else if (n >= 0 && count >= n)
+			} else if (0 <= n && n <= count) {
 				ret = count;
-			else if (sync == SYNC_FATAL)
+			} else if (sync == SYNC_FATAL) {
 				ret = RET_SYNC;
-			else {
+			} else {
 				/* OK, so we're not done yet */
 				done = false;
 
@@ -335,8 +335,9 @@ mg_capture(multi_gee_t multi_gee,
 
 						sync = sync_test(multi_gee);
 
-						if (sync == SYNC_FATAL)
+						if (sync == SYNC_FATAL) {
 							break;
+						}
 
 						if (sync == SYNC_OK) {
 							multi_gee->callback(multi_gee, multi_gee->frame);
