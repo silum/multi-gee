@@ -42,7 +42,8 @@ USE_XASSERT
  * name.  Output is appended to the log file.  If the log file cannot be
  * opened output defaults to \c stderr, and the user is informed.
  */
-static void
+static
+void
 open_log(log_t log,
 	 const char *file);
 
@@ -55,7 +56,8 @@ open_log(log_t log,
  * @param file  the output file pointer
  * @param name  the name to print
  */
-static void
+static
+void
 put_header(FILE *file,
 	   char *name);
 
@@ -65,7 +67,8 @@ put_header(FILE *file,
  * @param buffer  the destination
  * @param size  the length of the buffer
  */
-static void
+static
+void
 put_time(char *buffer,
 	 size_t size);
 
