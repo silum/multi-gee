@@ -391,8 +391,9 @@ mg_register_callback(multi_gee_t multi_gee,
 	multi_gee_t p = 0;
 
 	VERIFY(multi_gee) {
-		if (callback)
+		if (callback) {
 			multi_gee->callback = callback;
+		}
 		p = multi_gee;
 	}
 
@@ -438,7 +439,9 @@ mg_register_device(multi_gee_t multi_gee,
 			if (-1 != ret) {
 				if (!fg_init_device(dev, multi_gee->log)
 				    || !fg_start_capture(dev, multi_gee->log))
+				{
 					ret = -1;
+				}
 			}
 
 			if (-1 != ret) {
@@ -474,8 +477,9 @@ add_frame(sllist_t frame,
 		}
 	}
 
-	for (sllist_t f = frame; f; f = sll_next(f))
+	for (sllist_t f = frame; f; f = sll_next(f)) {
 		mg_frame_destroy(sll_data(f));
+	}
 
 	frame = sll_empty(frame);
 	return list;
@@ -487,8 +491,9 @@ find_device_fd(sllist_t list,
 {
 	for (sllist_t d = list; d; d = sll_next(d)) {
 		mg_device_t device = sll_data(d);
-		if (mg_device_get_fd(device) == fd)
+		if (mg_device_get_fd(device) == fd) {
 			return device;
+		}
 	}
 
 	return 0;
@@ -500,8 +505,9 @@ find_device_number(sllist_t list,
 {
 	for (sllist_t d = list; d; d = sll_next(d)) {
 		mg_device_t device = sll_data(d);
-		if (mg_device_get_devno(device) == devno)
+		if (mg_device_get_devno(device) == devno) {
 			return device;
+		}
 	}
 
 	return 0;
@@ -513,8 +519,9 @@ find_frame_device(sllist_t list,
 {
 	for (sllist_t f = list; f; f = sll_next(f)) {
 		mg_frame_t frame = sll_data(f);
-		if (mg_frame_get_device(frame) == device)
+		if (mg_frame_get_device(frame) == device) {
 			return frame;
+		}
 	}
 
 	return 0;
@@ -527,8 +534,9 @@ swap_frame(multi_gee_t multi_gee,
 	int fd = mg_device_get_fd(dev);
 
 	struct v4l2_buffer buf;
-	if (!fg_dequeue(fd, &buf, multi_gee->log))
+	if (!fg_dequeue(fd, &buf, multi_gee->log)) {
 		return false;
+	}
 
 	mg_buffer_t dev_buf = mg_device_get_buffer(dev);
 	XASSERT(buf.index < mg_buffer_get_number(dev_buf)) {
@@ -536,9 +544,11 @@ swap_frame(multi_gee_t multi_gee,
 			mg_frame_t frame = sll_data(f);
 			if (dev == mg_frame_get_device(frame)) {
 				int index = mg_frame_get_index(frame);
-				if (index >= 0)
-					if (!fg_enqueue(mg_device_get_fd(dev), index, multi_gee->log))
+				if (0 <= index) {
+					if (!fg_enqueue(mg_device_get_fd(dev), index, multi_gee->log)) {
 						return false;
+					}
+				}
 
 				multi_gee->frame =
 					sll_remove_data(multi_gee->frame, frame);
@@ -583,8 +593,9 @@ sync_select(multi_gee_t multi_gee,
 		int ret = select(max_fd, fds, NULL, NULL, &timeout);
 
 		if (-1 == ret) {
-			if (EINTR == errno)
+			if (EINTR == errno) {
 				continue;
+			}
 
 			lg_log(multi_gee->log, "select");
 			sync = SYNC_FATAL;
@@ -638,10 +649,12 @@ sync_test(multi_gee_t multi_gee)
 					old = true;
 					mg_frame_set_used(frame);
 				} else {
-					if (timercmp(&tv_min, &tv, >))
+					if (timercmp(&tv_min, &tv, >)) {
 						tv_min = tv;
-					if (timercmp(&tv_max, &tv, <))
+					}
+					if (timercmp(&tv_max, &tv, <)) {
 						tv_max = tv;
+					}
 				}
 
 				ready &= !mg_frame_get_used(frame);
@@ -650,8 +663,9 @@ sync_test(multi_gee_t multi_gee)
 			timersub(&tv_max, &tv_min, &tv_diff);
 			if (ready
 			    && timercmp(&multi_gee->TV_IN_SYNC, &tv_diff, >)) {
-				for (sllist_t f = multi_gee->frame; f; f = sll_next(f))
+				for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
 					mg_frame_set_used(sll_data(f));
+				}
 				multi_gee->last_sync = now;
 				sync = SYNC_OK;
 			} else if (!old
@@ -752,13 +766,27 @@ multi_gee()
 
 		// handle return value
 		switch (ret) {
-			case RET_UNDEF    : printf("should not happen\n"); break;
-			case RET_CALLBACK : printf("no callback registered\n"); break;
-			case RET_SYNC     : printf("sync lost\n"); break;
-			case RET_BUSY     : printf("multiple call to capture\n"); break;
-			case RET_DEVICE   : printf("no devices registered\n"); break;
-			case RET_HALT     : printf("capture_halt called\n"); break;
-			default           : printf("captured %d frames\n", ret); break;
+		case RET_UNDEF:
+			printf("should not happen\n");
+			break;
+		case RET_CALLBACK:
+			printf("no callback registered\n");
+			break;
+		case RET_SYNC:
+			printf("sync lost\n");
+			break;
+		case RET_BUSY:
+			printf("multiple call to capture\n");
+			break;
+		case RET_DEVICE:
+			printf("no devices registered\n");
+			break;
+		case RET_HALT:
+			printf("capture_halt called\n");
+			break;
+		default:
+			printf("captured %d frames\n", ret);
+			break;
 		}
 	}
 
@@ -770,8 +798,9 @@ main()
 {
 	for (int i = 0; i < 5; i++) {
 		int ret = cclass_assert_test(multi_gee);
-		if (ret != EXIT_SUCCESS)
+		if (ret != EXIT_SUCCESS) {
 			return ret;
+		}
 	}
 	return EXIT_SUCCESS;
 }
