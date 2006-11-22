@@ -40,6 +40,17 @@
  */
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+#define FIELD         V4L2_FIELD_INTERLACED
+#define MEMORY        V4L2_MEMORY_MMAP
+#define PIXELFORMAT   V4L2_PIX_FMT_GREY
+#define STANDARD      V4L2_STD_PAL
+#define STREAMING     V4L2_CAP_STREAMING
+#define TYPE          V4L2_BUF_TYPE_VIDEO_CAPTURE
+#define VIDEO_CAPTURE V4L2_CAP_VIDEO_CAPTURE
+
+#define WIDTH         768
+#define HEIGHT        576
+
 /**
  * @brief Initialise memory mapping
  *
@@ -169,15 +180,15 @@ fg_dequeue(int fd,
 {
 	CLEAR(*buf);
 
-	buf->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf->memory = V4L2_MEMORY_MMAP;
+	buf->type = TYPE;
+	buf->memory = MEMORY;
 
 	if (-1 == xioctl(fd, VIDIOC_DQBUF, buf)) {
 		switch (errno) {
 		case EAGAIN:
 			return false;
 		case EIO:
-			/* Can ignore EIO, see V4L2 spec. */
+			/* Could also ignore EIO, see V4L2 spec. */
 			/* fall */
 		default:
 			lg_errno(log, "VIDIOC_DQBUF on fd %d", fd);
@@ -197,8 +208,8 @@ fg_enqueue(int fd,
 
 	CLEAR(buf);
 
-	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf.memory = V4L2_MEMORY_MMAP;
+	buf.type = TYPE;
+	buf.memory = MEMORY;
 	buf.index = i;
 
 	if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
@@ -216,23 +227,27 @@ fg_init_device(mg_device_t dev,
 	int fd = mg_device_get_fd(dev);
 	char *dev_name = mg_device_get_name(dev);
 
-	if (!test_capability(fd, dev_name, log))
+	if (!test_capability(fd, dev_name, log)) {
 		return false;
+	}
 
-	if (!select_input(fd, log))
+	if (!select_input(fd, log)) {
 		return false;
+	}
 
 	set_crop(fd);
 
-	if (!set_format(fd, log))
+	if (!set_format(fd, log)) {
 		return false;
+	}
 
 	if (!init_mmap(fd,
 		       dev_name,
 		       mg_device_get_buffer(dev),
 		       mg_device_get_no_bufs(dev),
-		       log))
+		       log)) {
 		return false;
+	}
 
 	return true;
 }
@@ -249,7 +264,7 @@ fg_start_capture(mg_device_t dev,
 		fg_enqueue(fd, i, log);
 	}
 
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	type = TYPE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMON, &type)) {
 		lg_errno(log, "VIDIOC_STREAMON on fd %d", fd);
@@ -266,7 +281,7 @@ fg_stop_capture(mg_device_t dev,
 	enum v4l2_buf_type type;
 	int fd = mg_device_get_fd(dev);
 
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	type = TYPE;
 
 	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type)) {
 		lg_errno(log, "VIDIOC_STREAMOFF on fd %d", fd);
@@ -291,14 +306,6 @@ fg_uninit_device(mg_device_t dev,
 		}
 	}
 
-	/*
-	int fd = mg_device_get_fd(dev);
-	const char *name = mg_device_get_name(dev);
-	if (!request_buffers(fd, name, 0, log)) {
-		return false;
-	}
-	*/
-
 	return true;
 }
 
@@ -312,8 +319,8 @@ query_buffer(int fd,
 	struct v4l2_buffer buf;
 	CLEAR(buf);
 
-	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	buf.memory = V4L2_MEMORY_MMAP;
+	buf.type = TYPE;
+	buf.memory = MEMORY;
 	buf.index = index;
 
 	if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
@@ -328,10 +335,12 @@ query_buffer(int fd,
 			   fd,
 			   buf.m.offset);
 
-	mg_buffer_set(dev_buf, index, start, buf.length);
-
 	if (MAP_FAILED == start) {
 		lg_errno(log, "mmap");
+		return false;
+	}
+
+	if (!mg_buffer_set(dev_buf, index, start, buf.length)) {
 		return false;
 	}
 
@@ -350,6 +359,9 @@ init_mmap(int fd,
 	}
 
 	dev_buf = mg_buffer_alloc(dev_buf, req_bufs);
+	if (!dev_buf) {
+		return false;
+	}
 
 	for (unsigned int i = 0; i < req_bufs; i++) {
 		if (!query_buffer(fd, log, dev_buf, i)) {
@@ -370,8 +382,8 @@ request_buffers(int fd,
 	CLEAR(req);
 
 	req.count = req_bufs;
-	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	req.memory = V4L2_MEMORY_MMAP;
+	req.type = TYPE;
+	req.memory = MEMORY;
 
 	if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
 		if (EINVAL == errno) {
@@ -403,7 +415,7 @@ select_input(int fd,
 		return false;
 	}
 
-	v4l2_std_id std = V4L2_STD_PAL;
+	v4l2_std_id std = STANDARD;
 	if (-1 == xioctl(fd, VIDIOC_S_STD, &std)) {
 		lg_errno(log, "VIDIOC_S_STD on fd %d", fd);
 		return false;
@@ -416,14 +428,14 @@ void
 set_crop(int fd)
 {
 	struct v4l2_cropcap cropcap;
-	cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	cropcap.type = TYPE;
 
 	if (-1 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
 		/* Errors ignored. */
 	}
 
 	struct v4l2_crop crop;
-	crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	crop.type = TYPE;
 	crop.c = cropcap.defrect; /* reset to default */
 
 	if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
@@ -446,11 +458,11 @@ set_format(int fd,
 
 	CLEAR(fmt);
 
-	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	fmt.fmt.pix.width = 768;
-	fmt.fmt.pix.height = 576;
-	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
-	fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+	fmt.type = TYPE;
+	fmt.fmt.pix.width = WIDTH;
+	fmt.fmt.pix.height = HEIGHT;
+	fmt.fmt.pix.pixelformat = PIXELFORMAT;
+	fmt.fmt.pix.field = FIELD;
 
 	if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt)) {
 		lg_errno(log, "VIDIOC_S_FMT on fd %d", fd);
@@ -462,11 +474,13 @@ set_format(int fd,
 	/* Buggy driver paranoia. */
 	unsigned int min;
 	min = fmt.fmt.pix.width * 2;
-	if (fmt.fmt.pix.bytesperline < min)
+	if (fmt.fmt.pix.bytesperline < min) {
 		fmt.fmt.pix.bytesperline = min;
+	}
 	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
-	if (fmt.fmt.pix.sizeimage < min)
+	if (fmt.fmt.pix.sizeimage < min) {
 		fmt.fmt.pix.sizeimage = min;
+	}
 
 	return true;
 }
@@ -477,6 +491,7 @@ test_capability(int fd,
 		log_t log)
 {
 	struct v4l2_capability cap;
+
 	if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
 		if (EINVAL == errno) {
 			lg_log(log, "%s is no V4L2 device",
@@ -488,13 +503,13 @@ test_capability(int fd,
 		}
 	}
 
-	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+	if (!(cap.capabilities & VIDEO_CAPTURE)) {
 		lg_log(log, "%s is no video capture device",
 			dev_name);
 		return false;
 	}
 
-	if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
+	if (!(cap.capabilities & STREAMING)) {
 		lg_log(log,
 			"%s does not support streaming i/o",
 			dev_name);
