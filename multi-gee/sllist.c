@@ -37,7 +37,8 @@ USE_XASSERT
  *
  * @return a newly created log object handle
  */
-static sllist_t
+static
+sllist_t
 sll_create(void *data);
 
 /**
@@ -47,7 +48,8 @@ sll_create(void *data);
  *
  * @return 0
  */
-static sllist_t
+static
+sllist_t
 sll_destroy(sllist_t list);
 
 /**
@@ -66,7 +68,8 @@ sll_destroy(sllist_t list);
  *
  * @return handle to modified list
  */
-static sllist_t
+static
+sllist_t
 sll_insert(sllist_t list,
 	   sllist_t item);
 
@@ -78,7 +81,8 @@ sll_insert(sllist_t list,
  *
  * @return handle to modified list
  */
-static sllist_t
+static
+sllist_t
 sll_remove(sllist_t list,
 	   sllist_t item);
 
