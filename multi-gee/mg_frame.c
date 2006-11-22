@@ -61,7 +61,7 @@ mg_frame_create(mg_device_t mg_device,
 		mg_frame->sequence = -1;
 	}
 
-	mg_frame->used = false;
+	mg_frame->used = (buf) ? false : true;
 
 	return mg_frame;
 }
@@ -105,6 +105,7 @@ int
 mg_frame_get_index(mg_frame_t mg_frame)
 {
 	int index = -1;
+
 	VERIFY(mg_frame) {
 		index = mg_frame->index;
 	}
@@ -140,6 +141,7 @@ bool
 mg_frame_get_used(mg_frame_t mg_frame)
 {
 	bool used = false;
+
 	VERIFY(mg_frame) {
 		used = mg_frame->used;
 	}
@@ -151,6 +153,7 @@ void *
 mg_frame_get_userptr(mg_frame_t mg_frame)
 {
 	void *userptr = 0;
+
 	VERIFY(mg_frame) {
 		userptr = mg_device_get_userptr(mg_frame->device);
 	}
@@ -162,6 +165,7 @@ mg_frame_t
 mg_frame_set_used(mg_frame_t mg_frame)
 {
 	mg_frame_t frame = 0;
+
 	VERIFY(mg_frame) {
 		mg_frame->used = true;
 		frame = mg_frame;
