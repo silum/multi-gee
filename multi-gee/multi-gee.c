@@ -672,7 +672,21 @@ sync_test(multi_gee_t multi_gee)
 #include <stdlib.h>
 #include <unistd.h>
 
-static void
+static
+int
+register_device(multi_gee_t mg,
+		int i)
+{
+	char file[] = "/dev/video_";
+	snprintf(file + 10, 2, "%d", i);
+	printf("register %s\n", file);
+	int id = mg_register_device(mg, file, 0);
+	printf("dev id = %d\n", id);
+	return id;
+}
+
+static
+void
 process_images(multi_gee_t mg, sllist_t frame_list)
 {
 	static struct timeval then = {0, 0};
@@ -703,28 +717,18 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	}
 	printf("\n");
 
-	return;
-
 	static int dev_id = -1;
 	if (count % 1 == 0) {
 		static bool flag = true;
 		if (flag) {
-			dev_id = mg_register_device(mg, "/dev/video1", 0);
+			mg_deregister_device(mg, dev_id);
+			dev_id = register_device(mg, 3);
 		} else {
-			dev_id = mg_deregister_device(mg, dev_id);
+			mg_deregister_device(mg, dev_id);
+			dev_id = register_device(mg, 4);
 		}
 		flag = !flag;
 	}
-}
-
-int
-register_device(multi_gee_t mg,
-		int i)
-{
-	char file[] = "/dev/video_";
-	snprintf(file + 10, 2, "%d", i);
-	printf("register %s\n", file);
-	return mg_register_device(mg, file, 0);
 }
 
 void
@@ -734,14 +738,11 @@ multi_gee()
 
 	mg_register_callback(mg, process_images);
 
-	int id[4];
-	for (int i = 0; i < 4; i++) {
-		id[i] = register_device(mg, i);
-		printf("dev id = %d\n", id[i]);
+	for (int i = 0; i < 3; i++) {
+		register_device(mg, i);
 	}
 
 	for (int i = 0; i < 5; i++) {
-
 		printf("sleep a while\n");
 		sleep(1);
 
