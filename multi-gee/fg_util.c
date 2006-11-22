@@ -48,21 +48,50 @@
  * @param buffer  device buffer
  * @param log  to log possible errors to
  * @param num_bufs  number of capture buffers
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
  */
-static bool
+static
+bool
 init_mmap(int fd,
-	  char *name,
+	  const char *name,
 	  mg_buffer_t buffer,
 	  unsigned int num_bufs,
 	  log_t log);
+
+/**
+ * @brief Call Initiate Memory Mapping IOCTL
+ *
+ * @param fd  file descriptor
+ * @param name  device name
+ * @param log  to log possible errors to
+ * @param num_bufs  number of capture buffers
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
+ */
+static
+bool
+request_buffers(int fd,
+		const char *name,
+		unsigned int req_bufs,
+		log_t log);
 
 /**
  * @brief Select video input and video standard
  *
  * @param fd  file descriptor
  * @param log  to log possible errors to
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
  */
-static bool
+static
+bool
 select_input(int fd,
 	     log_t log);
 
@@ -70,8 +99,13 @@ select_input(int fd,
  * @brief Reset cropping
  *
  * @param fd  file descriptor
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
  */
-static void
+static
+void
 set_crop(int fd);
 
 /**
@@ -85,23 +119,34 @@ set_crop(int fd);
  *
  * @param fd  file descriptor
  * @param log  to log possible errors to
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
  */
-static bool
+static
+bool
 set_format(int fd,
 	   log_t log);
 
 /**
  * @brief Test device capabilities
  *
- * will not return if insufficient capabilities is detected
+ * This function will not return if insufficient capabilities is
+ * detected.
  *
  * @param fd  file descriptor
  * @param name  device name, for logging
  * @param log  to log possible errors to
+ *
+ * @return
+ * - @c false on any failure, else
+ * - @c true
  */
-static bool
+static
+bool
 test_capability(int fd,
-		char *name,
+		const char *name,
 		log_t log);
 
 /**
@@ -111,7 +156,8 @@ test_capability(int fd,
  * @param req  ioctl request
  * @param arg  ioctl argument
  */
-static int
+static
+int
 xioctl(int fd,
        int req,
        void *arg);
@@ -128,17 +174,14 @@ fg_dequeue(int fd,
 
 	if (-1 == xioctl(fd, VIDIOC_DQBUF, buf)) {
 		switch (errno) {
-			case EAGAIN:
-				return false;
-
-			case EIO:
-				/* Could ignore EIO, see spec. */
-
-				/* fall through */
-
-			default:
-				lg_errno(log, "VIDIOC_DQBUF on fd %d", fd);
-				return false;
+		case EAGAIN:
+			return false;
+		case EIO:
+			/* Can ignore EIO, see V4L2 spec. */
+			/* fall */
+		default:
+			lg_errno(log, "VIDIOC_DQBUF on fd %d", fd);
+			return false;
 		}
 	}
 
@@ -202,8 +245,9 @@ fg_start_capture(mg_device_t dev,
 	int fd = mg_device_get_fd(dev);
 	unsigned int bufs = mg_buffer_get_number(mg_device_get_buffer(dev));
 
-	for (unsigned int i = 0; i < bufs; ++i)
+	for (unsigned int i = 0; i < bufs; i++) {
 		fg_enqueue(fd, i, log);
+	}
 
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -239,10 +283,76 @@ fg_uninit_device(mg_device_t dev,
 	mg_buffer_t dev_buf = mg_device_get_buffer(dev);
 	unsigned int bufs = mg_buffer_get_number(dev_buf);
 
-	for (unsigned int i = 0; i < bufs; ++i) {
+	for (unsigned int i = 0; i < bufs; i++) {
 		if (-1 == munmap(mg_buffer_get_start(dev_buf, i),
 				 mg_buffer_get_length(dev_buf, i))) {
 			lg_errno(log, "munmap");
+			return false;
+		}
+	}
+
+	/*
+	int fd = mg_device_get_fd(dev);
+	const char *name = mg_device_get_name(dev);
+	if (!request_buffers(fd, name, 0, log)) {
+		return false;
+	}
+	*/
+
+	return true;
+}
+
+static
+bool
+query_buffer(int fd,
+	     log_t log,
+	     mg_buffer_t dev_buf,
+	     int index)
+{
+	struct v4l2_buffer buf;
+	CLEAR(buf);
+
+	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	buf.memory = V4L2_MEMORY_MMAP;
+	buf.index = index;
+
+	if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
+		lg_errno(log, "VIDIOC_QUERYBUF on fd %d", fd);
+		return false;
+	}
+
+	void *start = mmap(NULL /* start anywhere */,
+			   buf.length,
+			   PROT_READ | PROT_WRITE /* required */,
+			   MAP_SHARED /* recommended */,
+			   fd,
+			   buf.m.offset);
+
+	mg_buffer_set(dev_buf, index, start, buf.length);
+
+	if (MAP_FAILED == start) {
+		lg_errno(log, "mmap");
+		return false;
+	}
+
+	return true;
+}
+
+bool
+init_mmap(int fd,
+	  const char *dev_name,
+	  mg_buffer_t dev_buf,
+	  unsigned int req_bufs,
+	  log_t log)
+{
+	if (!request_buffers(fd, dev_name, req_bufs, log)) {
+		return false;
+	}
+
+	dev_buf = mg_buffer_alloc(dev_buf, req_bufs);
+
+	for (unsigned int i = 0; i < req_bufs; i++) {
+		if (!query_buffer(fd, log, dev_buf, i)) {
 			return false;
 		}
 	}
@@ -251,14 +361,12 @@ fg_uninit_device(mg_device_t dev,
 }
 
 bool
-init_mmap(int fd,
-	  char *dev_name,
-	  mg_buffer_t dev_buf,
-	  unsigned int req_bufs,
-	  log_t log)
+request_buffers(int fd,
+		const char *dev_name,
+		unsigned int req_bufs,
+		log_t log)
 {
 	struct v4l2_requestbuffers req;
-
 	CLEAR(req);
 
 	req.count = req_bufs;
@@ -282,37 +390,6 @@ init_mmap(int fd,
 		return false;
 	}
 
-	dev_buf = mg_buffer_alloc(dev_buf, req.count);
-
-	for (unsigned int i = 0; i < req.count; ++i) {
-		struct v4l2_buffer buf;
-
-		CLEAR(buf);
-
-		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = i;
-
-		if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
-			lg_errno(log, "VIDIOC_QUERYBUF on fd %d", fd);
-			return false;
-		}
-
-		void *start = mmap(NULL /* start anywhere */ ,
-				   buf.length,
-				   PROT_READ | PROT_WRITE
-				   /* required */ ,
-				   MAP_SHARED
-				   /* recommended */ ,
-				   fd, buf.m.offset);
-
-		mg_buffer_set(dev_buf, i, start, buf.length);
-
-		if (MAP_FAILED == start) {
-			lg_errno(log, "mmap");
-			return false;
-		}
-	}
 	return true;
 }
 
@@ -347,16 +424,16 @@ set_crop(int fd)
 
 	struct v4l2_crop crop;
 	crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	crop.c = cropcap.defrect;	/* reset to default */
+	crop.c = cropcap.defrect; /* reset to default */
 
 	if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
 		switch (errno) {
-			case EINVAL:
-				/* Cropping not supported. */
-				break;
-			default:
-				/* Errors ignored. */
-				break;
+		case EINVAL:
+			/* Cropping not supported. */
+			break;
+		default:
+			/* Errors ignored. */
+			break;
 		}
 	}
 }
@@ -396,7 +473,7 @@ set_format(int fd,
 
 bool
 test_capability(int fd,
-		char *dev_name,
+		const char *dev_name,
 		log_t log)
 {
 	struct v4l2_capability cap;
