@@ -162,7 +162,8 @@ multi_gee_sllist_SOURCES = \
 
 multi_gee_multi_gee_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_MULTI_GEE
+    -DDEBUG_MULTI_GEE \
+    -DDEBUG_SELECT
 multi_gee_multi_gee_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_multi_gee_SOURCES = \

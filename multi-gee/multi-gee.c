@@ -66,6 +66,26 @@ add_frame(sllist_t frame,
 	  sllist_t device);
 
 /**
+ * @brief Call callback with a set of in-sync frames
+ *
+ * Searches through the frame list and does a call to the callback
+ * function when an in-sync set of frames are found.  If the count
+ * pointer is not NULL, the value it pointing to is incremented every
+ * time the callback function is called.  Technically a maximum of 1
+ * call the the callback function is possible per call to this function.
+ *
+ * @param multi_gee  object handle
+ * @param [in,out]count  callback call counter
+ *
+ * @return a frame list only containing frames from devices in the
+ * device list
+ */
+static
+enum sync_status
+capture_frameset(multi_gee_t multi_gee,
+		 int *count);
+
+/**
  * @brief Find device in list given the file descriptor
  *
  * @param list  device list object handle
@@ -73,7 +93,8 @@ add_frame(sllist_t frame,
  *
  * @return device handle, or 0 if device not in list
  */
-static mg_device_t
+static
+mg_device_t
 find_device_fd(sllist_t list,
 	       int fd);
 
@@ -85,7 +106,8 @@ find_device_fd(sllist_t list,
  *
  * @return device handle, or 0 if device not in list
  */
-static mg_device_t
+static
+mg_device_t
 find_device_number(sllist_t list,
 		   dev_t devno);
 
@@ -97,7 +119,8 @@ find_device_number(sllist_t list,
  *
  * @return frame handle, or 0 if frame not in list
  */
-static mg_frame_t
+static
+mg_frame_t
 find_frame_device(sllist_t list,
 		  mg_device_t device);
 
@@ -112,7 +135,8 @@ find_frame_device(sllist_t list,
  * @return \c true of the frame was successfully swapped, \c false if an
  * error occurred
  */
-static bool
+static
+bool
 swap_frame(multi_gee_t multi_gee,
 	   mg_device_t device);
 
@@ -129,7 +153,8 @@ swap_frame(multi_gee_t multi_gee,
  *
  * @return sync status
  */
-static enum sync_status
+static
+enum sync_status
 sync_select(multi_gee_t multi_gee,
 	    fd_set *fds);
 
@@ -145,7 +170,8 @@ sync_select(multi_gee_t multi_gee,
  *
  * @return sync status
  */
-static enum sync_status
+static
+enum sync_status
 sync_test(multi_gee_t multi_gee);
 
 /**
@@ -155,7 +181,6 @@ CLASS(multi_gee, multi_gee_t)
 {
 	bool busy; /**< \c true while mg_capture() in progress */
 	bool halt; /**< \c true if mg_capture_halt() called */
-	bool refresh; /**< indicator to refresh device list */
 
 	void (*callback)(multi_gee_t, sllist_t); /**< Pointer to user
 						   defined callback
@@ -182,7 +207,6 @@ mg_create(char* log_file)
 
 	multi_gee->busy = false;
 	multi_gee->halt = false;
-	multi_gee->refresh = false;
 
 	multi_gee->callback = 0;
 
@@ -236,7 +260,7 @@ mg_destroy(multi_gee_t multi_gee)
 	return 0;
 }
 
-#if DEBUG_SELECT
+#ifdef DEBUG_SELECT
 /**
  * @brief Print struct timeval value
  *
@@ -247,7 +271,8 @@ mg_destroy(multi_gee_t multi_gee)
  * @param str  string to prefix to value -- may be ""
  * @param tv  timeval to print
  */
-static void
+static
+void
 print_tv(char *str, struct timeval tv)
 {
 	if (tv.tv_sec == -1) {
@@ -258,8 +283,73 @@ print_tv(char *str, struct timeval tv)
 		printf("%s%10ld.%06ld", str, tv.tv_sec, tv.tv_usec);
 	}
 }
+
+static
+void
+debug_print_frame(multi_gee_t multi_gee,
+		   mg_device_t dev)
+{
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	printf("--select--\n");
+	print_tv("now:             ", tv); printf("\n");
+
+	mg_frame_t f = find_frame_device(multi_gee->frame, dev);
+	struct timeval f_tv = mg_frame_get_timestamp(f);
+	timersub(&f_tv, &tv, &tv);
+
+	print_tv("frame timestamp: ", f_tv); printf("\n");
+	print_tv("frame now diff:  ", tv); printf("\n");
+	printf(  "frame device:    %17s\n", mg_device_get_name(dev));
+	printf(  "frame index:     %17d\n", mg_frame_get_index(f));
+	printf(  "frame sequence:  %17d\n", mg_frame_get_sequence(f));
+	printf("--/select--\n");
+}
+
+void
+debug_print_tv(struct timeval tv)
+{
+	print_tv("capture start:   ", tv);
+	printf("\n");
+}
+#else
+#define debug_print_frame(arg0,arg1)
+#define debug_print_tv(arg)
 #endif
 
+enum sync_status
+capture_frameset(multi_gee_t multi_gee,
+		 int *count)
+{
+	fd_set fds;
+	enum sync_status sync = sync_select(multi_gee, &fds);
+
+	for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
+		mg_device_t dev = sll_data(d);
+		if (FD_ISSET(mg_device_get_fd(dev), &fds)) {
+			bool swap_ok = swap_frame(multi_gee, dev);
+			debug_print_frame(multi_gee, dev);
+
+			if (swap_ok) {
+				sync = sync_test(multi_gee);
+			} else {
+				sync = SYNC_FATAL;
+			}
+
+			if (SYNC_OK == sync) {
+				multi_gee->callback(multi_gee,
+						    multi_gee->frame);
+				if (count) {
+					(*count)++;
+				}
+			} else if (SYNC_FATAL == sync) {
+				break;
+			}
+		}
+	}
+
+	return sync;
+}
 enum mg_RETURN
 mg_capture(multi_gee_t multi_gee,
 	   int n)
@@ -281,9 +371,7 @@ mg_capture(multi_gee_t multi_gee,
 		/* update sync time to now */
 		gettimeofday(&multi_gee->last_sync, 0);
 
-#if DEBUG_SELECT
-		print_tv("capture start:   ", multi_gee->last_sync); printf("\n");
-#endif
+		debug_print_tv(multi_gee->last_sync);
 
 		while (!done) {
 			/* assume we are done */
@@ -298,53 +386,13 @@ mg_capture(multi_gee_t multi_gee,
 				ret = RET_DEVICE;
 			} else if (0 <= n && n <= count) {
 				ret = count;
-			} else if (sync == SYNC_FATAL) {
+			} else if (SYNC_FATAL == sync) {
 				ret = RET_SYNC;
 			} else {
 				/* OK, so we're not done yet */
 				done = false;
-
-				fd_set fds;
-				sync = sync_select(multi_gee, &fds);
-
-				for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
-					mg_device_t dev = sll_data(d);
-					if (FD_ISSET(mg_device_get_fd(dev), &fds)) {
-						if (!swap_frame(multi_gee, dev)) {
-							sync = SYNC_FATAL;
-							break;
-						}
-
-#if DEBUG_SELECT
-						struct timeval tv;
-						gettimeofday(&tv, 0);
-						printf("--select--\n");
-						print_tv("now:             ", tv); printf("\n");
-
-						mg_frame_t f = find_frame_device(multi_gee->frame, dev);
-						struct timeval f_tv = mg_frame_timestamp(f);
-						timersub(&f_tv, &tv, &tv);
-
-						print_tv("frame timestamp: ", f_tv); printf("\n");
-						print_tv("frame now diff:  ", tv); printf("\n");
-						printf(  "frame device:    %17s\n", mg_device_name(dev));
-						printf(  "frame index:     %17d\n", mg_frame_index(f));
-						printf(  "frame sequence:  %17d\n", mg_frame_sequence(f));
-						printf("--/select--\n");
-#endif
-
-						sync = sync_test(multi_gee);
-
-						if (sync == SYNC_FATAL) {
-							break;
-						}
-
-						if (sync == SYNC_OK) {
-							multi_gee->callback(multi_gee, multi_gee->frame);
-							count++;
-						}
-					}
-				}
+				sync = capture_frameset(multi_gee,
+							&count);
 			}
 		}
 		multi_gee->busy = false;
@@ -369,8 +417,13 @@ mg_deregister_device(multi_gee_t multi_gee,
 	VERIFY(multi_gee) {
 		mg_device_t device = find_device_fd(multi_gee->device, id);
 		if (device) {
-			multi_gee->refresh = true;
-			multi_gee->device = sll_remove_data(multi_gee->device, device);
+			/* remove device and frame from lists */
+			multi_gee->device =
+				sll_remove_data(multi_gee->device,
+						device);
+			multi_gee->frame =
+				add_frame(multi_gee->frame,
+					  multi_gee->device);
 
 			/* ignore failures */
 			fg_stop_capture(device, multi_gee->log);
@@ -405,13 +458,12 @@ mg_register_device(multi_gee_t multi_gee,
 		   char *name,
 		   void *userptr)
 {
-	fflush(0);
 	int ret = -1;
 
 	VERIFY(multi_gee) {
 		mg_device_t dev = mg_device_create(name,
 						   multi_gee->num_bufs,
-						   multi_gee->log, 
+						   multi_gee->log,
 						   userptr);
 
 		/* can device be registered? */
@@ -437,17 +489,21 @@ mg_register_device(multi_gee_t multi_gee,
 			}
 
 			if (-1 != ret) {
-				if (!fg_init_device(dev, multi_gee->log)
-				    || !fg_start_capture(dev, multi_gee->log))
-				{
+				if (!fg_init_device(dev,
+						    multi_gee->log)) {
+					ret = -1;
+				} else if (!fg_start_capture(dev,
+							     multi_gee->log)) {
 					ret = -1;
 				}
 			}
 
 			if (-1 != ret) {
 				/* everything OK, add it to device list */
-				multi_gee->refresh = true;
 				multi_gee->device = sll_insert_data(multi_gee->device, dev);
+				multi_gee->frame =
+					add_frame(multi_gee->frame,
+						  multi_gee->device);
 			} else {
 				/* fatal error */
 				mg_device_destroy(dev);
@@ -542,7 +598,7 @@ swap_frame(multi_gee_t multi_gee,
 	XASSERT(buf.index < mg_buffer_get_number(dev_buf)) {
 		for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
 			mg_frame_t frame = sll_data(f);
-			if (dev == mg_frame_get_device(frame)) {
+			if (mg_frame_get_device(frame) == dev) {
 				int index = mg_frame_get_index(frame);
 				if (0 <= index) {
 					if (!fg_enqueue(mg_device_get_fd(dev), index, multi_gee->log)) {
@@ -571,12 +627,6 @@ enum sync_status
 sync_select(multi_gee_t multi_gee,
 	    fd_set *fds)
 {
-	if (multi_gee->refresh) {
-		multi_gee->frame =
-			add_frame(multi_gee->frame, multi_gee->device);
-		multi_gee->refresh = false;
-	}
-
 	enum sync_status sync = SYNC_FAIL;
 	while (SYNC_FATAL != sync) {
 		FD_ZERO(fds);
@@ -638,7 +688,6 @@ sync_test(multi_gee_t multi_gee)
 			struct timeval tv_min = tv_max;
 
 			bool ready = true;
-			bool old = true; /* delayed startup flag */
 
 			/* repeat first frame */
 			for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
@@ -646,7 +695,6 @@ sync_test(multi_gee_t multi_gee)
 
 				struct timeval tv = mg_frame_get_timestamp(frame);
 				if (timercmp(&tv, &multi_gee->last_sync, <)) {
-					old = true;
 					mg_frame_set_used(frame);
 				} else {
 					if (timercmp(&tv_min, &tv, >)) {
@@ -668,8 +716,7 @@ sync_test(multi_gee_t multi_gee)
 				}
 				multi_gee->last_sync = now;
 				sync = SYNC_OK;
-			} else if (!old
-				   && timercmp(&multi_gee->TV_NO_SYNC, &tv_diff, <)) {
+			} else if (timercmp(&multi_gee->TV_NO_SYNC, &tv_diff, <)) {
 				lg_log(multi_gee->log,
 				       "fatal loss of sync: %ld.%06ld\n",
 				       tv_diff.tv_sec,
@@ -736,16 +783,19 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 	if (count % 1 == 0) {
 		static bool flag = true;
 		if (flag) {
-			mg_deregister_device(mg, dev_id);
+			printf("deregister %d\n",
+			       mg_deregister_device(mg, dev_id));
 			dev_id = register_device(mg, 3);
 		} else {
-			mg_deregister_device(mg, dev_id);
+			printf("deregister %d\n",
+			       mg_deregister_device(mg, dev_id));
 			dev_id = register_device(mg, 4);
 		}
 		flag = !flag;
 	}
 }
 
+static
 void
 multi_gee()
 {
