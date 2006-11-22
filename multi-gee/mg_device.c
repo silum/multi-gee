@@ -60,17 +60,16 @@ mg_device_create(char *name,
 	STRDUP(mg_device->name, name);
 
 	struct stat st;
-	if (0 != stat(name, &st))
+	if (0 != stat(name, &st)) {
 		lg_errno(log, "cannot identify '%s':", name);
-	else if (!S_ISCHR(st.st_mode))
+	} else if (!S_ISCHR(st.st_mode)) {
 		lg_log(log, "%s is no device", name);
-	else
+	} else {
 		mg_device->devno = st.st_rdev;
+	}
 
 	mg_device->no_bufs = no_bufs;
-
 	mg_device->buffer = mg_buffer_create();
-
 	mg_device->userptr = userptr;
 
 	return mg_device;
@@ -165,10 +164,12 @@ int
 mg_device_open(mg_device_t mg_device)
 {
 	VERIFY(mg_device) {
-		if (mg_device->fd == -1)
+		if (mg_device->fd == -1) {
 			mg_device->fd = open(mg_device->name,
-					     O_RDWR | O_SYNC |
-					     O_NONBLOCK);
+					     (O_RDWR
+					      | O_SYNC
+					      | O_NONBLOCK));
+		}
 		if (-1 == mg_device->fd) {
 			fprintf(stderr, "Cannot open '%s': %d, %s\n",
 				mg_device->name, errno, strerror(errno));
