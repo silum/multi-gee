@@ -1,5 +1,5 @@
 ## $Id$
-## Copyright (C) 2004, 2005, 2006  Deneys S. Maartens  <dsm@tlabs.ac.za>
+## Copyright (C) 2004, 2005, 2006 Deneys S. Maartens <dsm@tlabs.ac.za>
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,8 +17,13 @@
 
 ## Process this file with automake to produce Makefile.in.
 
-AM_CFLAGS = -std=gnu99 -Wall -Wextra -Werror
-AM_CPPFLAGS = $(CCLASS_CPPFLAGS)
+AM_CFLAGS = \
+    -std=gnu99 \
+    -Wall \
+    -Werror \
+    -Wextra
+AM_CPPFLAGS = \
+    $(CCLASS_CPPFLAGS)
 
 DIST_SUBDIRS = \
     examples \
