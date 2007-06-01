@@ -6,7 +6,7 @@ BUILD Procedure
 ===============
 
 These are generic building instructions.  Please refer to INSTALL for
-the installation instructions.  It is not neccessary to follow these
+the installation instructions.  It is not necessary to follow these
 instructions if the distribution tree already contains a `configure'
 script.
 
