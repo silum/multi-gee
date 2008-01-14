@@ -78,12 +78,12 @@ TESTS = \
     multi-gee/sllist \
     tests/sllist
 
-examples_check_rate_LDADD = \
-    multi-gee/libmulti-gee.la
-examples_check_rate_LDFLAGS = \
-    -lncurses
-examples_check_rate_SOURCES = \
-    examples/check-rate.c
+#examples_check_rate_LDADD = \
+#    multi-gee/libmulti-gee.la
+#examples_check_rate_LDFLAGS = \
+#    -lncurses
+#examples_check_rate_SOURCES = \
+#    examples/check-rate.c
 
 examples_sync_check_CFLAGS = \
     $(AM_CFLAGS) \
@@ -236,7 +236,6 @@ DISTCLEANFILES = \
 
 EXTRA_DIST = \
     $(ac_aux_dir)/autogen.sh \
-    $(ac_aux_dir)/bootstrap \
     $(ac_aux_dir)/clobber \
     BUILD \
     $(PACKAGE_NAME).spec
