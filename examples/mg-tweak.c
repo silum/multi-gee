@@ -93,8 +93,8 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 
 	printf("  count   : %d\n", count++);
 
-	for (sllist_t f = frame_list; f; f = sll_next(f)) {
-		mg_frame_t frame = sll_data(f);
+	for (sllist_t f = frame_list; f; f = sllist_next(f)) {
+		mg_frame_t frame = sllist_data(f);
 		printf("dev: %s\n", mg_device_get_name(mg_frame_get_device(frame)));
 		struct timeval tv = mg_frame_get_timestamp(frame);
 

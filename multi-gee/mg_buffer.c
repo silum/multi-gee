@@ -138,7 +138,7 @@ mg_buffer_set(mg_buffer_t mg_buffer,
 	return p;
 }
 
-#ifdef DEBUG_BUFFER
+#ifdef TEST_MULTI_GEE_MG_BUFFER
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -216,4 +216,4 @@ main()
 	exit(cclass_assert_test(mg_buffer));
 }
 
-#endif /* DEBUG_BUFFER */
+#endif /* TEST_MULTI_GEE_MG_BUFFER */

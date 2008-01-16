@@ -174,7 +174,7 @@ mg_frame_set_used(mg_frame_t mg_frame)
 	return frame;
 }
 
-#ifdef DEBUG_FRAME
+#ifdef TEST_MULTI_GEE_MG_FRAME
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -275,4 +275,4 @@ main()
 	exit(cclass_assert_test(mg_frame));
 }
 
-#endif /* DEBUG_FRAME */
+#endif /* DEBUG_MG_FRAME */

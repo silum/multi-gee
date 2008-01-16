@@ -17,6 +17,7 @@
 
 ## Process this file with automake to produce Makefile.in.
 
+ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = \
     -std=gnu99 \
     -Wall \
@@ -27,13 +28,14 @@ AM_CPPFLAGS = \
 
 DIST_SUBDIRS = \
     examples \
+    m4 \
     multi-gee \
     tests
 
 aclocaldir = \
     $(datadir)/aclocal
 dist_aclocal_DATA = \
-    multi-gee.m4
+    m4/multi-gee.m4
 
 dist_noinst_DATA = \
     examples/sync-grammar.y \
@@ -58,15 +60,13 @@ noinst_HEADERS = \
 lib_LTLIBRARIES = \
     multi-gee/libmulti-gee.la
 
-#bin_PROGRAMS = \
-#    examples/check-rate
-
 check_PROGRAMS = \
     $(TESTS)
 
 noinst_PROGRAMS = \
     examples/mg-tweak \
     examples/multi-gee \
+    examples/sllist \
     examples/sync-check \
     multi-gee/multi-gee \
     multi-gee/multi-gee-select
@@ -75,15 +75,12 @@ TESTS = \
     multi-gee/mg_buffer \
     multi-gee/mg_device \
     multi-gee/mg_frame \
-    multi-gee/sllist \
-    tests/sllist
+    multi-gee/sllist
 
-#examples_check_rate_LDADD = \
-#    multi-gee/libmulti-gee.la
-#examples_check_rate_LDFLAGS = \
-#    -lncurses
-#examples_check_rate_SOURCES = \
-#    examples/check-rate.c
+examples_sllist_LDADD = \
+    multi-gee/libmulti-gee.la
+examples_sllist_SOURCES = \
+    examples/sllist.c
 
 examples_sync_check_CFLAGS = \
     $(AM_CFLAGS) \
@@ -101,7 +98,6 @@ examples_sync_check_SOURCES = \
     examples/lex.yy.c \
     examples/sync-check.c \
     examples/y.tab.c
-
 
 examples_multi_gee_LDADD = \
     multi-gee/libmulti-gee.la
@@ -131,7 +127,7 @@ multi_gee_libmulti_gee_la_SOURCES = \
 
 multi_gee_mg_buffer_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_BUFFER
+    -DTEST_MULTI_GEE_MG_BUFFER
 multi_gee_mg_buffer_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_mg_buffer_SOURCES = \
@@ -139,7 +135,7 @@ multi_gee_mg_buffer_SOURCES = \
 
 multi_gee_mg_device_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_DEVICE
+    -DTEST_MULTI_GEE_MG_DEVICE
 multi_gee_mg_device_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_mg_device_SOURCES = \
@@ -149,7 +145,7 @@ multi_gee_mg_device_SOURCES = \
 
 multi_gee_mg_frame_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_FRAME
+    -DTEST_MULTI_GEE_MG_FRAME
 multi_gee_mg_frame_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_mg_frame_SOURCES = \
@@ -160,15 +156,18 @@ multi_gee_mg_frame_SOURCES = \
 
 multi_gee_sllist_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_SLLIST
+    -DTEST_SLLIST
 multi_gee_sllist_LDADD = \
-    $(CCLASS_LIBS)
+    $(CCLASS_LIBS) \
+    -lcheck
 multi_gee_sllist_SOURCES = \
-    multi-gee/sllist.c
+    multi-gee/sllist.c \
+    multi-gee/verbose-argp.c \
+    multi-gee/test-runner.c
 
 multi_gee_multi_gee_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -DDEBUG_MULTI_GEE
+    -DTEST_MULTI_GEE_MULTI_GEE
 multi_gee_multi_gee_LDADD = \
     $(CCLASS_LIBS)
 multi_gee_multi_gee_SOURCES = \
@@ -187,11 +186,6 @@ multi_gee_multi_gee_select_LDADD = \
     $(multi_gee_multi_gee_LDADD)
 multi_gee_multi_gee_select_SOURCES = \
     $(multi_gee_multi_gee_SOURCES)
-
-tests_sllist_LDADD = \
-    multi-gee/libmulti-gee.la
-tests_sllist_SOURCES = \
-    tests/sllist.c
 
 examples/y.tab.h examples/y.tab.c: $(srcdir)/examples/sync-grammar.y
 	$(YACC) -d $(srcdir)/examples/sync-grammar.y

@@ -35,19 +35,19 @@ sllist()
 		printf("insert %d items into list\n", testnum);
 		sllist_t sll = 0;
 		for (int i = 0; i <= testnum; ++i) {
-			sll = sll_insert_data(sll, (void*)i);
+			sll = sllist_insert_data(sll, (void*)i);
 		}
 
 		printf("display items\n");
 		sllist_t list = sll;
 		while (list) {
-			printf("data: %p\n", sll_data(list));
-			list = sll_next(list);
+			printf("data: %p\n", sllist_data(list));
+			list = sllist_next(list);
 		}
 
 		printf("forward remove\n");
 		for (int i = 0; i <= testnum; ++i) {
-			sll = sll_remove_data(sll, (void*)i);
+			sll = sllist_remove_data(sll, (void*)i);
 			if (i != testnum) {
 				XASSERT(sll) {
 					/* empty */
@@ -64,19 +64,19 @@ sllist()
 		printf("insert %d items into list\n", testnum);
 		sllist_t sll = 0;
 		for (int i = 0; i <= testnum; ++i) {
-			sll = sll_insert_data(sll, (void*)i);
+			sll = sllist_insert_data(sll, (void*)i);
 		}
 
 		printf("display items\n");
 		sllist_t list = sll;
 		while (list) {
-			printf("data: %p\n", sll_data(list));
-			list = sll_next(list);
+			printf("data: %p\n", sllist_data(list));
+			list = sllist_next(list);
 		}
 
 		printf("reverse remove\n");
 		for (int i = testnum; i >= 0; --i) {
-			sll = sll_remove_data(sll, (void*)i);
+			sll = sllist_remove_data(sll, (void*)i);
 			if (i) {
 				XASSERT(sll) {
 					/* empty */

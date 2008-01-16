@@ -28,9 +28,9 @@
 void process_images(multi_gee_t multi_gee,
 		    sllist_t frame_list)
 {
-	for (sllist_t f = frame_list; f; f = sll_next(f))
+	for (sllist_t f = frame_list; f; f = sllist_next(f))
 	{
-		mg_frame_t frame = sll_data(f);
+		mg_frame_t frame = sllist_data(f);
 
 		/* process image here: user defined stuff goes here */
 		process(multi_gee, frame);

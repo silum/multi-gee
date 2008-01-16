@@ -248,10 +248,10 @@ mg_destroy(multi_gee_t multi_gee)
 {
 	VERIFYZ(multi_gee) {
 		while (multi_gee->device) {
-			int id = mg_device_get_fd(sll_data(multi_gee->device));
+			int id = mg_device_get_fd(sllist_data(multi_gee->device));
 			mg_deregister_device(multi_gee, id);
 		}
-		multi_gee->device = sll_empty(multi_gee->device);
+		multi_gee->device = sllist_empty(multi_gee->device);
 		multi_gee->frame = add_frame(multi_gee->frame, 0);
 		multi_gee->log = lg_destroy(multi_gee->log);
 		FREEOBJ(multi_gee);
@@ -324,8 +324,8 @@ capture_frameset(multi_gee_t multi_gee,
 	fd_set fds;
 	enum sync_status sync = sync_select(multi_gee, &fds);
 
-	for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
-		mg_device_t dev = sll_data(d);
+	for (sllist_t d = multi_gee->device; d; d = sllist_next(d)) {
+		mg_device_t dev = sllist_data(d);
 		if (FD_ISSET(mg_device_get_fd(dev), &fds)) {
 			bool swap_ok = swap_frame(multi_gee, dev);
 			debug_print_frame(multi_gee, dev);
@@ -419,7 +419,7 @@ mg_deregister_device(multi_gee_t multi_gee,
 		if (device) {
 			/* remove device and frame from lists */
 			multi_gee->device =
-				sll_remove_data(multi_gee->device,
+				sllist_remove_data(multi_gee->device,
 						device);
 			multi_gee->frame =
 				add_frame(multi_gee->frame,
@@ -500,7 +500,7 @@ mg_register_device(multi_gee_t multi_gee,
 
 			if (-1 != ret) {
 				/* everything OK, add it to device list */
-				multi_gee->device = sll_insert_data(multi_gee->device, dev);
+				multi_gee->device = sllist_insert_data(multi_gee->device, dev);
 				multi_gee->frame =
 					add_frame(multi_gee->frame,
 						  multi_gee->device);
@@ -520,24 +520,24 @@ add_frame(sllist_t frame,
 {
 	sllist_t list = 0;
 
-	for (sllist_t d = device; d; d = sll_next(d)) {
-		mg_device_t dev = sll_data(d);
+	for (sllist_t d = device; d; d = sllist_next(d)) {
+		mg_device_t dev = sllist_data(d);
 
 		mg_frame_t old_frame = find_frame_device(frame, dev);
 		if (old_frame) {
-			frame = sll_remove_data(frame, old_frame);
-			list = sll_insert_data(list, old_frame);
+			frame = sllist_remove_data(frame, old_frame);
+			list = sllist_insert_data(list, old_frame);
 		} else {
 			mg_frame_t new_frame = mg_frame_create(dev, 0);
-			list = sll_insert_data(list, new_frame);
+			list = sllist_insert_data(list, new_frame);
 		}
 	}
 
-	for (sllist_t f = frame; f; f = sll_next(f)) {
-		mg_frame_destroy(sll_data(f));
+	for (sllist_t f = frame; f; f = sllist_next(f)) {
+		mg_frame_destroy(sllist_data(f));
 	}
 
-	frame = sll_empty(frame);
+	frame = sllist_empty(frame);
 	return list;
 }
 
@@ -545,8 +545,8 @@ mg_device_t
 find_device_fd(sllist_t list,
 	       int fd)
 {
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t device = sll_data(d);
+	for (sllist_t d = list; d; d = sllist_next(d)) {
+		mg_device_t device = sllist_data(d);
 		if (mg_device_get_fd(device) == fd) {
 			return device;
 		}
@@ -559,8 +559,8 @@ mg_device_t
 find_device_number(sllist_t list,
 		   dev_t devno)
 {
-	for (sllist_t d = list; d; d = sll_next(d)) {
-		mg_device_t device = sll_data(d);
+	for (sllist_t d = list; d; d = sllist_next(d)) {
+		mg_device_t device = sllist_data(d);
 		if (mg_device_get_devno(device) == devno) {
 			return device;
 		}
@@ -573,8 +573,8 @@ mg_frame_t
 find_frame_device(sllist_t list,
 		  mg_device_t device)
 {
-	for (sllist_t f = list; f; f = sll_next(f)) {
-		mg_frame_t frame = sll_data(f);
+	for (sllist_t f = list; f; f = sllist_next(f)) {
+		mg_frame_t frame = sllist_data(f);
 		if (mg_frame_get_device(frame) == device) {
 			return frame;
 		}
@@ -596,8 +596,8 @@ swap_frame(multi_gee_t multi_gee,
 
 	mg_buffer_t dev_buf = mg_device_get_buffer(dev);
 	XASSERT(buf.index < mg_buffer_get_number(dev_buf)) {
-		for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
-			mg_frame_t frame = sll_data(f);
+		for (sllist_t f = multi_gee->frame; f; f = sllist_next(f)) {
+			mg_frame_t frame = sllist_data(f);
 			if (mg_frame_get_device(frame) == dev) {
 				int index = mg_frame_get_index(frame);
 				if (0 <= index) {
@@ -607,13 +607,13 @@ swap_frame(multi_gee_t multi_gee,
 				}
 
 				multi_gee->frame =
-					sll_remove_data(multi_gee->frame, frame);
+					sllist_remove_data(multi_gee->frame, frame);
 
 				mg_frame_destroy(frame);
 
 				frame = mg_frame_create(dev, &buf);
 				multi_gee->frame =
-					sll_insert_data(multi_gee->frame, frame);
+					sllist_insert_data(multi_gee->frame, frame);
 
 				return true;
 			}
@@ -632,8 +632,8 @@ sync_select(multi_gee_t multi_gee,
 		FD_ZERO(fds);
 
 		int max_fd = -1;
-		for (sllist_t d = multi_gee->device; d; d = sll_next(d)) {
-			int fd = mg_device_get_fd(sll_data(d));
+		for (sllist_t d = multi_gee->device; d; d = sllist_next(d)) {
+			int fd = mg_device_get_fd(sllist_data(d));
 			max_fd = (fd > max_fd) ? fd : max_fd;
 			FD_SET(fd, fds);
 		}
@@ -683,15 +683,15 @@ sync_test(multi_gee_t multi_gee)
 
 			sync = SYNC_FATAL;
 		} else if (multi_gee->frame) {
-			mg_frame_t frame = sll_data(multi_gee->frame);
+			mg_frame_t frame = sllist_data(multi_gee->frame);
 			struct timeval tv_max = mg_frame_get_timestamp(frame);
 			struct timeval tv_min = tv_max;
 
 			bool ready = true;
 
 			/* repeat first frame */
-			for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
-				frame = sll_data(f);
+			for (sllist_t f = multi_gee->frame; f; f = sllist_next(f)) {
+				frame = sllist_data(f);
 
 				struct timeval tv = mg_frame_get_timestamp(frame);
 				if (timercmp(&tv, &multi_gee->last_sync, <)) {
@@ -711,8 +711,8 @@ sync_test(multi_gee_t multi_gee)
 			timersub(&tv_max, &tv_min, &tv_diff);
 			if (ready
 			    && timercmp(&multi_gee->TV_IN_SYNC, &tv_diff, >)) {
-				for (sllist_t f = multi_gee->frame; f; f = sll_next(f)) {
-					mg_frame_set_used(sll_data(f));
+				for (sllist_t f = multi_gee->frame; f; f = sllist_next(f)) {
+					mg_frame_set_used(sllist_data(f));
 				}
 				multi_gee->last_sync = now;
 				sync = SYNC_OK;
@@ -728,7 +728,7 @@ sync_test(multi_gee_t multi_gee)
 	return sync;
 }
 
-#ifdef DEBUG_MULTI_GEE
+#ifdef TEST_MULTI_GEE_MULTI_GEE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -765,8 +765,8 @@ process_images(multi_gee_t mg, sllist_t frame_list)
 
 	printf("  count   : %d\n", count++);
 
-	for (sllist_t f = frame_list; f; f = sll_next(f)) {
-		mg_frame_t frame = sll_data(f);
+	for (sllist_t f = frame_list; f; f = sllist_next(f)) {
+		mg_frame_t frame = sllist_data(f);
 		printf("dev: %s\n", mg_device_get_name(mg_frame_get_device(frame)));
 		struct timeval tv = mg_frame_get_timestamp(frame);
 
@@ -855,4 +855,4 @@ main()
 	return EXIT_SUCCESS;
 }
 
-#endif /* DEBUG_MULTI_GEE */
+#endif /* TEST_MULTI_GEE_MULTI_GEE */

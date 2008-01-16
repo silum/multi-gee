@@ -179,7 +179,7 @@ mg_device_open(mg_device_t mg_device)
 	return mg_device->fd;
 }
 
-#ifdef DEBUG_DEVICE
+#ifdef TEST_MULTI_GEE_MG_DEVICE
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -271,4 +271,4 @@ main()
 	exit(cclass_assert_test(mg_device));
 }
 
-#endif /* DEBUG_DEVICE */
+#endif /* TEST_MULTI_GEE_MG_DEVICE */
