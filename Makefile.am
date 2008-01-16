@@ -29,8 +29,7 @@ AM_CPPFLAGS = \
 DIST_SUBDIRS = \
     examples \
     m4 \
-    multi-gee \
-    tests
+    multi-gee
 
 aclocaldir = \
     $(datadir)/aclocal
