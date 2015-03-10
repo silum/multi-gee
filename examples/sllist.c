@@ -34,7 +34,7 @@ sllist()
 	{
 		printf("insert %d items into list\n", testnum);
 		sllist_t sll = 0;
-		for (int i = 0; i <= testnum; ++i) {
+		for (size_t i = 0; i <= (size_t)testnum; ++i) {
 			sll = sllist_insert_data(sll, (void*)i);
 		}
 
@@ -46,9 +46,9 @@ sllist()
 		}
 
 		printf("forward remove\n");
-		for (int i = 0; i <= testnum; ++i) {
+		for (size_t i = 0; i <= (size_t)testnum; ++i) {
 			sll = sllist_remove_data(sll, (void*)i);
-			if (i != testnum) {
+			if (i != (size_t)testnum) {
 				XASSERT(sll) {
 					/* empty */
 				}
@@ -63,7 +63,7 @@ sllist()
 	{
 		printf("insert %d items into list\n", testnum);
 		sllist_t sll = 0;
-		for (int i = 0; i <= testnum; ++i) {
+		for (size_t i = 0; i <= (size_t)testnum; ++i) {
 			sll = sllist_insert_data(sll, (void*)i);
 		}
 
@@ -75,9 +75,11 @@ sllist()
 		}
 
 		printf("reverse remove\n");
-		for (int i = testnum; i >= 0; --i) {
-			sll = sllist_remove_data(sll, (void*)i);
-			if (i) {
+      // Loop runs from testnum+1 to 1 to avoid tripping up over a
+      // always true i > 0 check
+		for (size_t i = testnum+1; i > 1; --i) {
+			sll = sllist_remove_data(sll, (void*)(i-1));
+			if (i > 1) {
 				XASSERT(sll) {
 					/* empty */
 				}
