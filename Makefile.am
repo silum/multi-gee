@@ -54,6 +54,11 @@ noinst_HEADERS = \
     examples/device.h \
     examples/pgm_util.h \
     examples/process_util.h \
+	 multi-gee/verbose-argp.h \
+	 multi-gee/trace.h \
+	 multi-gee/sllist.h \
+	 multi-gee/redirect.h \
+	 multi-gee/test-runner.h \
     linux/videodev2.h
 
 lib_LTLIBRARIES = \
