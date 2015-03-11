@@ -61,6 +61,15 @@ ldconfig
 %{_libdir}/lib%{name}.la
 
 %changelog
+* Wed Mar 11 2015  Neil Muller  <neil@tlabs.ac.za> 1.0-1
+- Update with latest fixes
+
+* Thu Jan 19 2012  Neil Muller  <neil@tlabs.ac.za> 0.98-2
+- Silence some warnings
+
+* Thu Jan 19 2012  Neil Muller  <neil@tlabs.ac.za> 0.98-1
+- Update to build on SL 6.1 64 bit
+
 * Thu Jul 21 2005  Deneys S. Maartens  <dsm@tlabs.ac.za> 0.95-1
 - create spec file
 
