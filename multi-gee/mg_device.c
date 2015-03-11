@@ -46,7 +46,7 @@ CLASS(mg_device, mg_device_t)
 };
 
 mg_device_t
-mg_device_create(char *name,
+mg_device_create(const char *name,
 		 unsigned int no_bufs,
 		 log_t log,
 		 void *userptr)
@@ -185,7 +185,7 @@ mg_device_open(mg_device_t mg_device)
 #include <stdio.h>
 
 void
-test_device(char *name,
+test_device(const char *name,
 	    dev_t devno,
 	    void *userptr)
 {

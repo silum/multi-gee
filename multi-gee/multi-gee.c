@@ -200,7 +200,7 @@ CLASS(multi_gee, multi_gee_t)
 };
 
 multi_gee_t
-mg_create(char* log_file)
+mg_create(const char* log_file)
 {
 	multi_gee_t multi_gee;
 	NEWOBJ(multi_gee);
@@ -228,7 +228,7 @@ mg_create(char* log_file)
 }
 
 multi_gee_t
-mg_create_special(char* log_file,
+mg_create_special(const char* log_file,
 		  struct timeval tv_in_sync,
 		  struct timeval tv_no_sync,
 		  unsigned int num_bufs)
@@ -273,7 +273,7 @@ mg_destroy(multi_gee_t multi_gee)
  */
 static
 void
-print_tv(char *str, struct timeval tv)
+print_tv(const char *str, struct timeval tv)
 {
 	if (tv.tv_sec == -1) {
 		printf("%s%10s.%06ld", str, "-0", 1000000 - tv.tv_usec);
@@ -455,7 +455,7 @@ mg_register_callback(multi_gee_t multi_gee,
 
 int
 mg_register_device(multi_gee_t multi_gee,
-		   char *name,
+		   const char *name,
 		   void *userptr)
 {
 	int ret = -1;

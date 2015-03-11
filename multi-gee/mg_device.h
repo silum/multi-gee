@@ -47,7 +47,7 @@ NEWHANDLE(mg_device_t);
  * @return a newly created device object handle
  */
 mg_device_t
-mg_device_create(char *file,
+mg_device_create(const char *file,
 		 unsigned int num_bufs,
 		 log_t log,
 		 void *userptr);

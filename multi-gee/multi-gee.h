@@ -93,7 +93,7 @@ NEWHANDLE(multi_gee_t);
  * @return a newly created Multi-gee object handle
  */
 multi_gee_t
-mg_create(char *file_name);
+mg_create(const char *file_name);
 
 /**
  * @brief Create specialised multi-gee object
@@ -110,7 +110,7 @@ mg_create(char *file_name);
  * @return a newly created Multi-gee object handle
  */
 multi_gee_t
-mg_create_special(char *file_name,
+mg_create_special(const char *file_name,
 		  struct timeval tv_in_sync,
 		  struct timeval tv_no_sync,
 		  unsigned int num_bufs);
@@ -196,7 +196,7 @@ mg_register_callback(multi_gee_t multi_gee,
  */
 int
 mg_register_device(multi_gee_t multi_gee,
-		   char *device_name,
+		   const char *device_name,
 		   void *userptr);
 
 __END_DECLS
