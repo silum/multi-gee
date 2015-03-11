@@ -31,6 +31,8 @@ pgm_append(char *file,
 {
 	const char *type = "P5";
 	FILE *f = fopen(file, "a");
+	size_t written;
+
 	if (!f)
 		return false;
 
@@ -39,8 +41,11 @@ pgm_append(char *file,
 		fprintf(f, " # %s", comment);
 
 	fprintf(f, "\n%d\n", colors);
-	fwrite(image, width, height, f);
+	written = fwrite(image, width, height, f);
 	fclose(f);
+
+	if ((int)written < width)
+		return false;
 
 	return true;
 }
