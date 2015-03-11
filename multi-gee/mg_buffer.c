@@ -167,7 +167,7 @@ test_buffer(void *start_0,
 	    void *start_1,
 	    size_t length_1)
 {
-	printf("%s(%p, %d, %p, %d)\n",
+	printf("%s(%p, %zu, %p, %zu)\n",
 	       __func__,
 	       start_0, length_0,
 	       start_1, length_1);
