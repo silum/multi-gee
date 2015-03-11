@@ -11,7 +11,7 @@ URL:            http://medsvr.tlabs.ac.za/wsvn/multi-gee
 Source0:        %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  cclass-devel > 0.4, ncurses-devel
+BuildRequires:  cclass-devel > 0.6, ncurses-devel
 Requires:       cclass
 
 %description
