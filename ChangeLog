@@ -1,5 +1,17 @@
  $Id$
 
+2015-03-11  Neil Muller  <neil@tlabs.ac.za>
+   * Makefile.am: Update to include missing headers
+   * examples/*.c: Fix examples to compile
+   * multi-gee/*.[ch]: Make various strings const to avoid compiler warnings
+
+2012-01-19  Neil Muller  <neil@tlabs.ac.za>
+   * mg_buffer.c: Use zd to convert from size_t correctly
+   * tests/sllist.c: Tweak to use size_t, so conversion to
+     void* works as expected.
+   * examples/pgm_util.c: Fix an unused return value compiler
+     complaint
+
 2005-09-27  Deneys S. Maartens  <dsm@tlabs.ac.za>
     * mg_device.c, mg_device.h: add userptr
     * mg_frame.c, mg_frame.h: add shortcut to access device userptr
