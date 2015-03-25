@@ -54,6 +54,11 @@ mg_frame_create(mg_device_t mg_device,
 	if (buf) {
 		mg_frame->index = buf->index;
 		mg_frame->timestamp = buf->timestamp;
+                // Slow device hack
+                if ((mg_frame->timestamp.tv_sec == 0) && (mg_frame->timestamp.tv_usec == 0))
+                {
+		    gettimeofday(&mg_frame->timestamp, 0);
+                }
 		mg_frame->sequence = buf->sequence;
 	} else {
 		mg_frame->index = -1;
@@ -133,7 +138,6 @@ mg_frame_get_timestamp(mg_frame_t mg_frame)
 	VERIFY(mg_frame) {
 		timestamp = mg_frame->timestamp;
 	}
-
 	return timestamp;
 }
 
