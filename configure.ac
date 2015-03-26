@@ -39,6 +39,28 @@ AM_INIT_AUTOMAKE([1.8 subdir-objects])
 AM_CONFIG_HEADER([config.h])
 
 dnl --------------------------------------------------------------------
+dnl Checks for arguments
+# Enable the slow machine sync hack needed to avoid sync issues on the
+# ctspg machine
+AC_ARG_ENABLE(
+    [sync-hack],
+    [AC_HELP_STRING(
+        [--enable-sync-hack],
+        [enable the slow machine sync hack])],
+    [enable_sync_hack="yes"],
+    [enable_sync_hack="no"],
+)
+
+if test x"$enable_sync_hack" = x"yes"; then
+    AC_DEFINE_UNQUOTED(
+        [ENABLE_SYNC_HACK],
+        [1],
+        [Define to 1 if you want to enable the slow machine sync hack]
+    )
+fi
+
+
+dnl --------------------------------------------------------------------
 dnl Checks for programs.
 
 AC_PROG_CC

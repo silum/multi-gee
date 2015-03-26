@@ -24,6 +24,8 @@
 #include <asm/types.h> /* needed for videodev2.h */
 #include <linux/videodev2.h> /* struct v4l2_buffer */
 
+#include <config.h>
+
 #include "mg_frame.h" /* class implemented */
 #include "mg_device.h"
 #include "multi-gee.h"
@@ -54,11 +56,13 @@ mg_frame_create(mg_device_t mg_device,
 	if (buf) {
 		mg_frame->index = buf->index;
 		mg_frame->timestamp = buf->timestamp;
-                // Slow device hack
-                if ((mg_frame->timestamp.tv_sec == 0) && (mg_frame->timestamp.tv_usec == 0))
-                {
-		    gettimeofday(&mg_frame->timestamp, 0);
-                }
+#ifdef ENABLE_SYNC_HACK
+         // Slow device hack, to avoid fatal sync errors on ctpsg system
+         if ((mg_frame->timestamp.tv_sec == 0) && (mg_frame->timestamp.tv_usec == 0))
+         {
+            gettimeofday(&mg_frame->timestamp, 0);
+         }
+#endif
 		mg_frame->sequence = buf->sequence;
 	} else {
 		mg_frame->index = -1;
